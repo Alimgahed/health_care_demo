@@ -72,7 +72,7 @@ class _PatientListScreenState extends State<PatientListScreen> {
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           leading: CircleAvatar(
-                            backgroundColor: AppColors.primary.withOpacity(0.1),
+                            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                             child: Text(
                               patient.getLocalizedFullName(context).substring(0, 1).toUpperCase(),
                               style: const TextStyle(

@@ -57,15 +57,16 @@ class _WebAdminShellState extends State<WebAdminShell>
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      drawer: Drawer(
+        child: _Sidebar(
+          selectedIndex: _selectedIndex,
+          onNavigate: _navigate,
+          t: t,
+          localeProvider: localeProvider,
+        ),
+      ),
       body: Row(
         children: [
-          // ── Fixed Sidebar ─────────────────────────────────────────────────
-          _Sidebar(
-            selectedIndex: _selectedIndex,
-            onNavigate: _navigate,
-            t: t,
-            localeProvider: localeProvider,
-          ),
           // ── Right Panel ───────────────────────────────────────────────────
           Expanded(
             child: Column(
@@ -369,6 +370,13 @@ class _Topbar extends StatelessWidget {
       ),
       child: Row(
         children: [
+          IconButton(
+            icon: const Icon(Icons.menu, color: AppColors.navy),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+          const SizedBox(width: 16),
           const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,

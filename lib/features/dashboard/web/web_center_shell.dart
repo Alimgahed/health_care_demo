@@ -35,49 +35,91 @@ class _WebCenterShellState extends State<WebCenterShell> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            const Icon(LucideIcons.pill, color: AppColors.primary, size: 28),
-            const SizedBox(width: 12),
-            Text(
-              '${center.getLocalizedName(context)} - Dispensing Center Portal',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: AppColors.navy),
-        elevation: 1,
-        actions: [
-          TextButton.icon(
-            onPressed: () => localeProvider.toggleLanguage(),
-            icon: const Icon(LucideIcons.globe, color: AppColors.navy),
-            label: Text(
-              localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
-              style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(LucideIcons.logOut, color: AppColors.textSecondary),
-            onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-            },
-          ),
-          const SizedBox(width: 24),
-        ],
+      drawer: Drawer(
+        child: _buildSidebar(t),
       ),
       body: Row(
         children: [
-          _buildSidebar(t),
-          Container(width: 1, color: AppColors.border),
           Expanded(
-            child: _selectedIndex == 0
-                ? _buildDispenseView(t, dataProvider, center)
-                : (_selectedIndex == 1 
-                    ? _buildInventoryView(t, dataProvider, center)
-                    : _buildLogsView(t, dataProvider)),
+            child: Column(
+              children: [
+                _buildTopbar(t, localeProvider, dataProvider, center),
+                Expanded(
+                  child: _selectedIndex == 0
+                      ? _buildDispenseView(t, dataProvider, center)
+                      : (_selectedIndex == 1 
+                          ? _buildInventoryView(t, dataProvider, center)
+                          : _buildLogsView(t, dataProvider)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopbar(AppLocalizations t, LocaleProvider localeProvider, DataProvider dataProvider, DispensingCenter center) {
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
+      ),
+      child: Row(
+        children: [
+          Builder(
+            builder: (ctx) => IconButton(
+              icon: const Icon(Icons.menu, color: AppColors.navy),
+              onPressed: () {
+                Scaffold.of(ctx).openDrawer();
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Dispensing Center Portal',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.navy)),
+                Text(center.getLocalizedName(context),
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.textSecondary),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+              ],
+            ),
+          ),
+          OutlinedButton.icon(
+            onPressed: localeProvider.toggleLanguage,
+            icon: const Icon(LucideIcons.globe, size: 14, color: AppColors.navy),
+            label: Text(localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w600)),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.border),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(LucideIcons.logOut, size: 18, color: AppColors.textSecondary),
+            onPressed: () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+            },
+            style: IconButton.styleFrom(
+              side: const BorderSide(color: AppColors.border),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
           ),
         ],
       ),
@@ -86,31 +128,118 @@ class _WebCenterShellState extends State<WebCenterShell> {
 
   Widget _buildSidebar(AppLocalizations t) {
     return Container(
-      width: 260,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      width: 240,
+      color: AppColors.navy,
       child: Column(
         children: [
-          _buildSidebarItem(LucideIcons.scanLine, 'Dispense Medication', 0),
-          _buildSidebarItem(LucideIcons.package, 'Live Stock Inventory', 1),
-          _buildSidebarItem(LucideIcons.history, 'Dispensing Activity Logs', 2),
-          const Spacer(),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          // Logo
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
+            decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                      color: Colors.white.withOpacity(0.08), width: 1)),
+            ),
             child: Row(
               children: [
-                const CircleAvatar(
-                  backgroundColor: AppColors.navy,
-                  child: Icon(LucideIcons.building, color: Colors.white),
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, AppColors.primaryLight],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.health_and_safety,
+                      color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Pharmacist Admin', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
-                      Text('Dubai Central Depot', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(
+                        'Mounjaro NCC',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      Text(
+                        'Center Portal',
+                        style: TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _navSection('Operations'),
+                  _buildSidebarItem(LucideIcons.scanLine, 'Dispense Medication', 0),
+                  _buildSidebarItem(LucideIcons.package, 'Live Stock Inventory', 1),
+                  _buildSidebarItem(LucideIcons.history, 'Dispensing Activity Logs', 2),
+                ],
+              ),
+            ),
+          ),
+          // User
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(
+                      color: Colors.white.withOpacity(0.08), width: 1)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Center(
+                    child: Text('PA',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700)),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Pharmacist Admin',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                      Text('Dubai Central Depot',
+                          style: TextStyle(
+                              color: Colors.white54, fontSize: 11),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),
@@ -122,28 +251,61 @@ class _WebCenterShellState extends State<WebCenterShell> {
     );
   }
 
+  Widget _navSection(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 6),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.35),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSidebarItem(IconData icon, String title, int index) {
     bool isSelected = _selectedIndex == index;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary.withOpacity(0.08) : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: isSelected ? AppColors.primary : AppColors.textSecondary),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? AppColors.primary : AppColors.navy,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-          ),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.only(bottom: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
         ),
-        onTap: () {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        child: Row(
+          children: [
+            Icon(icon,
+                size: 16,
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white.withOpacity(0.55)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: isSelected
+                      ? Colors.white
+                      : Colors.white.withOpacity(0.65),
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

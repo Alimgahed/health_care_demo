@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../localization/locale_provider.dart';
+import '../../features/treatment_plan/models/treatment_plan.dart';
 
 enum ResidencyStatus { citizen, resident, visitor }
 
@@ -278,6 +279,108 @@ class MockData {
   static final List<Patient> patients = _generateInitialPatients();
   static final List<DispensingCenter> centers = _generateInitialCenters();
   static final List<PhysicalTherapyCenter> therapyCenters = _generateInitialTherapyCenters();
+
+  static final List<TreatmentPlan> treatmentPlans = _generateInitialPlans();
+
+  static List<TreatmentPlan> _generateInitialPlans() {
+    return [
+      TreatmentPlan(
+        id: 'TP-001',
+        patientId: 'P001',
+        doctorName: 'Dr. Sarah',
+        createdAt: DateTime.now().subtract(const Duration(days: 14)),
+        medicationDose: '5.0 mg',
+        medicationFrequencyDays: 7,
+        reminderTimes: const [TimeOfDay(hour: 9, minute: 0)],
+        assignedCenterId: 'T001',
+        totalSessions: 12,
+        sessions: [
+          TherapySession(id: 'S1', sessionNumber: 1, scheduledDate: DateTime.now().subtract(const Duration(days: 7)), isAttended: true, weightAfter: 104.5),
+          TherapySession(id: 'S2', sessionNumber: 2, scheduledDate: DateTime.now(), isAttended: false),
+          TherapySession(id: 'S3', sessionNumber: 3, scheduledDate: DateTime.now().add(const Duration(days: 7))),
+        ],
+        homeExercises: [
+          HomeExercise(
+            id: 'E1',
+            name: 'Brisk Walking',
+            nameAr: 'مشي سريع',
+            description: 'Walk at a brisk pace.',
+            descriptionAr: 'امش بخطوة سريعة.',
+            category: 'Cardio',
+            durationMinutes: 30,
+            sets: 1,
+            reps: 1,
+            iconPath: 'activity',
+            completedDates: [DateTime.now().subtract(const Duration(days: 1))],
+          ),
+        ],
+        targetWeight: 85.0,
+      ),
+      TreatmentPlan(
+        id: 'TP-002',
+        patientId: 'P002',
+        doctorName: 'Dr. Sarah',
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        medicationDose: '7.5 mg',
+        medicationFrequencyDays: 7,
+        reminderTimes: const [TimeOfDay(hour: 8, minute: 0)],
+        assignedCenterId: 'T002',
+        totalSessions: 8,
+        sessions: [
+          TherapySession(id: 'S1', sessionNumber: 1, scheduledDate: DateTime.now().subtract(const Duration(days: 14)), isAttended: true, weightAfter: 88.0),
+          TherapySession(id: 'S2', sessionNumber: 2, scheduledDate: DateTime.now().subtract(const Duration(days: 7)), isAttended: true, weightAfter: 87.5),
+          TherapySession(id: 'S3', sessionNumber: 3, scheduledDate: DateTime.now(), isAttended: false),
+        ],
+        homeExercises: [
+          HomeExercise(
+            id: 'E2',
+            name: 'Core Strengthening',
+            nameAr: 'تقوية العضلات الأساسية',
+            description: 'Basic core exercises like planks and crunches.',
+            descriptionAr: 'تمارين أساسية مثل البلانك.',
+            category: 'Strength',
+            durationMinutes: 15,
+            sets: 3,
+            reps: 10,
+            iconPath: 'activity',
+            completedDates: [DateTime.now().subtract(const Duration(days: 2))],
+          ),
+        ],
+        targetWeight: 75.0,
+      ),
+      TreatmentPlan(
+        id: 'TP-003',
+        patientId: 'P003',
+        doctorName: 'Dr. Ahmed',
+        createdAt: DateTime.now().subtract(const Duration(days: 5)),
+        medicationDose: '2.5 mg',
+        medicationFrequencyDays: 7,
+        reminderTimes: const [TimeOfDay(hour: 10, minute: 0)],
+        assignedCenterId: 'T001',
+        totalSessions: 16,
+        sessions: [
+          TherapySession(id: 'S1', sessionNumber: 1, scheduledDate: DateTime.now().add(const Duration(days: 2)), isAttended: false),
+        ],
+        homeExercises: [
+          HomeExercise(
+            id: 'E3',
+            name: 'Light Yoga',
+            nameAr: 'يوجا خفيفة',
+            description: 'Basic stretching and yoga poses.',
+            descriptionAr: 'تمارين تمدد ويوجا بسيطة.',
+            category: 'Flexibility',
+            durationMinutes: 20,
+            sets: 1,
+            reps: 1,
+            iconPath: 'activity',
+            completedDates: [],
+          ),
+        ],
+        targetWeight: 90.0,
+      ),
+    ];
+  }
+
 
   static List<PhysicalTherapyCenter> _generateInitialTherapyCenters() {
     return [
@@ -1040,6 +1143,9 @@ class DataProvider extends ChangeNotifier {
   List<Patient> get patients => _patients;
   List<DispensingCenter> get centers => _centers;
   List<PhysicalTherapyCenter> get therapyCenters => _therapyCenters;
+
+  List<TreatmentPlan> _treatmentPlans = MockData.treatmentPlans;
+  List<TreatmentPlan> get treatmentPlans => _treatmentPlans;
   List<ActivityLog> get logs => _logs;
 
   void _seedActivityLogs() {
@@ -1301,4 +1407,47 @@ class DataProvider extends ChangeNotifier {
   int get fraudIncidentsPrevented {
     return _logs.where((l) => l.status == 'Flagged').length + 342; // Add base to match original kpi
   }
+
+  void createTreatmentPlan(TreatmentPlan plan) {
+    _treatmentPlans.add(plan);
+    notifyListeners();
+  }
+
+  TreatmentPlan? getPlanForPatient(String patientId) {
+    try {
+      return _treatmentPlans.firstWhere((p) => p.patientId == patientId && p.status == 'Active');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  void checkInSession(String planId, String sessionId, double weight) {
+    final plan = _treatmentPlans.firstWhere((p) => p.id == planId);
+    final session = plan.sessions.firstWhere((s) => s.id == sessionId);
+    session.isAttended = true;
+    session.weightAfter = weight;
+    
+    // Also update patient weight
+    final patientIndex = _patients.indexWhere((p) => p.id == plan.patientId);
+    if (patientIndex != -1) {
+      final p = _patients[patientIndex];
+      _patients[patientIndex] = p.copyWith(
+        weight: weight,
+        weightHistory: [...p.weightHistory, weight],
+      );
+    }
+    notifyListeners();
+  }
+
+  void logMedication(String planId, DateTime time) {
+    notifyListeners();
+  }
+
+  void completeExercise(String planId, String exerciseId) {
+    final plan = _treatmentPlans.firstWhere((p) => p.id == planId);
+    final ex = plan.homeExercises.firstWhere((e) => e.id == exerciseId);
+    ex.completedDates.add(DateTime.now());
+    notifyListeners();
+  }
+
 }

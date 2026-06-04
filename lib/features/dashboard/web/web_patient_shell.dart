@@ -7,6 +7,7 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../auth/login_screen.dart';
+import '../../treatment_plan/mobile/patient_plan_screen.dart';
 
 class WebPatientShell extends StatefulWidget {
   const WebPatientShell({super.key});
@@ -30,47 +31,88 @@ class _WebPatientShellState extends State<WebPatientShell> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            const Icon(LucideIcons.home, color: AppColors.primary, size: 28),
-            const SizedBox(width: 12),
-            Text(
-              'Patient Portal - Welcome back, ${patient.getLocalizedFullName(context).split(' ')[0]}',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: AppColors.navy),
-        elevation: 1,
-        actions: [
-          TextButton.icon(
-            onPressed: () => localeProvider.toggleLanguage(),
-            icon: const Icon(LucideIcons.globe, color: AppColors.navy),
-            label: Text(
-              localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
-              style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(LucideIcons.logOut, color: AppColors.textSecondary),
-            onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-            },
-          ),
-          const SizedBox(width: 24),
-        ],
+      drawer: Drawer(
+        child: _buildSidebar(t, patient),
       ),
       body: Row(
         children: [
-          _buildSidebar(t, patient),
-          Container(width: 1, color: AppColors.border),
           Expanded(
-            child: _selectedIndex == 0
-                ? _buildDashboardView(t, patient, dataProvider)
-                : _buildProfileView(t, patient),
+            child: Column(
+              children: [
+                _buildTopbar(t, localeProvider, dataProvider, patient),
+                Expanded(
+                  child: _selectedIndex == 0
+                      ? _buildDashboardView(t, patient, dataProvider)
+                      : _selectedIndex == 1
+                          ? _buildProfileView(t, patient)
+                          : PatientPlanScreen(patient: patient),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopbar(AppLocalizations t, LocaleProvider localeProvider, DataProvider dataProvider, Patient patient) {
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
+      ),
+      child: Row(
+        children: [
+          Builder(
+            builder: (ctx) => IconButton(
+              icon: const Icon(Icons.menu, color: AppColors.navy),
+              onPressed: () {
+                Scaffold.of(ctx).openDrawer();
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Patient Portal',
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.navy)),
+              Text('Welcome back, ${patient.getLocalizedFullName(context).split(' ')[0]}',
+                  style: const TextStyle(
+                      fontSize: 11, color: AppColors.textSecondary)),
+            ],
+          ),
+          const Spacer(),
+          OutlinedButton.icon(
+            onPressed: localeProvider.toggleLanguage,
+            icon: const Icon(LucideIcons.globe, size: 14, color: AppColors.navy),
+            label: Text(localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w600)),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.border),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(LucideIcons.logOut, size: 18, color: AppColors.textSecondary),
+            onPressed: () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+            },
+            style: IconButton.styleFrom(
+              side: const BorderSide(color: AppColors.border),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
           ),
         ],
       ),
@@ -79,30 +121,119 @@ class _WebPatientShellState extends State<WebPatientShell> {
 
   Widget _buildSidebar(AppLocalizations t, Patient patient) {
     return Container(
-      width: 260,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      width: 240,
+      color: AppColors.navy,
       child: Column(
         children: [
-          _buildSidebarItem(LucideIcons.home, 'Home Dashboard', 0),
-          _buildSidebarItem(LucideIcons.userCircle, 'My Health Profile', 1),
-          const Spacer(),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          // Logo
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
+            decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                      color: Colors.white.withOpacity(0.08), width: 1)),
+            ),
             child: Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: AppColors.primary,
-                  child: Text(patient.getLocalizedFullName(context).substring(0, 1).toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, AppColors.primaryLight],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.health_and_safety,
+                      color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Mounjaro NCC',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      Text(
+                        'Patient Portal',
+                        style: TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _navSection('Overview'),
+                  _buildSidebarItem(LucideIcons.home, 'Home Dashboard', 0),
+                  _buildSidebarItem(LucideIcons.userCircle, 'My Health Profile', 1),
+                  _navSection('Treatment'),
+                  _buildSidebarItem(LucideIcons.clipboardList, 'My Treatment Plan', 2),
+                ],
+              ),
+            ),
+          ),
+          // User
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(
+                      color: Colors.white.withOpacity(0.08), width: 1)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Center(
+                    child: Text(patient.getLocalizedFullName(context).substring(0, 1).toUpperCase(),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700)),
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(patient.getLocalizedFullName(context).split(' ')[0], style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
-                      const Text('Patient Portal', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(patient.getLocalizedFullName(context).split(' ')[0],
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                      const Text('Patient',
+                          style: TextStyle(
+                              color: Colors.white54, fontSize: 11),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),
@@ -114,28 +245,61 @@ class _WebPatientShellState extends State<WebPatientShell> {
     );
   }
 
+  Widget _navSection(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 6),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.35),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSidebarItem(IconData icon, String title, int index) {
     bool isSelected = _selectedIndex == index;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary.withOpacity(0.08) : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: isSelected ? AppColors.primary : AppColors.textSecondary),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? AppColors.primary : AppColors.navy,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-          ),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.only(bottom: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
         ),
-        onTap: () {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        child: Row(
+          children: [
+            Icon(icon,
+                size: 16,
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white.withOpacity(0.55)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: isSelected
+                      ? Colors.white
+                      : Colors.white.withOpacity(0.65),
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -163,7 +327,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.2),
+                        color: AppColors.primary.withValues(alpha: 0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -263,7 +427,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
                               gridData: FlGridData(
                                 show: true,
                                 drawVerticalLine: false,
-                                getDrawingHorizontalLine: (value) => FlLine(color: AppColors.border.withOpacity(0.5), strokeWidth: 1),
+                                getDrawingHorizontalLine: (value) => FlLine(color: AppColors.border.withValues(alpha: 0.5), strokeWidth: 1),
                               ),
                               titlesData: FlTitlesData(
                                 show: true,
@@ -294,7 +458,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
                                   belowBarData: BarAreaData(
                                     show: true,
                                     gradient: LinearGradient(
-                                      colors: [AppColors.primary.withOpacity(0.2), Colors.transparent],
+                                      colors: [AppColors.primary.withValues(alpha: 0.2), Colors.transparent],
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                     ),
@@ -348,7 +512,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.08),
+                color: color.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 24),
@@ -378,7 +542,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: color, size: 22),

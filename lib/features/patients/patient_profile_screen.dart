@@ -99,7 +99,7 @@ class PatientProfileScreen extends StatelessWidget {
               children: patient.getLocalizedMedicalConditions(context).map((condition) {
                 return Chip(
                   label: Text(condition),
-                  backgroundColor: AppColors.error.withOpacity(0.1),
+                  backgroundColor: AppColors.error.withValues(alpha: 0.1),
                   labelStyle: TextStyle(
                     color: AppColors.error,
                     fontWeight: FontWeight.w500,

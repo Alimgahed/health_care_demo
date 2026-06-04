@@ -144,7 +144,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
-          color: isSelected ? AppColors.primary.withOpacity(0.05) : null,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : null,
         ),
         child: Row(
           children: [

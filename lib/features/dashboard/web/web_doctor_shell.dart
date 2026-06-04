@@ -11,6 +11,7 @@ import '../../eligibility/clinical_assessment_card.dart';
 import '../../auth/login_screen.dart';
 import '../../../core/widgets/skeleton_loader.dart';
 import '../../../core/widgets/custom_toast.dart';
+import '../../treatment_plan/web/patient_360_view.dart';
 
 
 
@@ -47,50 +48,86 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            const Icon(LucideIcons.stethoscope, color: AppColors.primary, size: 28),
-            const SizedBox(width: 12),
-            Text(
-              'Clinician Portal',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: AppColors.navy),
-        elevation: 1,
-        actions: [
-          TextButton.icon(
-            onPressed: () => localeProvider.toggleLanguage(),
-            icon: const Icon(LucideIcons.globe, color: AppColors.navy),
-            label: Text(
-              localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
-              style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(LucideIcons.logOut, color: AppColors.textSecondary),
-            onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-            },
-          ),
-          const SizedBox(width: 24),
-        ],
+      drawer: Drawer(
+        child: _buildSidebar(t),
       ),
       body: Row(
         children: [
-          // Navigation Sidebar
-          _buildSidebar(t),
-          // Vertical divider
-          Container(width: 1, color: AppColors.border),
-          // Main content pane
           Expanded(
-            child: _selectedIndex == 0 
-                ? _buildPatientsView(t, dataProvider)
-                : _buildAssessmentsView(t, dataProvider),
+            child: Column(
+              children: [
+                _buildTopbar(t, localeProvider, dataProvider),
+                Expanded(
+                  child: _selectedIndex == 0 
+                      ? _buildPatientsView(t, dataProvider)
+                      : _buildAssessmentsView(t, dataProvider),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopbar(AppLocalizations t, LocaleProvider localeProvider, DataProvider dataProvider) {
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
+      ),
+      child: Row(
+        children: [
+          Builder(
+            builder: (ctx) => IconButton(
+              icon: const Icon(Icons.menu, color: AppColors.navy),
+              onPressed: () {
+                Scaffold.of(ctx).openDrawer();
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Clinician Portal',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.navy)),
+              Text('Dubai Clinic #4',
+                  style: TextStyle(
+                      fontSize: 11, color: AppColors.textSecondary)),
+            ],
+          ),
+          const Spacer(),
+          OutlinedButton.icon(
+            onPressed: localeProvider.toggleLanguage,
+            icon: const Icon(LucideIcons.globe, size: 14, color: AppColors.navy),
+            label: Text(localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w600)),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.border),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(LucideIcons.logOut, size: 18, color: AppColors.textSecondary),
+            onPressed: () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+            },
+            style: IconButton.styleFrom(
+              side: const BorderSide(color: AppColors.border),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
           ),
         ],
       ),
@@ -99,30 +136,117 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
 
   Widget _buildSidebar(AppLocalizations t) {
     return Container(
-      width: 260,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      width: 240,
+      color: AppColors.navy,
       child: Column(
         children: [
-          _buildSidebarItem(LucideIcons.users, 'Patients Registry', 0),
-          _buildSidebarItem(LucideIcons.clipboardList, 'Clinical Assessments', 1),
-          const Spacer(),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          // Logo
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
+            decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                      color: Colors.white.withOpacity(0.08), width: 1)),
+            ),
             child: Row(
               children: [
-                const CircleAvatar(
-                  backgroundColor: AppColors.primaryLight,
-                  child: Icon(LucideIcons.user, color: Colors.white),
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, AppColors.primaryLight],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.health_and_safety,
+                      color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Dr. Al Mandoos', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
-                      Text('Dubai Clinic #4', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(
+                        'Mounjaro NCC',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      Text(
+                        'Clinician Portal',
+                        style: TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _navSection('Clinical Tools'),
+                  _buildSidebarItem(LucideIcons.users, 'Patients Registry', 0),
+                  _buildSidebarItem(LucideIcons.clipboardList, 'Clinical Assessments', 1),
+                ],
+              ),
+            ),
+          ),
+          // User
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(
+                      color: Colors.white.withOpacity(0.08), width: 1)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Center(
+                    child: Text('DM',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700)),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Dr. Al Mandoos',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                      Text('Dubai Clinic #4',
+                          style: TextStyle(
+                              color: Colors.white54, fontSize: 11),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),
@@ -134,28 +258,61 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     );
   }
 
+  Widget _navSection(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 6),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.35),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSidebarItem(IconData icon, String title, int index) {
     bool isSelected = _selectedIndex == index;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary.withOpacity(0.08) : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: isSelected ? AppColors.primary : AppColors.textSecondary),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? AppColors.primary : AppColors.navy,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-          ),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.only(bottom: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
         ),
-        onTap: () {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        child: Row(
+          children: [
+            Icon(icon,
+                size: 16,
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white.withOpacity(0.55)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: isSelected
+                      ? Colors.white
+                      : Colors.white.withOpacity(0.65),
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -226,8 +383,6 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                           _buildFilterChip('citizen', 'Emiratis'),
                           const SizedBox(width: 8),
                           _buildFilterChip('resident', 'Residents'),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('critical', 'BMI 35+'),
                         ],
                       ),
                     ),
@@ -342,7 +497,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                         ],
                       ),
                     )
-                  : _buildPatientDetailsPane(context, _selectedPatient!, provider)),
+                  : Patient360View(patient: _selectedPatient!)),
         ),
 
       ],
@@ -383,197 +538,6 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     );
   }
 
-  Widget _buildPatientDetailsPane(BuildContext context, Patient patient, DataProvider provider) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: AppColors.primary,
-                child: Text(
-                  patient.getLocalizedFullName(context).substring(0, 2).toUpperCase(),
-                  style: const TextStyle(fontSize: 26, color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(patient.getLocalizedFullName(context), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
-                    const SizedBox(height: 4),
-                    Text('Emirates ID: ${patient.emiratesId}', style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 12,
-                      children: [
-                        _buildBadgeChip('${patient.age} years', Colors.blue),
-                        _buildBadgeChip(patient.getLocalizedGender(context), Colors.purple),
-                        _buildBadgeChip(patient.getLocalizedNationality(context), Colors.orange),
-                        _buildBadgeChip(patient.getLocalizedEmirate(context), Colors.teal),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Action buttons (Weight check-in & Escalation)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _showWeightCheckInDialog(context, patient, provider),
-                    icon: const Icon(LucideIcons.scale, size: 16),
-                    label: const Text('Record Weight Check-in'),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => _showEscalateDoseDialog(context, patient, provider),
-                    icon: const Icon(LucideIcons.trendingUp, size: 16),
-                    label: const Text('Escalate Dose'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: 24),
-          
-          // Cards Row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: EligibilityCard(patient: patient)),
-              const SizedBox(width: 24),
-              Expanded(child: ClinicalAssessmentCard(patient: patient)),
-            ],
-          ),
-          const SizedBox(height: 24),
-          
-          // Medical Conditions & Dosage History Grid
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left card: Medical Conditions
-              Expanded(
-                flex: 1,
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Medical Conditions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
-                        const SizedBox(height: 16),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: patient.getLocalizedMedicalConditions(context).map((condition) {
-                            return Chip(
-                              label: Text(condition),
-                              backgroundColor: AppColors.error.withOpacity(0.08),
-                              labelStyle: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 12),
-                              side: BorderSide.none,
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 24),
-                        const Text('Treatment Adherence Score', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy)),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: LinearProgressIndicator(
-                                value: patient.complianceRate,
-                                color: patient.complianceRate >= 0.90 ? AppColors.success : AppColors.warning,
-                                backgroundColor: AppColors.border,
-                                minHeight: 8,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              '${(patient.complianceRate * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: patient.complianceRate >= 0.90 ? AppColors.success : AppColors.warning,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 24),
-              
-              // Right card: Treatment Dose Timeline
-              Expanded(
-                flex: 1,
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Dose Escalation Timeline', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
-                        const SizedBox(height: 16),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: patient.doseHistory.length,
-                          itemBuilder: (context, idx) {
-                            final revIndex = patient.doseHistory.length - 1 - idx;
-                            final dose = patient.doseHistory[revIndex];
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: const Icon(LucideIcons.activity, color: AppColors.primary),
-                              title: Text('Prescribed $dose Dose', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
-                              subtitle: Text('Phase check-in #${revIndex + 1}'),
-                              trailing: idx == 0 
-                                  ? const Chip(
-                                      label: Text('ACTIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
-                                      backgroundColor: AppColors.primary,
-                                      side: BorderSide.none,
-                                    )
-                                  : null,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBadgeChip(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13),
-      ),
-    );
-  }
-
   Widget _buildAssessmentsView(AppLocalizations t, DataProvider provider) {
     // Assessments view
     final logs = provider.logs.where((l) => l.action.contains('escalated') || l.action.contains('Weight')).toList();
@@ -593,7 +557,19 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
           ),
           const SizedBox(height: 32),
           Expanded(
-            child: Card(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.05),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  )
+                ],
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
@@ -606,22 +582,36 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                           ? _buildEmptyState('No assessments recorded yet')
                           : ListView.separated(
                               itemCount: logs.length,
-                              separatorBuilder: (context, index) => const Divider(),
+                              separatorBuilder: (context, index) => const Divider(color: AppColors.border),
                               itemBuilder: (context, index) {
                                 final log = logs[index];
                                 return ListTile(
-                                  leading: const CircleAvatar(
-                                    backgroundColor: AppColors.primary,
-                                    child: Icon(LucideIcons.stethoscope, color: Colors.white, size: 20),
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: Container(
+                                    width: 42,
+                                    height: 42,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(LucideIcons.stethoscope, color: AppColors.primary, size: 20),
                                   ),
                                   title: Text(
                                     '${log.getLocalizedPatientName(context)} (${log.patientId}) - ${log.getLocalizedAction(context)}',
                                     style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy),
                                   ),
-                                  subtitle: Text('Recorded by: ${log.getLocalizedCenterName(context)}'),
-                                  trailing: Text(
-                                    '${log.timestamp.day}/${log.timestamp.month} ${log.timestamp.hour.toString().padLeft(2, '0')}:${log.timestamp.minute.toString().padLeft(2, '0')}',
-                                    style: const TextStyle(color: AppColors.textSecondary),
+                                  subtitle: Text('Recorded by: ${log.getLocalizedCenterName(context)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                                  trailing: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.background,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: AppColors.border),
+                                    ),
+                                    child: Text(
+                                      '${log.timestamp.day}/${log.timestamp.month} ${log.timestamp.hour.toString().padLeft(2, '0')}:${log.timestamp.minute.toString().padLeft(2, '0')}',
+                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
+                                    ),
                                   ),
                                 );
                               },
@@ -748,6 +738,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
   }
 
   // Dialog to register a brand new patient
+
   void _showRegisterPatientDialog(BuildContext context, DataProvider provider) {
     final nameController = TextEditingController();
     final emiratesIdController = TextEditingController(text: '784-1990-');
