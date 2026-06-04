@@ -3,7 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/localization/app_localizations.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../auth/login_screen.dart';
@@ -22,7 +22,6 @@ class _WebPatientShellState extends State<WebPatientShell> {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
     final dataProvider = Provider.of<DataProvider>(context);
 
@@ -32,19 +31,19 @@ class _WebPatientShellState extends State<WebPatientShell> {
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: Drawer(
-        child: _buildSidebar(t, patient),
+        child: _buildSidebar(context, patient),
       ),
       body: Row(
         children: [
           Expanded(
             child: Column(
               children: [
-                _buildTopbar(t, localeProvider, dataProvider, patient),
+                _buildTopbar(context, localeProvider, dataProvider, patient),
                 Expanded(
                   child: _selectedIndex == 0
-                      ? _buildDashboardView(t, patient, dataProvider)
+                      ? _buildDashboardView(context, patient, dataProvider)
                       : _selectedIndex == 1
-                          ? _buildProfileView(t, patient)
+                          ? _buildProfileView(context, patient)
                           : PatientPlanScreen(patient: patient),
                 ),
               ],
@@ -55,7 +54,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
     );
   }
 
-  Widget _buildTopbar(AppLocalizations t, LocaleProvider localeProvider, DataProvider dataProvider, Patient patient) {
+  Widget _buildTopbar(BuildContext context, LocaleProvider localeProvider, DataProvider dataProvider, Patient patient) {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -78,12 +77,12 @@ class _WebPatientShellState extends State<WebPatientShell> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Patient Portal',
+              Text(context.tr('patient_portal_title'),
                   style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: AppColors.navy)),
-              Text('Welcome back, ${patient.getLocalizedFullName(context).split(' ')[0]}',
+              Text(context.tr('welcome_back_name', {'name': patient.getLocalizedFullName(context).split(' ')[0]}),
                   style: const TextStyle(
                       fontSize: 11, color: AppColors.textSecondary)),
             ],
@@ -92,7 +91,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
           OutlinedButton.icon(
             onPressed: localeProvider.toggleLanguage,
             icon: const Icon(LucideIcons.globe, size: 14, color: AppColors.navy),
-            label: Text(localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+            label: Text(localeProvider.locale.languageCode == 'en' ? context.tr('arabic') : context.tr('english'),
                 style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.navy,
@@ -119,7 +118,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
     );
   }
 
-  Widget _buildSidebar(AppLocalizations t, Patient patient) {
+  Widget _buildSidebar(BuildContext context, Patient patient) {
     return Container(
       width: 240,
       color: AppColors.navy,
@@ -150,13 +149,13 @@ class _WebPatientShellState extends State<WebPatientShell> {
                       color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Mounjaro NCC',
-                        style: TextStyle(
+                        context.tr('ncc_brand'),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -164,8 +163,8 @@ class _WebPatientShellState extends State<WebPatientShell> {
                         ),
                       ),
                       Text(
-                        'Patient Portal',
-                        style: TextStyle(
+                        context.tr('patient_portal_title'),
+                        style: const TextStyle(
                           color: AppColors.accent,
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -183,11 +182,11 @@ class _WebPatientShellState extends State<WebPatientShell> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _navSection('Overview'),
-                  _buildSidebarItem(LucideIcons.home, 'Home Dashboard', 0),
-                  _buildSidebarItem(LucideIcons.userCircle, 'My Health Profile', 1),
-                  _navSection('Treatment'),
-                  _buildSidebarItem(LucideIcons.clipboardList, 'My Treatment Plan', 2),
+                  _navSection(context.tr('nav_overview')),
+                  _buildSidebarItem(LucideIcons.home, context.tr('home_dashboard'), 0),
+                  _buildSidebarItem(LucideIcons.userCircle, context.tr('my_health_profile_title'), 1),
+                  _navSection(context.tr('nav_treatment')),
+                  _buildSidebarItem(LucideIcons.clipboardList, context.tr('my_plan'), 2),
                 ],
               ),
             ),
@@ -229,8 +228,8 @@ class _WebPatientShellState extends State<WebPatientShell> {
                               fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
-                      const Text('Patient',
-                          style: TextStyle(
+                      Text(context.tr('beneficiary_role'),
+                          style: const TextStyle(
                               color: Colors.white54, fontSize: 11),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
@@ -304,7 +303,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
     );
   }
 
-  Widget _buildDashboardView(AppLocalizations t, Patient patient, DataProvider provider) {
+  Widget _buildDashboardView(BuildContext context, Patient patient, DataProvider provider) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32.0),
       child: Column(
@@ -339,9 +338,9 @@ class _WebPatientShellState extends State<WebPatientShell> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Treatment Status & Adherence',
-                            style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w500),
+                          Text(
+                            context.tr('treatment_status_adherence'),
+                            style: const TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -350,24 +349,24 @@ class _WebPatientShellState extends State<WebPatientShell> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'Prescribed Dose: ${patient.currentDose}',
+                              context.tr('prescribed_dose_line', {'dose': patient.currentDose}),
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Next injection due tomorrow at 9:00 AM',
-                        style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                      Text(
+                        context.tr('next_injection_reminder'),
+                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () {
                           // Simulate check-in
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Adherence logged successfully! Keep up the good work.'),
+                            SnackBar(
+                              content: Text(context.tr('adherence_keep_up')),
                               backgroundColor: AppColors.success,
                             ),
                           );
@@ -379,7 +378,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
                           minimumSize: const Size(200, 48),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Mark Injection as Taken'),
+                        child: Text(context.tr('mark_injection_taken')),
                       ),
                     ],
                   ),
@@ -392,9 +391,9 @@ class _WebPatientShellState extends State<WebPatientShell> {
                 flex: 2,
                 child: Column(
                   children: [
-                    _buildKpiCard('Current Weight', '${patient.weight.toStringAsFixed(1)} kg', '-${(patient.weightHistory.first - patient.weight).toStringAsFixed(1)} kg total lost', LucideIcons.scale, AppColors.info),
+                    _buildKpiCard(context.tr('current_weight'), '${patient.weight.toStringAsFixed(1)} kg', '-${(patient.weightHistory.first - patient.weight).toStringAsFixed(1)} kg', LucideIcons.scale, AppColors.info),
                     const SizedBox(height: 16),
-                    _buildKpiCard('Current BMI', patient.bmi.toStringAsFixed(1), patient.bmi >= 30 ? 'Classified: Obesity' : 'Classified: Normal weight', LucideIcons.activity, patient.bmi >= 30 ? AppColors.error : AppColors.success),
+                    _buildKpiCard(context.tr('current_bmi_label'), patient.bmi.toStringAsFixed(1), patient.bmi >= 30 ? context.tr('classified_obesity') : context.tr('classified_normal'), LucideIcons.activity, patient.bmi >= 30 ? AppColors.error : AppColors.success),
                   ],
                 ),
               ),
@@ -416,9 +415,9 @@ class _WebPatientShellState extends State<WebPatientShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Weight Loss Journey', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        Text(context.tr('weight_loss_journey'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
                         const SizedBox(height: 8),
-                        const Text('Historical track of your weight checks recorded by your physician.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                        Text(context.tr('weight_journey_sub'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                         const SizedBox(height: 32),
                         SizedBox(
                           height: 250,
@@ -440,7 +439,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
                                     getTitlesWidget: (value, meta) {
                                       int idx = value.toInt();
                                       if (idx >= 0 && idx < patient.weightHistory.length) {
-                                        return Text('Check #${idx + 1}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary));
+                                        return Text(context.tr('check_reading', {'n': '${idx + 1}'}), style: const TextStyle(fontSize: 11, color: AppColors.textSecondary));
                                       }
                                       return const Text('');
                                     },
@@ -484,13 +483,13 @@ class _WebPatientShellState extends State<WebPatientShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Earned Badges & Milestones', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        Text(context.tr('earned_badges_title'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
                         const SizedBox(height: 24),
-                        _buildAchievementTile(LucideIcons.medal, '1 Month Streak', 'Adhered perfectly to dose timing', AppColors.accent),
+                        _buildAchievementTile(LucideIcons.medal, context.tr('badge_month_streak'), context.tr('badge_month_streak_sub'), AppColors.accent),
                         const Divider(height: 24),
-                        _buildAchievementTile(LucideIcons.flame, 'Obesity Reduction', 'Achieved first 5kg weight reduction', AppColors.error),
+                        _buildAchievementTile(LucideIcons.flame, context.tr('badge_weight_reduction'), context.tr('badge_weight_reduction_sub'), AppColors.error),
                         const Divider(height: 24),
-                        _buildAchievementTile(LucideIcons.award, 'Clinical Compliance', 'Doctor check-in schedules fully completed', AppColors.primary),
+                        _buildAchievementTile(LucideIcons.award, context.tr('badge_clinical_compliance'), context.tr('badge_clinical_compliance_sub'), AppColors.primary),
                       ],
                     ),
                   ),
@@ -562,7 +561,7 @@ class _WebPatientShellState extends State<WebPatientShell> {
     );
   }
 
-  Widget _buildProfileView(AppLocalizations t, Patient patient) {
+  Widget _buildProfileView(BuildContext context, Patient patient) {
     // Calculates copay info
     final double coverage = patient.residencyStatus == ResidencyStatus.citizen ? 1.0 :
                             (patient.residencyStatus == ResidencyStatus.resident ? 0.5 : 0.0);
@@ -574,9 +573,9 @@ class _WebPatientShellState extends State<WebPatientShell> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('My Health Profile & Coverage', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('my_health_profile'), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
           const SizedBox(height: 8),
-          const Text('Manage your medical demographics and government-supported insurance subsidies.', style: TextStyle(color: AppColors.textSecondary)),
+          Text(context.tr('my_health_profile_sub'), style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 32),
           
           Row(
@@ -590,17 +589,17 @@ class _WebPatientShellState extends State<WebPatientShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Demographics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        Text(context.tr('demographics'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
                         const SizedBox(height: 20),
-                        _buildDetailRow('Full Name', patient.getLocalizedFullName(context)),
+                        _buildDetailRow(context.tr('full_name'), patient.getLocalizedFullName(context)),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Emirates ID', patient.emiratesId),
+                        _buildDetailRow(context.tr('emirates_id'), patient.emiratesId),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Nationality', patient.getLocalizedNationality(context)),
+                        _buildDetailRow(context.tr('nationality'), patient.getLocalizedNationality(context)),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Residency Status', patient.residencyStatus.toString().split('.')[1].toUpperCase()),
+                        _buildDetailRow(context.tr('residency_status'), _residencyLabel(context, patient.residencyStatus)),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Emirate', patient.getLocalizedEmirate(context)),
+                        _buildDetailRow(context.tr('region'), patient.getLocalizedEmirate(context)),
                       ],
                     ),
                   ),
@@ -616,15 +615,15 @@ class _WebPatientShellState extends State<WebPatientShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Government Subsidy Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        Text(context.tr('gov_subsidy_details'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
                         const SizedBox(height: 20),
-                        _buildDetailRow('Base Medication Price', '1,000.00 AED'),
+                        _buildDetailRow(context.tr('base_medication_price'), '1,000.00 AED'),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Coverage Rate', '${(coverage * 100).toStringAsFixed(0)}%'),
+                        _buildDetailRow(context.tr('coverage_rate'), '${(coverage * 100).toStringAsFixed(0)}%'),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Government Contribution', '${govtPays.toStringAsFixed(2)} AED', color: AppColors.success),
+                        _buildDetailRow(context.tr('govt_contribution'), '${govtPays.toStringAsFixed(2)} AED', color: AppColors.success),
                         const Divider(height: 24),
-                        _buildDetailRow('Your Copay (per check-in)', '${copay.toStringAsFixed(2)} AED', isHighlight: true),
+                        _buildDetailRow(context.tr('your_copay_per_checkin'), '${copay.toStringAsFixed(2)} AED', isHighlight: true),
                       ],
                     ),
                   ),
@@ -635,6 +634,17 @@ class _WebPatientShellState extends State<WebPatientShell> {
         ],
       ),
     );
+  }
+
+  String _residencyLabel(BuildContext context, ResidencyStatus status) {
+    switch (status) {
+      case ResidencyStatus.citizen:
+        return context.tr('emirati');
+      case ResidencyStatus.resident:
+        return context.tr('resident');
+      case ResidencyStatus.visitor:
+        return context.tr('visitor');
+    }
   }
 
   Widget _buildDetailRow(String label, String value, {bool isHighlight = false, Color? color}) {

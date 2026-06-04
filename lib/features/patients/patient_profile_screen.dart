@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/mock_data.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../eligibility/eligibility_card.dart';
 import '../eligibility/clinical_assessment_card.dart';
@@ -16,7 +17,7 @@ class PatientProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Patient Profile'),
+        title: Text(context.tr('patient_profile')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -62,14 +63,14 @@ class PatientProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'EID: ${patient.emiratesId}',
+                '${context.tr('emirates_id')}: ${patient.emiratesId}',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                '${patient.age} yrs • ${patient.getLocalizedGender(context)} • ${patient.getLocalizedNationality(context)}',
+                '${patient.age} · ${patient.getLocalizedGender(context)} · ${patient.getLocalizedNationality(context)}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -89,7 +90,7 @@ class PatientProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Medical Conditions',
+              context.tr('medical_history'),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),

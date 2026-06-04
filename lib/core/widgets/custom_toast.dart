@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../localization/l10n_extension.dart';
 import '../theme/app_colors.dart';
 
 class CustomToast extends StatefulWidget {
@@ -19,6 +20,20 @@ class CustomToast extends StatefulWidget {
 
   @override
   State<CustomToast> createState() => _CustomToastState();
+
+  static void showMessage(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
+    show(
+      context,
+      title: isError ? context.tr('error') : context.tr('success'),
+      message: message,
+      icon: isError ? Icons.error_outline : Icons.check_circle_outline,
+      color: isError ? AppColors.error : AppColors.success,
+    );
+  }
 
   static void show(
     BuildContext context, {

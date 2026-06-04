@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/mock_data.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import 'patient_profile_screen.dart';
 
 class PatientListScreen extends StatefulWidget {
-  const PatientListScreen({super.key});
+  final String? highlightPatientId;
+
+  const PatientListScreen({super.key, this.highlightPatientId});
 
   @override
   State<PatientListScreen> createState() => _PatientListScreenState();
@@ -14,6 +17,21 @@ class PatientListScreen extends StatefulWidget {
 class _PatientListScreenState extends State<PatientListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.highlightPatientId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final dp = Provider.of<DataProvider>(context, listen: false);
+        final p = dp.getPatientById(widget.highlightPatientId!);
+        if (p != null && mounted) {
+          setState(() => _searchQuery = p.emiratesId);
+          _searchController.text = p.emiratesId;
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +45,7 @@ class _PatientListScreenState extends State<PatientListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Patients Registry'),
+        title: Text(context.tr('patients_registry_title')),
       ),
       body: Column(
         children: [
@@ -41,7 +59,7 @@ class _PatientListScreenState extends State<PatientListScreen> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Search patients by name or ID...',
+                hintText: context.tr('search_patient'),
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -59,8 +77,8 @@ class _PatientListScreenState extends State<PatientListScreen> {
           ),
           Expanded(
             child: filteredPatients.isEmpty
-                ? const Center(
-                    child: Text('No matching patients found'),
+                ? Center(
+                    child: Text(context.tr('no_matching_patients')),
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -85,7 +103,7 @@ class _PatientListScreenState extends State<PatientListScreen> {
                             patient.getLocalizedFullName(context),
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
                           ),
-                          subtitle: Text('EID: ${patient.emiratesId}'),
+                          subtitle: Text('${context.tr('patients_list_subtitle')}: ${patient.emiratesId}'),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () {
                             Navigator.push(

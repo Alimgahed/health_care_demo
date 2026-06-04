@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/mock_data.dart';
 
 class RegionalAnalytics extends StatefulWidget {
@@ -17,7 +17,6 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final dataProvider = Provider.of<DataProvider>(context);
     
     // Group patients by Emirate
@@ -40,7 +39,7 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(t.translate('nav_analytics'), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.navy)),
+              Text(context.tr('nav_analytics'), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.navy)),
               
               // Search Box
               Container(
@@ -61,7 +60,7 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
                         onChanged: (val) => setState(() => _searchQuery = val),
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: t.translate('search'),
+                          hintText: context.tr('search'),
                           hintStyle: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
@@ -82,11 +81,11 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
             ),
             child: Row(
               children: [
-                Expanded(flex: 2, child: Text(t.translate('filter_emirate').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
-                Expanded(flex: 2, child: Text(t.translate('filter_patients').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
-                Expanded(flex: 2, child: Text(t.translate('actual_dispensed').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
-                Expanded(flex: 2, child: Text(t.translate('bmi').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
-                Expanded(flex: 3, child: Text(t.translate('dispensing_vs_goals').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
+                Expanded(flex: 2, child: Text(context.tr('filter_emirate').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
+                Expanded(flex: 2, child: Text(context.tr('filter_patients').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
+                Expanded(flex: 2, child: Text(context.tr('actual_dispensed').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
+                Expanded(flex: 2, child: Text(context.tr('bmi').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
+                Expanded(flex: 3, child: Text(context.tr('dispensing_vs_goals').toUpperCase(), style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1))),
               ],
             ),
           ),

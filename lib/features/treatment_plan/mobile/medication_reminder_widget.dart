@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/mock_data.dart';
 import '../models/treatment_plan.dart';
 
@@ -13,7 +13,6 @@ class MedicationReminderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final isDue = true; // Mock: assume it's due for demo purposes
 
     return Container(
@@ -31,7 +30,7 @@ class MedicationReminderWidget extends StatelessWidget {
               Icon(LucideIcons.pill, color: isDue ? AppColors.error : AppColors.primary),
               const SizedBox(width: 12),
               Text(
-                t.translate('medication_reminder'),
+                context.tr('medication_reminder'),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -42,12 +41,12 @@ class MedicationReminderWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            '${plan.medicationDose} - Every ${plan.medicationFrequencyDays} Days',
+            context.tr('medication_schedule_line', {'dose': plan.medicationDose, 'days': '${plan.medicationFrequencyDays}'}),
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 8),
           Text(
-            t.translate('next_injection_due') + ': Today',
+            context.tr('next_injection_today', {'label': context.tr('next_injection_due')}),
             style: TextStyle(color: isDue ? AppColors.error : AppColors.textSecondary, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -58,10 +57,10 @@ class MedicationReminderWidget extends StatelessWidget {
                 onPressed: () {
                   final provider = Provider.of<DataProvider>(context, listen: false);
                   provider.logMedication(plan.id, DateTime.now());
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.translate('success'))));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr('success'))));
                 },
                 icon: const Icon(LucideIcons.checkCircle),
-                label: Text(t.translate('i_took_my_medication')),
+                label: Text(context.tr('i_took_my_medication')),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.error,
                   foregroundColor: Colors.white,

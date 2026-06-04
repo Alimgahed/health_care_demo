@@ -4,7 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/mock_data.dart';
 
 class WebMapAnalyticsScreen extends StatefulWidget {
@@ -45,7 +45,6 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final dataProvider = Provider.of<DataProvider>(context);
 
     // Refresh selected entity from provider to reflect live changes
@@ -63,8 +62,8 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
       if (selectedEntity == null) _isDrawerOpen = false;
     }
 
-    // Filter Patients
-    final filteredPatients = dataProvider.patients.where((p) {
+    // Filter Patients (cap markers for map performance)
+    var filteredPatients = dataProvider.patients.where((p) {
       if (_selectedCategory != 'All' && _selectedCategory != 'Patients') return false;
       if (_selectedEmirate != 'All' && p.emirate != _selectedEmirate) return false;
       if (_selectedRisk == 'Critical Obesity' && p.bmi < 35.0) return false;
@@ -75,6 +74,12 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           !p.id.toLowerCase().contains(_searchQuery.toLowerCase())) return false;
       return true;
     }).toList();
+    if (filteredPatients.length > 35) {
+      final step = (filteredPatients.length / 35).ceil();
+      filteredPatients = [
+        for (int i = 0; i < filteredPatients.length; i += step) filteredPatients[i],
+      ];
+    }
 
     // Filter Dispensing Centers (Pharmacies)
     final filteredCenters = dataProvider.centers.where((c) {
@@ -145,7 +150,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                           _mapController.move(LatLng(tc.latitude, tc.longitude), 12.0);
                         },
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
+                          duration: Duration.zero,
                           decoration: BoxDecoration(
                             color: Colors.purple.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
@@ -175,7 +180,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                           _mapController.move(LatLng(c.latitude, c.longitude), 12.0);
                         },
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
+                          duration: Duration.zero,
                           decoration: BoxDecoration(
                             color: AppColors.navy.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
@@ -208,7 +213,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                           _mapController.move(LatLng(p.latitude, p.longitude), 14.0);
                         },
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
+                          duration: Duration.zero,
                           decoration: BoxDecoration(
                             color: mColor.withValues(alpha: 0.8),
                             shape: BoxShape.circle,
@@ -229,7 +234,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             top: 24,
             left: 24,
             right: _isDrawerOpen ? 424 : 24, // Responsive padding based on drawer
-            child: _buildFloatingFilters(t),
+            child: _buildFloatingFilters(context),
           ),
 
           // 3. Sliding Drawer (Right Side)
@@ -240,14 +245,14 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             bottom: 0,
             right: _isDrawerOpen ? 0 : -400,
             width: 400,
-            child: _buildDrawer(t),
+            child: _buildDrawer(context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFloatingFilters(AppLocalizations t) {
+  Widget _buildFloatingFilters(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
@@ -262,7 +267,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           Icon(LucideIcons.map, color: AppColors.navy),
           const SizedBox(width: 12),
           Text(
-            t.translate('geo_analytics'),
+            context.tr('geo_analytics'),
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy),
           ),
           const SizedBox(width: 24),
@@ -286,7 +291,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                       onChanged: (val) => setState(() => _searchQuery = val),
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: t.translate('search'),
+                        hintText: context.tr('search'),
                         hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -304,7 +309,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             value: _selectedCategory,
             items: _categories,
             onChanged: (val) => setState(() => _selectedCategory = val!),
-            t: t,
+            context: context,
           ),
           const SizedBox(width: 16),
 
@@ -313,21 +318,21 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             value: _selectedEmirate,
             items: _emiratesList,
             onChanged: (val) => setState(() => _selectedEmirate = val!),
-            t: t,
+            context: context,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDropdownFilter({required String value, required List<String> items, required Function(String?) onChanged, required AppLocalizations t}) {
+  Widget _buildDropdownFilter({required BuildContext context, required String value, required List<String> items, required Function(String?) onChanged}) {
     // Translate the visible values
     String getDisplayValue(String v) {
-      if (v == 'All') return t.translate('filter_all');
-      if (v == 'Patients') return t.translate('filter_patients');
-      if (v == 'Pharmacies') return t.translate('filter_pharmacies');
-      if (v == 'Physical Therapy') return t.translate('filter_rehab');
-      return v;
+      if (v == 'All') return context.tr('filter_all');
+      if (v == 'Patients') return context.tr('filter_patients');
+      if (v == 'Pharmacies') return context.tr('filter_pharmacies');
+      if (v == 'Physical Therapy') return context.tr('filter_rehab');
+      return context.emirateLabel(v);
     }
 
     return Container(
@@ -350,7 +355,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     );
   }
 
-  Widget _buildDrawer(AppLocalizations t) {
+  Widget _buildDrawer(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -372,10 +377,10 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                 Expanded(
                   child: Text(
                     selectedEntity != null ? (
-                      selectedEntity is Patient ? t.translate('patient_details') :
-                      selectedEntity is DispensingCenter ? t.translate('center_details') :
-                      t.translate('rehab_center_details')
-                    ) : t.translate('geo_analytics'),
+                      selectedEntity is Patient ? context.tr('patient_details') :
+                      selectedEntity is DispensingCenter ? context.tr('center_details') :
+                      context.tr('rehab_center_details')
+                    ) : context.tr('geo_analytics'),
                     style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -392,12 +397,12 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: selectedEntity == null
-                  ? Center(child: Text(t.translate('select_marker'), style: const TextStyle(color: AppColors.textSecondary)))
+                  ? Center(child: Text(context.tr('select_marker'), style: const TextStyle(color: AppColors.textSecondary)))
                   : (selectedEntity is Patient
-                      ? _buildPatientContent(selectedEntity as Patient, t)
+                      ? _buildPatientContent(context, selectedEntity as Patient)
                       : (selectedEntity is DispensingCenter
-                          ? _buildCenterContent(selectedEntity as DispensingCenter, t)
-                          : _buildTherapyContent(selectedEntity as PhysicalTherapyCenter, t))),
+                          ? _buildCenterContent(context, selectedEntity as DispensingCenter)
+                          : _buildTherapyContent(context, selectedEntity as PhysicalTherapyCenter))),
             ),
           ),
         ],
@@ -405,7 +410,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     );
   }
 
-  Widget _buildPatientContent(Patient p, AppLocalizations t) {
+  Widget _buildPatientContent(BuildContext context, Patient p) {
     final isCritical = p.bmi >= 35.0;
     
     return Column(
@@ -433,7 +438,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      isCritical ? t.translate('flagged') : t.translate('success'),
+                      isCritical ? context.tr('flagged') : context.tr('success'),
                       style: TextStyle(color: isCritical ? AppColors.error : AppColors.success, fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ),
@@ -445,30 +450,30 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         const SizedBox(height: 32),
 
         // Info Cards
-        _buildInfoCard(LucideIcons.hash, t.translate('eid'), p.emiratesId),
-        _buildInfoCard(LucideIcons.calendar, t.translate('age'), '${p.age} ${t.translate('age')} (${p.getLocalizedGender(context)})'),
-        _buildInfoCard(LucideIcons.mapPin, t.translate('residency'), '${p.getLocalizedResidency(context)} · ${p.getLocalizedEmirate(context)}'),
+        _buildInfoCard(LucideIcons.hash, context.tr('eid'), p.emiratesId),
+        _buildInfoCard(LucideIcons.calendar, context.tr('age'), '${p.age} ${context.tr('age')} (${p.getLocalizedGender(context)})'),
+        _buildInfoCard(LucideIcons.mapPin, context.tr('residency'), '${p.getLocalizedResidency(context)} · ${p.getLocalizedEmirate(context)}'),
         
         const SizedBox(height: 24),
         const Divider(color: AppColors.border),
         const SizedBox(height: 24),
 
         // Health Metrics
-        Text(t.translate('health_metrics'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+        Text(context.tr('health_metrics'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildMetricBox(t.translate('weight'), '${p.weight} kg', AppColors.primary)),
+            Expanded(child: _buildMetricBox(context.tr('weight'), '${p.weight} kg', AppColors.primary)),
             const SizedBox(width: 16),
-            Expanded(child: _buildMetricBox(t.translate('bmi'), p.bmi.toStringAsFixed(1), isCritical ? AppColors.error : AppColors.warning)),
+            Expanded(child: _buildMetricBox(context.tr('bmi'), p.bmi.toStringAsFixed(1), isCritical ? AppColors.error : AppColors.warning)),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildMetricBox(t.translate('current_dose'), p.currentDose, AppColors.accent)),
+            Expanded(child: _buildMetricBox(context.tr('current_dose'), p.currentDose, AppColors.accent)),
             const SizedBox(width: 16),
-            Expanded(child: _buildMetricBox(t.translate('adherence'), '${(p.complianceRate * 100).toInt()}%', AppColors.success)),
+            Expanded(child: _buildMetricBox(context.tr('adherence'), '${(p.complianceRate * 100).toInt()}%', AppColors.success)),
           ],
         ),
 
@@ -477,7 +482,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         const SizedBox(height: 24),
 
         // Medical Conditions
-        Text(t.translate('medical_conditions'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+        Text(context.tr('medical_conditions'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -492,7 +497,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     );
   }
 
-  Widget _buildCenterContent(DispensingCenter c, AppLocalizations t) {
+  Widget _buildCenterContent(BuildContext context, DispensingCenter c) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -510,7 +515,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                 children: [
                   Text(c.getLocalizedName(context), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy)),
                   const SizedBox(height: 4),
-                  Text('${c.getLocalizedRegion(context)} Region', style: const TextStyle(color: AppColors.textSecondary)),
+                  Text(context.tr('region_label', {'region': c.getLocalizedRegion(context)}), style: const TextStyle(color: AppColors.textSecondary)),
                 ],
               ),
             ),
@@ -518,18 +523,18 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         ),
         const SizedBox(height: 32),
         
-        Text(t.translate('inventory_status'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+        Text(context.tr('inventory_status'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
         const SizedBox(height: 16),
         
-        _buildInventoryRow('2.5 mg', c.inventory2_5mg, c.dispensed2_5mg, t),
-        _buildInventoryRow('5.0 mg', c.inventory5mg, c.dispensed5mg, t),
-        _buildInventoryRow('7.5 mg', c.inventory7_5mg, c.dispensed7_5mg, t),
-        _buildInventoryRow('10.0 mg', c.inventory10mg, c.dispensed10mg, t),
+        _buildInventoryRow(context, '2.5 mg', c.inventory2_5mg, c.dispensed2_5mg),
+        _buildInventoryRow(context, '5.0 mg', c.inventory5mg, c.dispensed5mg),
+        _buildInventoryRow(context, '7.5 mg', c.inventory7_5mg, c.dispensed7_5mg),
+        _buildInventoryRow(context, '10.0 mg', c.inventory10mg, c.dispensed10mg),
       ],
     );
   }
 
-  Widget _buildTherapyContent(PhysicalTherapyCenter tc, AppLocalizations t) {
+  Widget _buildTherapyContent(BuildContext context, PhysicalTherapyCenter tc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -555,15 +560,15 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         ),
         const SizedBox(height: 32),
 
-        _buildInfoCard(LucideIcons.userPlus, t.translate('chief_therapist'), tc.getLocalizedChiefTherapist(context)),
-        _buildInfoCard(LucideIcons.users, t.translate('active_patients_rehab'), '${tc.activePatients}'),
-        _buildInfoCard(LucideIcons.clock, t.translate('working_hours'), tc.workingHours),
+        _buildInfoCard(LucideIcons.userPlus, context.tr('chief_therapist'), tc.getLocalizedChiefTherapist(context)),
+        _buildInfoCard(LucideIcons.users, context.tr('active_patients_rehab'), '${tc.activePatients}'),
+        _buildInfoCard(LucideIcons.clock, context.tr('working_hours'), tc.workingHours),
         
         const SizedBox(height: 24),
         const Divider(color: AppColors.border),
         const SizedBox(height: 24),
 
-        Text(t.translate('services_offered'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+        Text(context.tr('services_offered'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -627,11 +632,11 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     );
   }
 
-  Widget _buildInventoryRow(String dose, int inventory, int dispensed, AppLocalizations t) {
+  Widget _buildInventoryRow(BuildContext context, String dose, int inventory, int dispensed) {
     bool isOutOfStock = inventory == 0;
     bool isLowStock = inventory > 0 && inventory <= 10;
     Color statusColor = isOutOfStock ? AppColors.error : (isLowStock ? AppColors.warning : AppColors.success);
-    String statusText = isOutOfStock ? t.translate('out_of_stock') : (isLowStock ? t.translate('low_stock') : t.translate('available'));
+    String statusText = isOutOfStock ? context.tr('out_of_stock') : (isLowStock ? context.tr('low_stock') : context.tr('available'));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -665,7 +670,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.translate('available'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    Text(context.tr('available'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                     const SizedBox(height: 4),
                     Text('$inventory', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: statusColor)),
                   ],
@@ -678,7 +683,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.translate('actual_dispensed'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(context.tr('actual_dispensed'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                       const SizedBox(height: 4),
                       Text('$dispensed', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary)),
                     ],

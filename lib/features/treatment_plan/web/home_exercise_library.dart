@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/l10n_extension.dart';
+import '../data/home_exercise_catalog.dart';
 import '../models/treatment_plan.dart';
 
 class HomeExerciseLibrary extends StatefulWidget {
@@ -15,27 +16,10 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
   final List<HomeExercise> _selected = [];
   String _categoryFilter = 'All';
 
-  final List<HomeExercise> _allExercises = [
-    HomeExercise(
-      id: 'E1', name: 'Brisk Walking', nameAr: 'مشي سريع', 
-      description: 'Walk at a brisk pace.', descriptionAr: 'امش بخطوة سريعة.', 
-      category: 'Cardio', durationMinutes: 30, sets: 1, reps: 1, iconPath: 'activity'
-    ),
-    HomeExercise(
-      id: 'E2', name: 'Bodyweight Squats', nameAr: 'قرفصاء بوزن الجسم', 
-      description: 'Keep back straight, lower until thighs are parallel.', descriptionAr: 'حافظ على استقامة ظهرك، وانزل حتى يتوازى فخذاك مع الأرض.', 
-      category: 'Strength', durationMinutes: 10, sets: 3, reps: 15, iconPath: 'arrow-down'
-    ),
-    HomeExercise(
-      id: 'E3', name: 'Stretching Routine', nameAr: 'روتين إطالة', 
-      description: 'Full body stretching.', descriptionAr: 'إطالة لكامل الجسم.', 
-      category: 'Flexibility', durationMinutes: 15, sets: 1, reps: 1, iconPath: 'maximize'
-    ),
-  ];
+  List<HomeExercise> get _allExercises => HomeExerciseCatalog.all;
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     
     final filtered = _allExercises.where((e) => _categoryFilter == 'All' || e.category == _categoryFilter).toList();
@@ -48,7 +32,7 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(t.translate('home_exercises'), style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.tr('home_exercises'), style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
               IconButton(icon: const Icon(LucideIcons.x, color: Colors.white), onPressed: () => Navigator.pop(context)),
             ],
           ),
@@ -60,7 +44,7 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
             children: ['All', 'Cardio', 'Strength', 'Flexibility'].map((cat) => Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ChoiceChip(
-                label: Text(t.translate(cat.toLowerCase()) != cat.toLowerCase() ? t.translate(cat.toLowerCase()) : cat),
+                label: Text(_categoryLabel(context, cat)),
                 selected: _categoryFilter == cat,
                 onSelected: (val) => setState(() => _categoryFilter = cat),
               ),
@@ -93,7 +77,16 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
                     child: const Icon(LucideIcons.activity, color: AppColors.primary),
                   ),
                   title: Text(isAr ? ex.nameAr : ex.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('${ex.durationMinutes} min • ${ex.sets}x${ex.reps}\n${isAr ? ex.descriptionAr : ex.description}'),
+                  subtitle: Text(
+                    [
+                      context.tr('exercise_duration_format', {
+                        'minutes': '${ex.durationMinutes}',
+                        'sets': '${ex.sets}',
+                        'reps': '${ex.reps}',
+                      }),
+                      isAr ? ex.descriptionAr : ex.description,
+                    ].join('\n'),
+                  ),
                   isThreeLine: true,
                 ),
               );
@@ -108,15 +101,15 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('${_selected.length} ${t.translate('exercises')} selected', style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(context.tr('exercises_picked_count', {'count': '${_selected.length}'}), style: const TextStyle(fontWeight: FontWeight.bold)),
               Row(
                 children: [
-                  TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                  TextButton(onPressed: () => Navigator.pop(context), child: Text(context.tr('cancel'))),
                   const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context, _selected),
                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-                    child: const Text('Add to Plan'),
+                    child: Text(context.tr('add_to_plan')),
                   ),
                 ],
               ),
@@ -125,5 +118,20 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
         ),
       ],
     );
+  }
+
+  String _categoryLabel(BuildContext context, String cat) {
+    switch (cat) {
+      case 'All':
+        return context.tr('filter_all');
+      case 'Cardio':
+        return context.tr('cardio');
+      case 'Strength':
+        return context.tr('strength');
+      case 'Flexibility':
+        return context.tr('flexibility');
+      default:
+        return cat;
+    }
   }
 }

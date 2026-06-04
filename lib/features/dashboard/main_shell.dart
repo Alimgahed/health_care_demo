@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../patients/patient_list_screen.dart';
 import '../dispensing/dispensing_screen.dart';
 import '../dashboard/ministry_dashboard_screen.dart';
@@ -33,22 +34,22 @@ class _MainShellState extends State<MainShell> {
             _currentIndex = index;
           });
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(LucideIcons.layoutDashboard),
-            label: 'Dashboard',
+            icon: const Icon(LucideIcons.layoutDashboard),
+            label: context.tr('main_nav_dashboard'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.users),
-            label: 'Patients',
+            icon: const Icon(LucideIcons.users),
+            label: context.tr('main_nav_patients'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.pill),
-            label: 'Dispensing',
+            icon: const Icon(LucideIcons.pill),
+            label: context.tr('main_nav_dispensing'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.smartphone),
-            label: 'Patient App',
+            icon: const Icon(LucideIcons.smartphone),
+            label: context.tr('main_nav_patient_app'),
           ),
         ],
       ),

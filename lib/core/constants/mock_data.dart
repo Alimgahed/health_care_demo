@@ -1,10 +1,23 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'demo_metrics.dart';
 import '../localization/locale_provider.dart';
+import '../utils/dose_utils.dart';
 import '../../features/treatment_plan/models/treatment_plan.dart';
+import '../../features/clinical/patient_clinical_models.dart';
+import '../clinical/clinical_eligibility_rules.dart' show ClinicalEligibilityRules, ProgramEligibilityResult;
+import '../models/activity_log.dart';
 
 enum ResidencyStatus { citizen, resident, visitor }
+
+enum DispensingUiStatus {
+  eligible,
+  pendingCarePlan,
+  pendingClinicalReview,
+  approvedEarly,
+  clinicalIneligible,
+}
 
 class Patient {
   final String id;
@@ -22,6 +35,9 @@ class Patient {
   final List<String> medicalConditions;
   final List<String> medicalConditionsAr;
   String? lastDispensingDate;
+  /// Authorized dispensing facility that performed the latest handover ([DispensingCenter.id]).
+  String? lastDispensingCenterId;
+  final List<PatientDispenseRecord> dispenseRecords;
   String? nextEligibleDate;
   String currentDose;
   final double latitude;
@@ -31,8 +47,38 @@ class Patient {
   final List<double> weightHistory;
   final List<String> doseHistory;
   final double complianceRate;
+  final bool hasChronicDisease;
+  final List<PatientAttachment> clinicalAttachments;
+  /// HbA1c % on file (e.g. 7.2). Used by rule engine — edit thresholds in [ClinicalEligibilityConfig].
+  final double? hba1cPercent;
+  /// Fasting glucose mg/dL on file.
+  final double? fastingGlucoseMgDl;
 
   double get bmi => weight / ((height / 100) * (height / 100));
+
+  ProgramEligibilityResult get programEligibility => ClinicalEligibilityRules.evaluateFields(
+        bmi: bmi,
+        hasChronicDisease: hasChronicDisease,
+        medicalConditions: medicalConditions,
+        hba1cPercent: hba1cPercent,
+        fastingGlucoseMgDl: fastingGlucoseMgDl,
+      );
+
+  /// True if last dispense was within [cooldownDays] (plan refill interval).
+  bool isWithinDispensingCooldown({int cooldownDays = 28}) {
+    if (lastDispensingDate == null) return false;
+    final parts = lastDispensingDate!.split('-');
+    if (parts.length != 3) return false;
+    final last = DateTime(
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+      int.parse(parts[2]),
+    );
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final lastDay = DateTime(last.year, last.month, last.day);
+    final daysSince = today.difference(lastDay).inDays;
+    return daysSince < cooldownDays;
+  }
 
   Patient({
     required this.id,
@@ -50,6 +96,8 @@ class Patient {
     required this.medicalConditions,
     required this.medicalConditionsAr,
     this.lastDispensingDate,
+    this.lastDispensingCenterId,
+    this.dispenseRecords = const [],
     this.nextEligibleDate,
     this.currentDose = '2.5 mg',
     required this.latitude,
@@ -59,6 +107,10 @@ class Patient {
     required this.weightHistory,
     required this.doseHistory,
     required this.complianceRate,
+    this.hasChronicDisease = false,
+    this.clinicalAttachments = const [],
+    this.hba1cPercent,
+    this.fastingGlucoseMgDl,
   });
 
   bool _isAr(BuildContext context) => Provider.of<LocaleProvider>(context, listen: false).locale.languageCode == 'ar';
@@ -87,10 +139,17 @@ class Patient {
   Patient copyWith({
     double? weight,
     String? lastDispensingDate,
+    String? lastDispensingCenterId,
+    List<PatientDispenseRecord>? dispenseRecords,
+    bool resetDispensingFacility = false,
     String? nextEligibleDate,
     String? currentDose,
     List<double>? weightHistory,
     List<String>? doseHistory,
+    bool? hasChronicDisease,
+    List<PatientAttachment>? clinicalAttachments,
+    double? hba1cPercent,
+    double? fastingGlucoseMgDl,
   }) {
     return Patient(
       id: id,
@@ -108,6 +167,11 @@ class Patient {
       medicalConditions: medicalConditions,
       medicalConditionsAr: medicalConditionsAr,
       lastDispensingDate: lastDispensingDate ?? this.lastDispensingDate,
+      lastDispensingCenterId: resetDispensingFacility
+          ? null
+          : (lastDispensingCenterId ?? this.lastDispensingCenterId),
+      dispenseRecords:
+          resetDispensingFacility ? const [] : (dispenseRecords ?? this.dispenseRecords),
       nextEligibleDate: nextEligibleDate ?? this.nextEligibleDate,
       currentDose: currentDose ?? this.currentDose,
       latitude: latitude,
@@ -117,6 +181,10 @@ class Patient {
       weightHistory: weightHistory ?? this.weightHistory,
       doseHistory: doseHistory ?? this.doseHistory,
       complianceRate: complianceRate,
+      hasChronicDisease: hasChronicDisease ?? this.hasChronicDisease,
+      clinicalAttachments: clinicalAttachments ?? this.clinicalAttachments,
+      hba1cPercent: hba1cPercent ?? this.hba1cPercent,
+      fastingGlucoseMgDl: fastingGlucoseMgDl ?? this.fastingGlucoseMgDl,
     );
   }
 }
@@ -196,41 +264,6 @@ class DispensingCenter {
       phone: phone,
     );
   }
-}
-
-class ActivityLog {
-  final String id;
-  final String patientName;
-  final String patientNameAr;
-  final String patientId;
-  final String action; // e.g. "Dispensed 5 mg", "Dose Escalation", "Created Assessment"
-  final String actionAr;
-  final String centerName;
-  final String centerNameAr;
-  final DateTime timestamp;
-  final String status; // "Success", "Overridden", "Flagged"
-  final String statusAr;
-
-  ActivityLog({
-    required this.id,
-    required this.patientName,
-    required this.patientNameAr,
-    required this.patientId,
-    required this.action,
-    required this.actionAr,
-    required this.centerName,
-    required this.centerNameAr,
-    required this.timestamp,
-    required this.status,
-    required this.statusAr,
-  });
-
-  bool _isAr(BuildContext context) => Provider.of<LocaleProvider>(context, listen: false).locale.languageCode == 'ar';
-
-  String getLocalizedPatientName(BuildContext context) => _isAr(context) ? patientNameAr : patientName;
-  String getLocalizedAction(BuildContext context) => _isAr(context) ? actionAr : action;
-  String getLocalizedCenterName(BuildContext context) => _isAr(context) ? centerNameAr : centerName;
-  String getLocalizedStatus(BuildContext context) => _isAr(context) ? statusAr : status;
 }
 
 class PhysicalTherapyCenter {
@@ -391,8 +424,8 @@ class MockData {
         emirate: 'Abu Dhabi',
         emirateAr: 'أبوظبي',
 
-        latitude: 24.2800,
-        longitude: 54.5800,
+        latitude: 24.3330,
+        longitude: 54.5390,
         phone: '+971 2 699 1111',
         activePatients: 45,
         
@@ -404,14 +437,62 @@ class MockData {
         workingHours: '08:00 AM - 08:00 PM',
       ),
       PhysicalTherapyCenter(
+        id: 'T007',
+        name: 'Sheikh Shakhbout Medical City Rehab',
+        nameAr: 'مدينة الشيخ شخبوط الطبية — التأهيل',
+        emirate: 'Abu Dhabi',
+        emirateAr: 'أبوظبي',
+        latitude: 24.4520,
+        longitude: 54.3650,
+        phone: '+971 2 819 2000',
+        activePatients: 52,
+        chiefTherapist: 'Dr. Noura Al Ketbi',
+        chiefTherapistAr: 'د. نورة الكتبي',
+        services: ['Obesity Rehab', 'Hydrotherapy', 'Mobility Therapy'],
+        servicesAr: ['تأهيل السمنة', 'العلاج المائي', 'علاج الحركة'],
+        workingHours: '07:00 AM - 09:00 PM',
+      ),
+      PhysicalTherapyCenter(
+        id: 'T008',
+        name: 'Burjeel Hospital PT & Wellness',
+        nameAr: 'مستشفى برجيل — العلاج الطبيعي',
+        emirate: 'Abu Dhabi',
+        emirateAr: 'أبوظبي',
+        latitude: 24.4860,
+        longitude: 54.3720,
+        phone: '+971 2 508 5555',
+        activePatients: 41,
+        chiefTherapist: 'Dr. James Okonkwo',
+        chiefTherapistAr: 'د. جيمس أوكونكو',
+        services: ['Post-Bariatric Training', 'Cardio Conditioning'],
+        servicesAr: ['تدريب ما بعد جراحة السمنة', 'التكييف القلبي'],
+        workingHours: '08:00 AM - 08:00 PM',
+      ),
+      PhysicalTherapyCenter(
+        id: 'T009',
+        name: 'Reem Island Rehabilitation Hub',
+        nameAr: 'مركز تأهيل جزيرة الريم',
+        emirate: 'Abu Dhabi',
+        emirateAr: 'أبوظبي',
+        latitude: 24.4950,
+        longitude: 54.3950,
+        phone: '+971 2 491 3300',
+        activePatients: 36,
+        chiefTherapist: 'Dr. Layla Al Mansoori',
+        chiefTherapistAr: 'د. ليلى المنصوري',
+        services: ['Therapeutic Exercises', 'Weight Loss Training'],
+        servicesAr: ['تمارين علاجية', 'تدريب فقدان الوزن'],
+        workingHours: '09:00 AM - 07:00 PM',
+      ),
+      PhysicalTherapyCenter(
         id: 'T002',
         name: 'Rashid Bariatric Rehab & PT Center',
         nameAr: 'مركز راشد لتأهيل السمنة والعلاج الطبيعي',
         emirate: 'Dubai',
         emirateAr: 'دبي',
 
-        latitude: 25.2300,
-        longitude: 55.3200,
+        latitude: 25.2048,
+        longitude: 55.2708,
         phone: '+971 4 399 2222',
         activePatients: 72,
         
@@ -421,6 +502,38 @@ class MockData {
         servicesAr: ['العلاج الحركي', 'تأهيل نحت الجسم', 'تمارين ما بعد الجراحة'],
 
         workingHours: '08:00 AM - 09:00 PM',
+      ),
+      PhysicalTherapyCenter(
+        id: 'T010',
+        name: 'Dubai Healthcare City Rehab Unit',
+        nameAr: 'مدينة دبي الطبية — وحدة التأهيل',
+        emirate: 'Dubai',
+        emirateAr: 'دبي',
+        latitude: 25.2340,
+        longitude: 55.3040,
+        phone: '+971 4 375 1900',
+        activePatients: 58,
+        chiefTherapist: 'Dr. Priya Sharma',
+        chiefTherapistAr: 'د. بريا شارما',
+        services: ['Kinesiotherapy', 'Obesity Rehab'],
+        servicesAr: ['العلاج الحركي', 'تأهيل السمنة'],
+        workingHours: '08:00 AM - 08:00 PM',
+      ),
+      PhysicalTherapyCenter(
+        id: 'T011',
+        name: 'Al Barsha Medical Fitness Center',
+        nameAr: 'مركز البرشاء الطبي لللياقة',
+        emirate: 'Dubai',
+        emirateAr: 'دبي',
+        latitude: 25.1120,
+        longitude: 55.1950,
+        phone: '+971 4 295 8800',
+        activePatients: 44,
+        chiefTherapist: 'Dr. Omar Al Suwaidi',
+        chiefTherapistAr: 'د. عمر السويدي',
+        services: ['Body Contouring Rehab', 'Muscle Strength Conditioning'],
+        servicesAr: ['تأهيل نحت الجسم', 'تكييف قوة العضلات'],
+        workingHours: '07:30 AM - 09:30 PM',
       ),
       PhysicalTherapyCenter(
         id: 'T003',
@@ -798,7 +911,7 @@ class MockData {
       'Saeed Al Maktoum', 'Omar Al Suwaidi', 'Tariq Al Jaber', 'Hamdan Al Kaabi',
       'Yousef Al Shehhi', 'Adnan Al Mazrouei', 'Saif Al Hameli', 'Majid Al Ghurair',
       'Ali Al Naboodah', 'Marwan Al Tayer', 'Salem Al Sayegh', 'Waleed Al Gurg',
-      'Michael Smith', 'David Jones', 'John Doe', 'Jean Dupont', 'Omar Farooq',
+      'Michael Smith', 'David Jones', 'James Wilson', 'Jean Martin', 'Omar Farooq',
       'Priya Kumar', 'Wong Wei', 'Vikram Patel', 'Siddharth Sharma', 'Amir Khan',
       'Robert Miller', 'James Taylor', 'William Davis', 'Alexander Brown', 'Thomas Wilson'
     ];
@@ -819,7 +932,7 @@ class MockData {
       'Muna Al Shamsi', 'Hessa Al Suwaidi', 'Aisha Al Jaber', 'Noora Al Mansoori',
       'Salama Al Ketbi', 'Hind Al Mazrouei', 'Jawahir Al Qasimi', 'Rawda Al Hameli',
       'Shaikha Al Tayer', 'Moza Al Naboodah', 'Alia Al Sayegh', 'Budoor Al Gurg',
-      'Sarah Connor', 'Emma Watson', 'Elena Petrova', 'Sophia Müller', 'Fatima Rahman',
+      'Emily Carter', 'Emma Watson', 'Elena Petrova', 'Sophia Müller', 'Fatima Rahman',
       'Deepika Sharma', 'Mei Ling', 'Aisha Farooq', 'Yasmin Zayed', 'Layla Kanaan',
       'Olivia Martinez', 'Isabella Anderson', 'Mia Thomas', 'Charlotte White', 'Amelia Taylor'
     ];
@@ -884,6 +997,9 @@ class MockData {
         height: 175.0,
         medicalConditions: ['Type 2 Diabetes', 'Hypertension', 'Obesity'],
         medicalConditionsAr: ['السكري من النوع 2', 'ارتفاع ضغط الدم', 'السمنة'],
+        hasChronicDisease: true,
+        hba1cPercent: 6.8,
+        fastingGlucoseMgDl: 118,
         lastDispensingDate: '2026-05-10',
         nextEligibleDate: '2026-06-10',
         currentDose: '5 mg',
@@ -913,6 +1029,9 @@ class MockData {
         height: 165.0,
         medicalConditions: ['Obesity', 'PCOS'],
         medicalConditionsAr: ['السمنة', 'تكيس المبايض'],
+        hasChronicDisease: true,
+        hba1cPercent: 9.4,
+        fastingGlucoseMgDl: 212,
         lastDispensingDate: '2026-06-03',
         nextEligibleDate: '2026-07-03',
         currentDose: '2.5 mg',
@@ -942,6 +1061,9 @@ class MockData {
         height: 180.0,
         medicalConditions: ['Obesity'],
         medicalConditionsAr: ['السمنة'],
+        hasChronicDisease: false,
+        hba1cPercent: 5.6,
+        fastingGlucoseMgDl: 95,
         lastDispensingDate: null,
         nextEligibleDate: 'Eligible Now',
         currentDose: '2.5 mg',
@@ -950,7 +1072,7 @@ class MockData {
         emirate: 'Sharjah',
         emirateAr: 'الشارقة',
         weightHistory: [118.0, 116.5, 115.0],
-        doseHistory: ['2.5 mg', '2.5 mg', '2.5 mg'],
+        doseHistory: [],
         complianceRate: 0.75,
       ),
     );
@@ -1013,11 +1135,13 @@ class MockData {
       ),
     );
 
-    for (int i = 6; i <= 100; i++) {
+    for (int i = 6; i <= 50; i++) {
       final gender = rand.nextBool() ? 'Male' : 'Female';
-      final nameIdx = rand.nextInt(maleNames.length);
-      final name = gender == 'Male' ? maleNames[nameIdx] : femaleNames[nameIdx];
-      final nameAr = gender == 'Male' ? maleNamesAr[nameIdx] : femaleNamesAr[nameIdx];
+      final namePool = gender == 'Male' ? maleNames : femaleNames;
+      final namePoolAr = gender == 'Male' ? maleNamesAr : femaleNamesAr;
+      final nameIdx = rand.nextInt(namePool.length);
+      final name = namePool[nameIdx];
+      final nameAr = namePoolAr[nameIdx];
       
       final suffixAscii = 65 + rand.nextInt(26);
       final suffixAr = String.fromCharCode(1575 + rand.nextInt(28)); // Random Arabic letter
@@ -1068,28 +1192,38 @@ class MockData {
       }
       weightHist.add(double.parse(weight.toStringAsFixed(1)));
 
-      final doseHist = <String>[];
-      for (int s = 0; s < weightHist.length; s++) {
-        if (s < 2) doseHist.add('2.5 mg');
-        else if (s < 4) doseHist.add('5 mg');
-        else doseHist.add('7.5 mg');
-      }
-
       final year = 1960 + rand.nextInt(45);
       final idNum1 = 1000 + rand.nextInt(8999);
       final idNum2 = rand.nextInt(9);
       final emiratesId = '784-$year-$idNum1-$idNum2';
 
-      final lastDispDate = rand.nextBool() 
-          ? '2026-05-${10 + rand.nextInt(20)}' 
+      final lastDispDate = rand.nextBool()
+          ? '2026-05-${10 + rand.nextInt(20)}'
           : (rand.nextBool() ? '2026-06-0${1 + rand.nextInt(3)}' : null);
-      
+
       String? nextDispDate = 'Eligible Now';
       if (lastDispDate != null) {
         final day = int.parse(lastDispDate.split('-')[2]);
         final month = int.parse(lastDispDate.split('-')[1]);
         final nextMonth = month + 1;
         nextDispDate = '2026-0${nextMonth}-${day < 10 ? "0$day" : day}';
+      }
+
+      final currentDose = ['2.5 mg', '5 mg', '7.5 mg', '10 mg'][rand.nextInt(4)];
+      final doseHist = <String>[];
+      if (lastDispDate != null) {
+        final dispenseCount = 1 + rand.nextInt(3);
+        for (int d = 0; d < dispenseCount; d++) {
+          if (d < 2) {
+            doseHist.add('2.5 mg');
+          } else if (d < 3) {
+            doseHist.add('5 mg');
+          } else {
+            doseHist.add(currentDose);
+          }
+        }
+        if (doseHist.isEmpty) doseHist.add(currentDose);
+        else doseHist[doseHist.length - 1] = currentDose;
       }
 
       list.add(
@@ -1110,7 +1244,7 @@ class MockData {
           medicalConditionsAr: distinctConditionsAr,
           lastDispensingDate: lastDispDate,
           nextEligibleDate: nextDispDate,
-          currentDose: ['2.5 mg', '5 mg', '7.5 mg', '10 mg'][rand.nextInt(4)],
+          currentDose: currentDose,
           latitude: emRegion['lat'] + latJitter,
           longitude: emRegion['lng'] + lngJitter,
           emirate: emRegion['name'],
@@ -1136,8 +1270,70 @@ class DataProvider extends ChangeNotifier {
     _centers = List.from(MockData.centers);
     _therapyCenters = List.from(MockData.therapyCenters);
     
-    // Seed initial activity logs
+    _reconcilePatientDispenseRecords();
+    _assignDispenseFacilities();
     _seedActivityLogs();
+  }
+
+  /// Keeps lastDispensingDate, doseHistory, facility, and activity logs aligned.
+  void _reconcilePatientDispenseRecords() {
+    for (var i = 0; i < _patients.length; i++) {
+      final p = _patients[i];
+      if (p.lastDispensingDate == null) {
+        if (p.doseHistory.isNotEmpty ||
+            p.dispenseRecords.isNotEmpty ||
+            p.lastDispensingCenterId != null) {
+          _patients[i] = p.copyWith(
+            doseHistory: [],
+            resetDispensingFacility: true,
+          );
+        }
+      } else if (p.doseHistory.isEmpty) {
+        _patients[i] = p.copyWith(doseHistory: [p.currentDose]);
+      }
+    }
+  }
+
+  void _assignDispenseFacilities() {
+    if (_centers.isEmpty) return;
+    for (var i = 0; i < _patients.length; i++) {
+      final p = _patients[i];
+      if (p.lastDispensingDate == null) continue;
+      final center = _centers[i % _centers.length];
+      _patients[i] = p.copyWith(
+        lastDispensingCenterId: center.id,
+        dispenseRecords: _buildDispenseRecordsFromHistory(p, center.id),
+      );
+    }
+  }
+
+  List<PatientDispenseRecord> _buildDispenseRecordsFromHistory(Patient p, String centerId) {
+    if (p.lastDispensingDate == null) return const [];
+    final doses = p.doseHistory.isNotEmpty ? p.doseHistory : [p.currentDose];
+    final last = _parseDateString(p.lastDispensingDate!);
+    if (last == null) {
+      return [
+        PatientDispenseRecord(
+          date: p.lastDispensingDate!,
+          dose: doses.last,
+          centerId: centerId,
+        ),
+      ];
+    }
+    final records = <PatientDispenseRecord>[];
+    for (var i = 0; i < doses.length; i++) {
+      final doseIdx = doses.length - 1 - i;
+      final day = last.subtract(Duration(days: 28 * i));
+      records.insert(
+        0,
+        PatientDispenseRecord(
+          date: _formatDate(day),
+          dose: doses[doseIdx],
+          centerId: centerId,
+        ),
+      );
+    }
+    return records;
   }
 
   List<Patient> get patients => _patients;
@@ -1148,41 +1344,178 @@ class DataProvider extends ChangeNotifier {
   List<TreatmentPlan> get treatmentPlans => _treatmentPlans;
   List<ActivityLog> get logs => _logs;
 
+  /// Doctor-approved early dispensing before the refill interval ends.
+  final Set<String> _dispenseAuthorizations = {};
+  final Set<String> _earlyDispenseReviewQueue = {};
+
+  static DateTime? _parseDateString(String dateStr) {
+    final parts = dateStr.split('-');
+    if (parts.length != 3) return null;
+    final y = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    final d = int.tryParse(parts[2]);
+    if (y == null || m == null || d == null) return null;
+    return DateTime(y, m, d, 10, 30);
+  }
+
   void _seedActivityLogs() {
-    final rand = Random(123);
-    for (int i = 0; i < 25; i++) {
-      final p = _patients[rand.nextInt(_patients.length)];
-      final c = _centers[rand.nextInt(_centers.length)];
-      final doses = ['2.5 mg', '5 mg', '7.5 mg', '10 mg'];
-      final dose = doses[rand.nextInt(doses.length)];
-      final statuses = ['Success', 'Success', 'Success', 'Overridden', 'Flagged'];
-      final statusesAr = ['ناجح', 'ناجح', 'ناجح', 'تم التجاوز', 'مُعلّم'];
-      final statusIdx = rand.nextInt(statuses.length);
-      final status = statuses[statusIdx];
-      final statusAr = statusesAr[statusIdx];
-      
+    int logIdx = 1;
+
+    // One dispensing log per beneficiary — timestamp matches lastDispensingDate on file.
+    for (final p in _patients) {
+      if (p.lastDispensingDate == null) continue;
+      final ts = _parseDateString(p.lastDispensingDate!);
+      if (ts == null) continue;
+      final dose = p.doseHistory.isNotEmpty ? p.doseHistory.last : p.currentDose;
+      final center = getDispensingCenterById(p.lastDispensingCenterId) ?? _centers.first;
       _logs.add(
-        ActivityLog(
-          id: 'LOG${i.toString().padLeft(3, "0")}',
-          patientName: p.fullName,
-          patientNameAr: p.fullNameAr,
-          patientId: p.id,
-          action: 'Dispensed $dose',
-          actionAr: 'صرف $dose',
-          centerName: c.name,
-          centerNameAr: c.nameAr,
-          timestamp: DateTime.now().subtract(Duration(days: rand.nextInt(30), hours: rand.nextInt(24))),
-          status: status,
-          statusAr: statusAr,
+        ActivityLog.dispense(
+          id: 'LOG${logIdx.toString().padLeft(3, '0')}',
+          patient: PatientRef(id: p.id, name: p.fullName, nameAr: p.fullNameAr),
+          dose: dose,
+          center: CenterRef(name: center.name, nameAr: center.nameAr),
+          timestamp: ts,
         ),
       );
+      logIdx++;
     }
-    // Sort by most recent
+
+    // Care-plan events (non-dispensing) for demo narrative.
+    for (final plan in _treatmentPlans) {
+      final p = getPatientById(plan.patientId);
+      if (p == null) continue;
+      _logs.add(
+        ActivityLog.carePlan(
+          id: 'LOG${logIdx.toString().padLeft(3, '0')}',
+          patient: PatientRef(id: p.id, name: p.fullName, nameAr: p.fullNameAr),
+          dose: plan.medicationDose,
+          intervalDays: plan.medicationFrequencyDays,
+          timestamp: plan.createdAt,
+          pendingReview: plan.clinicalApprovalStatus == 'pending_review',
+        ),
+      );
+      logIdx++;
+    }
+
     _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
   // Business Operations
   
+  /// Days between dispensings: from active care plan, else 30.
+  int dispensingIntervalDaysFor(String patientId) {
+    return getPlanForPatient(patientId)?.medicationFrequencyDays ?? 30;
+  }
+
+  bool isPatientInDispensingCooldown(Patient patient) {
+    return patient.isWithinDispensingCooldown(
+      cooldownDays: dispensingIntervalDaysFor(patient.id),
+    );
+  }
+
+  bool patientHasPriorDispense(String patientId) {
+    final p = getPatientById(patientId);
+    return p?.lastDispensingDate != null;
+  }
+
+  bool isCarePlanPendingReview(String patientId) {
+    final plan = getPlanForPatient(patientId);
+    return plan?.clinicalApprovalStatus == 'pending_review';
+  }
+
+  /// Beneficiaries who may receive medication now (eligible + plan approved + interval met or authorized).
+  int countPatientsReadyToDispense() =>
+      _patients.where((p) => canDispensePatient(p)).length;
+
+  bool canDispensePatient(Patient patient) {
+    if (!patient.programEligibility.eligible) return false;
+    if (isCarePlanPendingReview(patient.id)) return false;
+    if (!isPatientInDispensingCooldown(patient)) return true;
+    return _dispenseAuthorizations.contains(patient.id);
+  }
+
+  DispensingUiStatus dispensingUiStatus(Patient patient) {
+    if (!patient.programEligibility.eligible) {
+      return DispensingUiStatus.clinicalIneligible;
+    }
+    if (isCarePlanPendingReview(patient.id)) {
+      return DispensingUiStatus.pendingCarePlan;
+    }
+    if (!isPatientInDispensingCooldown(patient)) {
+      return DispensingUiStatus.eligible;
+    }
+    if (_dispenseAuthorizations.contains(patient.id)) {
+      return DispensingUiStatus.approvedEarly;
+    }
+    return DispensingUiStatus.pendingClinicalReview;
+  }
+
+  void ensureEarlyDispenseReviewQueued(String patientId) {
+    final p = getPatientById(patientId);
+    if (p == null) return;
+    if (!isPatientInDispensingCooldown(p)) return;
+    if (_dispenseAuthorizations.contains(patientId)) return;
+    if (isCarePlanPendingReview(patientId)) return;
+    if (_earlyDispenseReviewQueue.add(patientId)) {
+      notifyListeners();
+    }
+  }
+
+  List<({Patient patient, String reviewType})> get pendingClinicalReviews {
+    final seen = <String>{};
+    final out = <({Patient patient, String reviewType})>[];
+
+    for (final plan in _treatmentPlans) {
+      if (plan.clinicalApprovalStatus != 'pending_review') continue;
+      final p = getPatientById(plan.patientId);
+      if (p == null || seen.contains(p.id)) continue;
+      seen.add(p.id);
+      out.add((patient: p, reviewType: 'care_plan'));
+    }
+
+    for (final id in _earlyDispenseReviewQueue) {
+      if (seen.contains(id) || _dispenseAuthorizations.contains(id)) continue;
+      final p = getPatientById(id);
+      if (p == null) continue;
+      seen.add(id);
+      out.add((patient: p, reviewType: 'early_dispense'));
+    }
+    return out;
+  }
+
+  void approveClinicalReview(String patientId) {
+    for (var i = 0; i < _treatmentPlans.length; i++) {
+      if (_treatmentPlans[i].patientId == patientId &&
+          _treatmentPlans[i].clinicalApprovalStatus == 'pending_review') {
+        _treatmentPlans[i] = _treatmentPlans[i].copyWith(clinicalApprovalStatus: 'approved');
+      }
+    }
+    _dispenseAuthorizations.add(patientId);
+    _earlyDispenseReviewQueue.remove(patientId);
+
+    final p = getPatientById(patientId);
+    if (p != null) {
+      _logs.insert(
+        0,
+        ActivityLog.clinicalReviewApproved(
+          id: 'LOG${_logs.length + 1}',
+          patient: PatientRef(id: p.id, name: p.fullName, nameAr: p.fullNameAr),
+          timestamp: DateTime.now(),
+        ),
+      );
+    }
+    notifyListeners();
+  }
+
+  static String _formatDate(DateTime d) {
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '${d.year}-$m-$day';
+  }
+
+  static String _nextEligibleAfter(DateTime from, int days) =>
+      _formatDate(from.add(Duration(days: days)));
+
   // Dispense Mounjaro to a Patient at a specific Center
   bool dispenseMedication({
     required String patientId,
@@ -1197,50 +1530,84 @@ class DataProvider extends ChangeNotifier {
 
     final p = _patients[patientIndex];
     final c = _centers[centerIndex];
+    final plan = getPlanForPatient(patientId);
+    final intervalDays = plan?.medicationFrequencyDays ?? 30;
+    final doseToDispense = DoseUtils.toInventoryDose(plan?.medicationDose ?? dose);
 
     // Check inventory
     bool hasInventory = false;
-    if (dose == '2.5 mg' && c.inventory2_5mg > 0) {
-      c.inventory2_5mg--;
+    int inv25 = c.inventory2_5mg;
+    int inv5 = c.inventory5mg;
+    int inv75 = c.inventory7_5mg;
+    int inv10 = c.inventory10mg;
+    int disp25 = c.dispensed2_5mg;
+    int disp5 = c.dispensed5mg;
+    int disp75 = c.dispensed7_5mg;
+    int disp10 = c.dispensed10mg;
+
+    if (doseToDispense == '2.5 mg' && inv25 > 0) {
+      inv25--;
+      disp25++;
       hasInventory = true;
-    } else if (dose == '5 mg' && c.inventory5mg > 0) {
-      c.inventory5mg--;
+    } else if (doseToDispense == '5 mg' && inv5 > 0) {
+      inv5--;
+      disp5++;
       hasInventory = true;
-    } else if (dose == '7.5 mg' && c.inventory7_5mg > 0) {
-      c.inventory7_5mg--;
+    } else if (doseToDispense == '7.5 mg' && inv75 > 0) {
+      inv75--;
+      disp75++;
       hasInventory = true;
-    } else if (dose == '10 mg' && c.inventory10mg > 0) {
-      c.inventory10mg--;
+    } else if (doseToDispense == '10 mg' && inv10 > 0) {
+      inv10--;
+      disp10++;
       hasInventory = true;
     }
 
     if (!hasInventory) return false;
 
-    // Update patient dispensing dates
-    final nowStr = DateTime.now().toString().split(' ')[0]; // yyyy-MM-dd
-    final nextStr = DateTime.now().add(const Duration(days: 30)).toString().split(' ')[0];
+    _centers[centerIndex] = c.copyWith(
+      inventory2_5mg: inv25,
+      inventory5mg: inv5,
+      inventory7_5mg: inv75,
+      inventory10mg: inv10,
+      dispensed2_5mg: disp25,
+      dispensed5mg: disp5,
+      dispensed7_5mg: disp75,
+      dispensed10mg: disp10,
+    );
 
+    final now = DateTime.now();
+    final nowStr = _formatDate(now);
+    final nextStr = _nextEligibleAfter(now, intervalDays);
+    final updatedDoseHistory = List<String>.from(p.doseHistory)..add(doseToDispense);
+
+    final newRecord = PatientDispenseRecord(
+      date: nowStr,
+      dose: doseToDispense,
+      centerId: centerId,
+    );
     _patients[patientIndex] = p.copyWith(
       lastDispensingDate: nowStr,
+      lastDispensingCenterId: centerId,
       nextEligibleDate: nextStr,
-      currentDose: dose,
+      currentDose: doseToDispense,
+      doseHistory: updatedDoseHistory,
+      dispenseRecords: [...p.dispenseRecords, newRecord],
     );
 
     // Add activity log
+    _dispenseAuthorizations.remove(patientId);
+    _earlyDispenseReviewQueue.remove(patientId);
+
     _logs.insert(
       0,
-      ActivityLog(
+      ActivityLog.dispense(
         id: 'LOG${_logs.length + 1}',
-        patientName: p.fullName,
-        patientNameAr: p.fullNameAr,
-        patientId: p.id,
-        action: 'Dispensed $dose',
-        actionAr: 'صرف $dose',
-        centerName: c.name,
-        centerNameAr: c.nameAr,
+        patient: PatientRef(id: p.id, name: p.fullName, nameAr: p.fullNameAr),
+        dose: doseToDispense,
+        center: CenterRef(name: c.name, nameAr: c.nameAr),
         timestamp: DateTime.now(),
-        status: isOverride ? 'Overridden' : 'Success',
-        statusAr: isOverride ? 'تم التجاوز' : 'ناجح',
+        isOverride: isOverride,
       ),
     );
 
@@ -1265,14 +1632,15 @@ class DataProvider extends ChangeNotifier {
     _logs.insert(
       0,
       ActivityLog(
-        id: 'LOG\${_logs.length + 1}',
+        id: 'LOG${_logs.length + 1}',
         patientName: p.fullName,
         patientNameAr: p.fullNameAr,
         patientId: p.id,
-        action: 'Weight updated to \${newWeight.toStringAsFixed(1)} kg',
-        actionAr: 'تم تحديث الوزن',
-        centerName: 'Clinical Portal',
-        centerNameAr: 'البوابة السريرية',
+        eventType: ActivityEventType.weightUpdate,
+        action: 'Weight updated · ${newWeight.toStringAsFixed(1)} kg',
+        actionAr: 'تحديث وزن · ${newWeight.toStringAsFixed(1)} كغ',
+        centerName: 'Physician Portal',
+        centerNameAr: 'بوابة الطبيب المعالج',
         timestamp: DateTime.now(),
         status: 'Success',
         statusAr: 'ناجح',
@@ -1295,17 +1663,19 @@ class DataProvider extends ChangeNotifier {
       doseHistory: updatedDoseHistory,
     );
 
+    final doseLabel = DoseUtils.toInventoryDose(newDose);
     _logs.insert(
       0,
       ActivityLog(
-        id: 'LOG\${_logs.length + 1}',
+        id: 'LOG${_logs.length + 1}',
         patientName: p.fullName,
         patientNameAr: p.fullNameAr,
         patientId: p.id,
-        action: 'Dose escalated to \$newDose',
-        actionAr: 'تمت زيادة الجرعة',
-        centerName: 'Clinical Portal',
-        centerNameAr: 'البوابة السريرية',
+        eventType: ActivityEventType.doseChange,
+        action: 'Dose changed · $doseLabel',
+        actionAr: 'تعديل جرعة · $doseLabel',
+        centerName: 'Physician Portal',
+        centerNameAr: 'بوابة الطبيب المعالج',
         timestamp: DateTime.now(),
         status: 'Success',
         statusAr: 'ناجح',
@@ -1315,26 +1685,60 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String generateNextPatientId() {
+    final nums = _patients
+        .map((p) => int.tryParse(p.id.replaceAll(RegExp(r'[^0-9]'), '')))
+        .whereType<int>();
+    final next = (nums.isEmpty ? 0 : nums.reduce((a, b) => a > b ? a : b)) + 1;
+    return 'P${next.toString().padLeft(3, '0')}';
+  }
+
   // Add new Patient
   void registerPatient(Patient newPatient) {
     _patients.add(newPatient);
-    
+
+    final chronicNote = newPatient.hasChronicDisease
+        ? 'Chronic disease: yes'
+        : 'Chronic disease: no';
     _logs.insert(
       0,
       ActivityLog(
-        id: 'LOG\${_logs.length + 1}',
+        id: 'LOG${_logs.length + 1}',
         patientName: newPatient.fullName,
         patientNameAr: newPatient.fullNameAr,
         patientId: newPatient.id,
-        action: 'Patient registered',
-        actionAr: 'تم تسجيل المريض',
-        centerName: 'Ministry System',
-        centerNameAr: 'نظام الوزارة',
+        eventType: ActivityEventType.registration,
+        action: 'Beneficiary registered · $chronicNote',
+        actionAr: newPatient.hasChronicDisease
+            ? 'تسجيل مستفيد · أمراض مزمنة: نعم'
+            : 'تسجيل مستفيد · أمراض مزمنة: لا',
+        centerName: 'Physician Portal',
+        centerNameAr: 'بوابة الطبيب المعالج',
         timestamp: DateTime.now(),
         status: 'Success',
         statusAr: 'ناجح',
       ),
     );
+
+    for (final doc in newPatient.clinicalAttachments) {
+      _logs.insert(
+        0,
+        ActivityLog(
+          id: 'LOG${_logs.length + 1}',
+          patientName: newPatient.fullName,
+          patientNameAr: newPatient.fullNameAr,
+          patientId: newPatient.id,
+          eventType: ActivityEventType.documentUpload,
+          action: 'Lab document uploaded · ${doc.fileName}',
+          actionAr: 'رفع مستند · ${doc.fileName}',
+          centerName: 'Physician Portal',
+          centerNameAr: 'بوابة الطبيب المعالج',
+          timestamp: doc.uploadedAt,
+          status: 'Success',
+          statusAr: 'ناجح',
+        ),
+      );
+    }
 
     notifyListeners();
   }
@@ -1355,12 +1759,13 @@ class DataProvider extends ChangeNotifier {
     _logs.insert(
       0,
       ActivityLog(
-        id: 'LOG\${_logs.length + 1}',
+        id: 'LOG${_logs.length + 1}',
         patientName: 'System Inventory',
         patientNameAr: 'جرد النظام',
         patientId: 'INV',
-        action: 'Restocked at \${c.name}',
-        actionAr: 'تم إعادة التخزين',
+        eventType: ActivityEventType.inventory,
+        action: 'Inventory restocked · ${c.name}',
+        actionAr: 'إعادة تخزين · ${c.nameAr}',
         centerName: 'Central Depot',
         centerNameAr: 'المستودع المركزي',
         timestamp: DateTime.now(),
@@ -1394,7 +1799,7 @@ class DataProvider extends ChangeNotifier {
     // Mocking 1000 AED per dispensation * coverage rate
     double total = 0.0;
     for (var log in _logs) {
-      if (log.action.startsWith('Dispense') && log.status != 'Flagged') {
+      if (log.eventType == ActivityEventType.dispense && log.status != 'Flagged') {
         final p = _patients.firstWhere((pat) => pat.id == log.patientId, orElse: () => _patients.first);
         double rate = p.residencyStatus == ResidencyStatus.citizen ? 1.0 : (p.residencyStatus == ResidencyStatus.resident ? 0.5 : 0.0);
         total += 1000.0 * rate;
@@ -1405,12 +1810,117 @@ class DataProvider extends ChangeNotifier {
   }
 
   int get fraudIncidentsPrevented {
-    return _logs.where((l) => l.status == 'Flagged').length + 342; // Add base to match original kpi
+    return _logs.where((l) => l.status == 'Flagged' || l.status == 'Overridden').length +
+        DemoMetrics.nationalFraudPreventedBase;
+  }
+
+  double get nationalAverageBmiDrop {
+    if (_patients.isEmpty) return 0;
+    final current = averageBmi;
+    return (DemoMetrics.baselineNationalBmi - current).clamp(0, 10);
+  }
+
+  double get obesityIndexReductionPercent {
+    if (DemoMetrics.baselineNationalBmi <= 0) return 0;
+    return ((DemoMetrics.baselineNationalBmi - averageBmi) / DemoMetrics.baselineNationalBmi * 100)
+        .clamp(0, 100);
   }
 
   void createTreatmentPlan(TreatmentPlan plan) {
-    _treatmentPlans.add(plan);
+    final patientIndex = _patients.indexWhere((p) => p.id == plan.patientId);
+    if (patientIndex == -1) return;
+
+    final p = _patients[patientIndex];
+    final needsReview = p.lastDispensingDate != null &&
+        p.isWithinDispensingCooldown(cooldownDays: plan.medicationFrequencyDays);
+    final planToSave = plan.copyWith(
+      clinicalApprovalStatus: needsReview ? 'pending_review' : 'approved',
+    );
+
+    _treatmentPlans.removeWhere((tp) => tp.patientId == plan.patientId);
+    _treatmentPlans.add(planToSave);
+    if (needsReview) {
+      _dispenseAuthorizations.remove(plan.patientId);
+      _earlyDispenseReviewQueue.remove(plan.patientId);
+    }
+
+    final dose = DoseUtils.toInventoryDose(planToSave.medicationDose);
+    final String nextEligible;
+    if (p.lastDispensingDate == null) {
+      nextEligible = 'Eligible Now';
+    } else {
+      final parts = p.lastDispensingDate!.split('-');
+      if (parts.length == 3) {
+        final last = DateTime(
+          int.parse(parts[0]),
+          int.parse(parts[1]),
+          int.parse(parts[2]),
+        );
+        nextEligible = _nextEligibleAfter(last, planToSave.medicationFrequencyDays);
+      } else {
+        nextEligible = _nextEligibleAfter(DateTime.now(), planToSave.medicationFrequencyDays);
+      }
+    }
+
+    _patients[patientIndex] = p.copyWith(
+      currentDose: dose,
+      nextEligibleDate: nextEligible,
+    );
+
+    _logs.insert(
+      0,
+      ActivityLog.carePlan(
+        id: 'LOG${_logs.length + 1}',
+        patient: PatientRef(id: p.id, name: p.fullName, nameAr: p.fullNameAr),
+        dose: dose,
+        intervalDays: planToSave.medicationFrequencyDays,
+        timestamp: DateTime.now(),
+        pendingReview: needsReview,
+      ),
+    );
+
     notifyListeners();
+  }
+
+  Patient? getPatientById(String id) {
+    try {
+      return _patients.firstWhere((p) => p.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  PhysicalTherapyCenter? getTherapyCenterById(String? centerId) {
+    if (centerId == null || centerId.isEmpty) return null;
+    try {
+      return _therapyCenters.firstWhere((c) => c.id == centerId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Map marker / care-plan ID → localized center name (same data as national map).
+  String therapyCenterLabel(BuildContext context, String? centerId) {
+    final center = getTherapyCenterById(centerId);
+    if (center != null) return center.getLocalizedName(context);
+    if (centerId == null || centerId.isEmpty) return '';
+    return centerId;
+  }
+
+  DispensingCenter? getDispensingCenterById(String? centerId) {
+    if (centerId == null || centerId.isEmpty) return null;
+    try {
+      return _centers.firstWhere((c) => c.id == centerId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String dispensingFacilityLabel(BuildContext context, String? centerId) {
+    final center = getDispensingCenterById(centerId);
+    if (center != null) return center.getLocalizedName(context);
+    if (centerId == null || centerId.isEmpty) return '';
+    return centerId;
   }
 
   TreatmentPlan? getPlanForPatient(String patientId) {

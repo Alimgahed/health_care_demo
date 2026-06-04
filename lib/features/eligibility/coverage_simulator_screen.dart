@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/constants/mock_data.dart';
+import '../../core/localization/l10n_extension.dart';
 
 class CoverageSimulatorScreen extends StatefulWidget {
   const CoverageSimulatorScreen({super.key});
@@ -31,7 +32,7 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Coverage Simulator'),
+        title: Text(context.tr('coverage_simulator')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -39,12 +40,12 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Simulate Patient Coverage',
+              context.tr('simulate_coverage'),
               style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 8),
             Text(
-              'Calculate government subsidy and patient contribution based on residency status.',
+              context.tr('simulate_coverage_sub'),
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -58,13 +59,13 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Patient Status', style: Theme.of(context).textTheme.titleLarge),
+                    Text(context.tr('patient_status'), style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 16),
                     SegmentedButton<ResidencyStatus>(
-                      segments: const [
-                        ButtonSegment(value: ResidencyStatus.citizen, label: Text('Emirati')),
-                        ButtonSegment(value: ResidencyStatus.resident, label: Text('Resident')),
-                        ButtonSegment(value: ResidencyStatus.visitor, label: Text('Visitor')),
+                      segments: [
+                        ButtonSegment(value: ResidencyStatus.citizen, label: Text(context.tr('emirati'))),
+                        ButtonSegment(value: ResidencyStatus.resident, label: Text(context.tr('resident'))),
+                        ButtonSegment(value: ResidencyStatus.visitor, label: Text(context.tr('visitor'))),
                       ],
                       selected: {_selectedStatus},
                       onSelectionChanged: (Set<ResidencyStatus> newSelection) {
@@ -74,7 +75,7 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                       },
                     ),
                     const SizedBox(height: 32),
-                    Text('Mounjaro Price (AED)', style: Theme.of(context).textTheme.titleLarge),
+                    Text(context.tr('mounjaro_price'), style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 16),
                     Row(
                       children: [
@@ -106,13 +107,14 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
             const SizedBox(height: 32),
             
             // Outputs
-            Text('Simulation Results', style: Theme.of(context).textTheme.titleLarge),
+            Text(context.tr('simulation_results'), style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: _buildResultCard(
-                    'Govt. Pays',
+                    context,
+                    context.tr('govt_contribution'),
                     _governmentContribution,
                     AppColors.success,
                   ),
@@ -120,7 +122,8 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildResultCard(
-                    'Patient Pays',
+                    context,
+                    context.tr('patient_contribution'),
                     _patientContribution,
                     AppColors.warning,
                   ),
@@ -136,7 +139,7 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Coverage',
+                      context.tr('eligibility_status'),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.white,
                       ),
@@ -157,7 +160,7 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
     );
   }
 
-  Widget _buildResultCard(String label, double amount, Color color) {
+  Widget _buildResultCard(BuildContext context, String label, double amount, Color color) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20.0),

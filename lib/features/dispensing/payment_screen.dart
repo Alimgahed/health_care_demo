@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/constants/mock_data.dart';
+import '../../core/localization/l10n_extension.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Patient patient;
@@ -44,7 +45,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => const PaymentSuccessScreen(),
+        builder: (context) => PaymentSuccessScreen(
+          patientName: widget.patient.getLocalizedFullName(context),
+        ),
       ),
     );
   }
@@ -53,7 +56,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payment Simulation'),
+        title: Text(context.tr('patient_copayment')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -67,7 +70,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'Amount to Pay',
+                      context.tr('amount_to_pay'),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.white70,
                       ),
@@ -85,26 +88,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             const SizedBox(height: 32),
             Text(
-              'Select Payment Method',
+              context.tr('select_payment_method'),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             _buildPaymentMethod(
-              'Govt Health Wallet',
+              context.tr('gov_health_wallet'),
               LucideIcons.wallet,
               'health_wallet',
               AppColors.primary,
             ),
             const SizedBox(height: 12),
             _buildPaymentMethod(
-              'Apple Pay',
+              context.tr('apple_pay'),
               LucideIcons.apple,
               'apple_pay',
               Colors.black,
             ),
             const SizedBox(height: 12),
             _buildPaymentMethod(
-              'Credit / Debit Card',
+              context.tr('credit_debit'),
               LucideIcons.creditCard,
               'card',
               AppColors.info,
@@ -120,7 +123,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('Confirm Payment', style: TextStyle(fontSize: 18)),
+            child: Text(context.tr('confirm_payment'), style: const TextStyle(fontSize: 18)),
           ),
         ),
       ),
@@ -166,10 +169,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
 }
 
 class PaymentSuccessScreen extends StatelessWidget {
-  const PaymentSuccessScreen({super.key});
+  final String? patientName;
+
+  const PaymentSuccessScreen({super.key, this.patientName});
 
   @override
   Widget build(BuildContext context) {
+    final ref = DateTime.now().millisecondsSinceEpoch.toString().substring(7);
+    final successBody = patientName != null
+        ? '${context.tr('dispense_success', {'name': patientName!})}\n${context.tr('claim_ref', {'ref': ref})}'
+        : context.tr('dispense_success_generic');
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: SafeArea(
@@ -187,25 +197,24 @@ class PaymentSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                'Payment Successful',
+                context.tr('payment_successful'),
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.white),
               ),
               const SizedBox(height: 16),
               Text(
-                'Mounjaro has been successfully dispensed.',
+                successBody,
+                textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
               ),
               const SizedBox(height: 48),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
+                onPressed: () => Navigator.of(context).pop(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                child: const Text('Return to Dashboard', style: TextStyle(fontSize: 16)),
+                child: Text(context.tr('return_dashboard'), style: const TextStyle(fontSize: 16)),
               ),
             ],
           ),

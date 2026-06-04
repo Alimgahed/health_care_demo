@@ -2,94 +2,102 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/mock_data.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/custom_toast.dart';
+import '../clinical/clinical_eligibility_banner.dart';
 import 'payment_screen.dart';
 
 class PatientDispensingDetails extends StatelessWidget {
   final Patient patient;
+  final String centerId;
 
   const PatientDispensingDetails({
     super.key,
     required this.patient,
+    this.centerId = 'C001',
   });
 
-  bool get _isDuplicateRisk {
-    // Mock logic: if dispensed this month (using June 2026 as current)
-    if (patient.lastDispensingDate != null) {
-      if (patient.lastDispensingDate!.contains('2026-06')) {
-        return true;
+  String _statusLabel(BuildContext context, DispensingUiStatus status) {
+    switch (status) {
+      case DispensingUiStatus.eligible:
+        return context.tr('eligible_dispensation');
+      case DispensingUiStatus.approvedEarly:
+        return context.tr('status_clinical_approved_dispense');
+      case DispensingUiStatus.pendingCarePlan:
+        return context.tr('status_pending_care_plan');
+      case DispensingUiStatus.pendingClinicalReview:
+        return context.tr('status_pending_clinical_review');
+      case DispensingUiStatus.clinicalIneligible:
+        return context.tr('status_program_ineligible');
+    }
+  }
+
+  String _subsidyPct(BuildContext context, Patient p) {
+    switch (p.residencyStatus) {
+      case ResidencyStatus.citizen:
+        return '100%';
+      case ResidencyStatus.resident:
+        return '50%';
+      case ResidencyStatus.visitor:
+        return '0%';
+    }
+  }
+
+  void _processDispensing(BuildContext context, Patient p, DataProvider dp) {
+    if (!dp.canDispensePatient(p)) {
+      dp.ensureEarlyDispenseReviewQueued(p.id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('dispense_pending_clinical_msg', {'date': p.nextEligibleDate ?? ''})),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+    _showPaymentSimulation(context, p, isOverride: false);
+  }
+
+  void _showPaymentSimulation(BuildContext context, Patient p, {bool isOverride = false}) {
+    final double patientToPay = p.residencyStatus == ResidencyStatus.citizen
+        ? 0.0
+        : (p.residencyStatus == ResidencyStatus.resident ? 500.0 : 1000.0);
+
+    final provider = Provider.of<DataProvider>(context, listen: false);
+    final resolvedCenterId = provider.centers.any((c) => c.id == centerId)
+        ? centerId
+        : provider.centers.first.id;
+
+    void completeDispense() {
+      final ok = provider.dispenseMedication(
+        patientId: p.id,
+        centerId: resolvedCenterId,
+        dose: p.currentDose,
+        isOverride: isOverride,
+      );
+      if (!ok && context.mounted) {
+        CustomToast.showMessage(context, context.tr('insufficient_inventory'), isError: true);
       }
     }
-    return false;
-  }
 
-  void _processDispensing(BuildContext context) {
-    if (_isDuplicateRisk) {
-      _showDuplicateWarning(context);
-    } else {
-      _showPaymentSimulation(context);
-    }
-  }
-
-  void _showDuplicateWarning(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(LucideIcons.alertTriangle, color: AppColors.error, size: 48),
-        title: const Text('Duplicate Dispensing Alert'),
-        content: Text(
-          'Patient ${patient.getLocalizedFullName(context)} already received Mounjaro recently on ${patient.lastDispensingDate}. Next eligible date is ${patient.nextEligibleDate}.',
-          textAlign: TextAlign.center,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Handle override request...
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Request Manual Override'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPaymentSimulation(BuildContext context) {
-    final double patientToPay = patient.residencyStatus == ResidencyStatus.citizen ? 0.0 : 
-                                (patient.residencyStatus == ResidencyStatus.resident ? 500.0 : 1000.0);
-    
-    final provider = Provider.of<DataProvider>(context, listen: false);
-    final centerId = provider.centers.isNotEmpty ? provider.centers.first.id : 'center_1';
-    
     if (patientToPay == 0.0) {
-      provider.dispenseMedication(
-        patientId: patient.id,
-        centerId: centerId,
-        dose: patient.currentDose,
-      );
+      completeDispense();
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const PaymentSuccessScreen()),
+        MaterialPageRoute(
+          builder: (context) => PaymentSuccessScreen(
+            patientName: p.getLocalizedFullName(context),
+          ),
+        ),
       );
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PaymentScreen(
-            patient: patient,
+            patient: p,
             amountToPay: patientToPay,
-            onPaymentSuccess: () {
-              provider.dispenseMedication(
-                patientId: patient.id,
-                centerId: centerId,
-                dose: patient.currentDose,
-              );
-            },
+            onPaymentSuccess: completeDispense,
           ),
         ),
       );
@@ -98,41 +106,53 @@ class PatientDispensingDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Consumer<DataProvider>(
+      builder: (context, dp, _) {
+        final p = dp.getPatientById(patient.id) ?? patient;
+        final uiStatus = dp.dispensingUiStatus(p);
+        final canDispense = dp.canDispensePatient(p);
+        final doseLabel = context.mounjaroDoseLabel(p.currentDose);
+        if (uiStatus == DispensingUiStatus.pendingClinicalReview) {
+          dp.ensureEarlyDispenseReviewQueued(p.id);
+        }
+
+        return Scaffold(
       appBar: AppBar(
-        title: const Text('Dispensing Review'),
+        title: Text(context.tr('dispensing_review')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_isDuplicateRisk)
+            ClinicalEligibilityBanner(patient: p),
+            if (!canDispense && uiStatus != DispensingUiStatus.clinicalIneligible)
               Container(
                 margin: const EdgeInsets.only(bottom: 24),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
+                  color: AppColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.error.withValues(alpha: 0.5)),
+                  border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(LucideIcons.shieldAlert, color: AppColors.error),
+                    const Icon(LucideIcons.clock, color: AppColors.warning),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'WARNING: Patient received medication recently. Dispensing blocked until ${patient.nextEligibleDate}.',
+                        uiStatus == DispensingUiStatus.pendingCarePlan
+                            ? context.tr('care_plan_pending_approval_msg')
+                            : context.tr('dispense_pending_clinical_msg', {'date': p.nextEligibleDate ?? ''}),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.error,
-                          fontWeight: FontWeight.w600,
-                        ),
+                              color: AppColors.warning,
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                     ),
                   ],
                 ),
               ),
-
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -143,54 +163,74 @@ class PatientDispensingDetails extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           backgroundColor: AppColors.primary,
-                          child: Text(patient.getLocalizedFullName(context).substring(0, 1), style: const TextStyle(color: Colors.white)),
+                          child: Text(
+                            p.getLocalizedFullName(context).substring(0, 1),
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(patient.getLocalizedFullName(context), style: Theme.of(context).textTheme.titleLarge),
-                              Text(patient.emiratesId, style: Theme.of(context).textTheme.bodyMedium),
+                              Text(
+                                p.getLocalizedFullName(context),
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              Text(p.emiratesId, style: Theme.of(context).textTheme.bodyMedium),
                             ],
                           ),
                         ),
                       ],
                     ),
                     const Divider(height: 32),
-                    _buildDetailRow(context, 'Current Dose', patient.currentDose, isHighlight: true),
+                    _buildDetailRow(context, context.tr('current_dose'), doseLabel, isHighlight: true),
                     const SizedBox(height: 12),
-                    _buildDetailRow(context, 'Last Dispensed', patient.lastDispensingDate ?? 'Never'),
+                    _buildDetailRow(
+                      context,
+                      context.tr('last_dispensed'),
+                      p.lastDispensingDate ?? context.tr('never'),
+                    ),
+                    if (p.lastDispensingCenterId != null) ...[
+                      const SizedBox(height: 12),
+                      _buildDetailRow(
+                        context,
+                        context.tr('last_dispensing_facility'),
+                        dp.dispensingFacilityLabel(context, p.lastDispensingCenterId),
+                      ),
+                    ],
                     const SizedBox(height: 12),
-                    _buildDetailRow(context, 'Next Eligible', patient.nextEligibleDate ?? 'Now'),
+                    _buildDetailRow(
+                      context,
+                      context.tr('next_eligible'),
+                      p.nextEligibleDate ?? context.tr('now'),
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 24),
-            
-            // Subsidy summary
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Coverage & Payment', style: Theme.of(context).textTheme.titleLarge),
+                    Text(context.tr('coverage_payment'), style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 16),
-                    _buildDetailRow(context, 'Total Cost', '1,000.00 AED'),
+                    _buildDetailRow(context, context.tr('total_cost'), '1,000.00 AED'),
                     const SizedBox(height: 12),
                     _buildDetailRow(
-                      context, 
-                      'Govt. Subsidy (${patient.residencyStatus == ResidencyStatus.citizen ? '100%' : (patient.residencyStatus == ResidencyStatus.resident ? '50%' : '0%')})', 
-                      '${patient.residencyStatus == ResidencyStatus.citizen ? '1,000.00' : (patient.residencyStatus == ResidencyStatus.resident ? '500.00' : '0.00')} AED',
+                      context,
+                      context.tr('govt_subsidy_line', {'pct': _subsidyPct(context, p)}),
+                      '${p.residencyStatus == ResidencyStatus.citizen ? '1,000.00' : (p.residencyStatus == ResidencyStatus.resident ? '500.00' : '0.00')} AED',
                       color: AppColors.success,
                     ),
                     const Divider(height: 32),
                     _buildDetailRow(
-                      context, 
-                      'Patient to Pay', 
-                      '${patient.residencyStatus == ResidencyStatus.citizen ? '0.00' : (patient.residencyStatus == ResidencyStatus.resident ? '500.00' : '1,000.00')} AED',
+                      context,
+                      context.tr('patient_pay_line'),
+                      '${p.residencyStatus == ResidencyStatus.citizen ? '0.00' : (p.residencyStatus == ResidencyStatus.resident ? '500.00' : '1,000.00')} AED',
                       isHighlight: true,
                     ),
                   ],
@@ -204,38 +244,39 @@ class PatientDispensingDetails extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
-            onPressed: () => _processDispensing(context),
+            onPressed: canDispense ? () => _processDispensing(context, p, dp) : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: _isDuplicateRisk ? AppColors.error : AppColors.primary,
+              backgroundColor: canDispense ? AppColors.primary : AppColors.border,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: Text(
-              _isDuplicateRisk ? 'Review Dispensing Alert' : 'Proceed to Payment',
+              canDispense ? context.tr('proceed_copayment') : _statusLabel(context, uiStatus),
               style: const TextStyle(fontSize: 18),
             ),
           ),
         ),
       ),
     );
+      },
+    );
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value, {bool isHighlight = false, Color? color}) {
+  Widget _buildDetailRow(BuildContext context, String label, String value,
+      {bool isHighlight = false, Color? color}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
         ),
         Text(
           value,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: isHighlight ? FontWeight.bold : FontWeight.w600,
-            fontSize: isHighlight ? 18 : 16,
-            color: color ?? AppColors.textPrimary,
-          ),
+                fontWeight: isHighlight ? FontWeight.bold : FontWeight.w600,
+                fontSize: isHighlight ? 18 : 16,
+                color: color ?? AppColors.textPrimary,
+              ),
         ),
       ],
     );

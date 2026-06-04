@@ -2,16 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/localization/app_localizations.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../dispensing/payment_screen.dart';
 import '../../auth/login_screen.dart';
 import '../../../core/widgets/custom_toast.dart';
+import '../../../core/utils/dose_utils.dart';
+import '../../clinical/clinical_eligibility_banner.dart';
 
 
 class WebCenterShell extends StatefulWidget {
-  const WebCenterShell({super.key});
+  final String? initialPatientId;
+  final bool embeddedInAdmin;
+
+  const WebCenterShell({
+    super.key,
+    this.initialPatientId,
+    this.embeddedInAdmin = false,
+  });
 
   @override
   State<WebCenterShell> createState() => _WebCenterShellState();
@@ -24,33 +33,114 @@ class _WebCenterShellState extends State<WebCenterShell> {
   String _searchQuery = '';
   final String _centerId = 'C001'; // Mocked as Dubai Central Hospital for this shell
 
+  Patient _livePatient(DataProvider provider, Patient fallback) {
+    return provider.getPatientById(fallback.id) ?? fallback;
+  }
+
+  void _syncActivePatient(DataProvider provider) {
+    if (_activePatient == null) return;
+    final fresh = provider.getPatientById(_activePatient!.id);
+    if (fresh != null) _activePatient = fresh;
+  }
+
+  void _afterDispenseComplete(DataProvider provider, String patientId) {
+    setState(() {
+      final fresh = provider.getPatientById(patientId);
+      if (fresh != null && !provider.canDispensePatient(fresh)) {
+        _activePatient = null;
+        _searchController.clear();
+        _searchQuery = '';
+      } else {
+        _syncActivePatient(provider);
+      }
+    });
+  }
+
+  String _dispensingStatusLabel(BuildContext context, DispensingUiStatus status) {
+    switch (status) {
+      case DispensingUiStatus.eligible:
+        return context.tr('eligible_dispensation');
+      case DispensingUiStatus.approvedEarly:
+        return context.tr('status_clinical_approved_dispense');
+      case DispensingUiStatus.pendingCarePlan:
+        return context.tr('status_pending_care_plan');
+      case DispensingUiStatus.pendingClinicalReview:
+        return context.tr('status_pending_clinical_review');
+      case DispensingUiStatus.clinicalIneligible:
+        return context.tr('status_program_ineligible');
+    }
+  }
+
+  Color _statusColor(DispensingUiStatus status) {
+    switch (status) {
+      case DispensingUiStatus.eligible:
+      case DispensingUiStatus.approvedEarly:
+        return AppColors.success;
+      case DispensingUiStatus.pendingCarePlan:
+      case DispensingUiStatus.pendingClinicalReview:
+        return AppColors.warning;
+      case DispensingUiStatus.clinicalIneligible:
+        return AppColors.error;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialPatientId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final dataProvider = Provider.of<DataProvider>(context, listen: false);
+        final p = dataProvider.getPatientById(widget.initialPatientId!);
+        if (p != null && mounted) {
+          setState(() {
+            _activePatient = p;
+            _searchController.text = p.emiratesId;
+            _searchQuery = p.emiratesId;
+          });
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
     final dataProvider = Provider.of<DataProvider>(context);
 
     // Get current center details
     final center = dataProvider.centers.firstWhere((c) => c.id == _centerId, orElse: () => dataProvider.centers.first);
 
+    final body = _selectedIndex == 0
+        ? _buildDispenseView(context, dataProvider, center)
+        : (_selectedIndex == 1
+            ? _buildInventoryView(context, dataProvider, center)
+            : _buildLogsView(context, dataProvider));
+
+    if (widget.embeddedInAdmin) {
+      return ColoredBox(
+        color: AppColors.background,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildEmbeddedAdminHeader(context, center, dataProvider),
+            Expanded(child: body),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: Drawer(
-        child: _buildSidebar(t),
+        child: _buildSidebar(context, dataProvider),
       ),
       body: Row(
         children: [
           Expanded(
             child: Column(
               children: [
-                _buildTopbar(t, localeProvider, dataProvider, center),
-                Expanded(
-                  child: _selectedIndex == 0
-                      ? _buildDispenseView(t, dataProvider, center)
-                      : (_selectedIndex == 1 
-                          ? _buildInventoryView(t, dataProvider, center)
-                          : _buildLogsView(t, dataProvider)),
-                ),
+                _buildTopbar(context, localeProvider, dataProvider, center),
+                Expanded(child: body),
               ],
             ),
           ),
@@ -59,7 +149,100 @@ class _WebCenterShellState extends State<WebCenterShell> {
     );
   }
 
-  Widget _buildTopbar(AppLocalizations t, LocaleProvider localeProvider, DataProvider dataProvider, DispensingCenter center) {
+  Widget _buildEmbeddedAdminHeader(BuildContext context, DispensingCenter center, DataProvider provider) {
+    final ready = provider.countPatientsReadyToDispense();
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: AppColors.border)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('admin_embed_dispensing_title'),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.tr('admin_embed_dispensing_sub', {'center': center.getLocalizedName(context)}),
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              if (ready > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.35)),
+                  ),
+                  child: Text(
+                    '$ready ${context.tr('badge_ready_dispense')}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: AppColors.success,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 10,
+            runSpacing: 8,
+            children: [
+              _embeddedTab(context, LucideIcons.scanLine, context.tr('dispense_mounjaro'), 0),
+              _embeddedTab(context, LucideIcons.package, context.tr('live_stock_inventory'), 1),
+              _embeddedTab(context, LucideIcons.history, context.tr('dispensing_activity_logs'), 2),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _embeddedTab(BuildContext context, IconData icon, String label, int index) {
+    final selected = _selectedIndex == index;
+    return Material(
+      color: selected ? AppColors.primary.withValues(alpha: 0.12) : AppColors.background,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: () => setState(() => _selectedIndex = index),
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: selected ? AppColors.primary : AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: selected ? AppColors.primary : AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopbar(BuildContext context, LocaleProvider localeProvider, DataProvider dataProvider, DispensingCenter center) {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -83,7 +266,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Dispensing Center Portal',
+                Text(context.tr('dispensing_portal'),
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -96,10 +279,28 @@ class _WebCenterShellState extends State<WebCenterShell> {
               ],
             ),
           ),
+          if (dataProvider.countPatientsReadyToDispense() > 0) ...[
+            Container(
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${dataProvider.countPatientsReadyToDispense()} ${context.tr('badge_ready_dispense')}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.success,
+                ),
+              ),
+            ),
+          ],
           OutlinedButton.icon(
             onPressed: localeProvider.toggleLanguage,
             icon: const Icon(LucideIcons.globe, size: 14, color: AppColors.navy),
-            label: Text(localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+            label: Text(localeProvider.locale.languageCode == 'en' ? context.tr('arabic') : context.tr('english'),
                 style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.navy,
@@ -126,7 +327,8 @@ class _WebCenterShellState extends State<WebCenterShell> {
     );
   }
 
-  Widget _buildSidebar(AppLocalizations t) {
+  Widget _buildSidebar(BuildContext context, DataProvider provider) {
+    final readyCount = provider.countPatientsReadyToDispense();
     return Container(
       width: 240,
       color: AppColors.navy,
@@ -157,13 +359,13 @@ class _WebCenterShellState extends State<WebCenterShell> {
                       color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Mounjaro NCC',
-                        style: TextStyle(
+                        context.tr('ncc_brand'),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -171,8 +373,8 @@ class _WebCenterShellState extends State<WebCenterShell> {
                         ),
                       ),
                       Text(
-                        'Center Portal',
-                        style: TextStyle(
+                        context.tr('center_portal_subtitle'),
+                        style: const TextStyle(
                           color: AppColors.accent,
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -190,10 +392,15 @@ class _WebCenterShellState extends State<WebCenterShell> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _navSection('Operations'),
-                  _buildSidebarItem(LucideIcons.scanLine, 'Dispense Medication', 0),
-                  _buildSidebarItem(LucideIcons.package, 'Live Stock Inventory', 1),
-                  _buildSidebarItem(LucideIcons.history, 'Dispensing Activity Logs', 2),
+                  _navSection(context.tr('nav_operations')),
+                  _buildSidebarItem(
+                    LucideIcons.scanLine,
+                    context.tr('dispense_mounjaro'),
+                    0,
+                    badge: readyCount > 0 ? '$readyCount' : null,
+                  ),
+                  _buildSidebarItem(LucideIcons.package, context.tr('live_stock_inventory'), 1),
+                  _buildSidebarItem(LucideIcons.history, context.tr('dispensing_activity_logs'), 2),
                 ],
               ),
             ),
@@ -224,18 +431,18 @@ class _WebCenterShellState extends State<WebCenterShell> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Pharmacist Admin',
+                      Text(context.tr('pharmacist_role'),
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
-                      Text('Dubai Central Depot',
+                      Text(context.tr('center_depot'),
                           style: TextStyle(
                               color: Colors.white54, fontSize: 11),
                           maxLines: 1,
@@ -266,7 +473,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
     );
   }
 
-  Widget _buildSidebarItem(IconData icon, String title, int index) {
+  Widget _buildSidebarItem(IconData icon, String title, int index, {String? badge}) {
     bool isSelected = _selectedIndex == index;
     return GestureDetector(
       onTap: () {
@@ -304,21 +511,55 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 ),
               ),
             ),
+            if (badge != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.accent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    color: AppColors.navy,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDispenseView(AppLocalizations t, DataProvider provider, DispensingCenter center) {
+  Widget _buildDispenseView(BuildContext context, DataProvider provider, DispensingCenter center) {
     // Left suggestions, right action form
     final suggestions = provider.patients.where((p) {
-      if (_searchQuery.isEmpty) {
-        // Return patients who haven't dispensed recently (due/eligible)
-        return p.lastDispensingDate == null || !p.lastDispensingDate!.contains('2026-06');
-      }
-      return p.getLocalizedFullName(context).toLowerCase().contains(_searchQuery.toLowerCase()) || p.emiratesId.contains(_searchQuery);
-    }).take(10).toList();
+      final matchesSearch = _searchQuery.isEmpty ||
+          p.getLocalizedFullName(context).toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          p.emiratesId.contains(_searchQuery);
+      if (!matchesSearch) return false;
+      if (_searchQuery.isEmpty) return provider.canDispensePatient(p);
+      return true;
+    }).toList()
+      ..sort((a, b) {
+        int rank(DispensingUiStatus s) {
+          switch (s) {
+            case DispensingUiStatus.eligible:
+            case DispensingUiStatus.approvedEarly:
+              return 0;
+            case DispensingUiStatus.pendingClinicalReview:
+              return 1;
+            case DispensingUiStatus.pendingCarePlan:
+              return 2;
+            case DispensingUiStatus.clinicalIneligible:
+              return 3;
+          }
+        }
+        return rank(provider.dispensingUiStatus(a)).compareTo(rank(provider.dispensingUiStatus(b)));
+      });
+    final listPatients = suggestions.take(25).toList();
 
     return Row(
       children: [
@@ -333,9 +574,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Select Patient', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                    Text(context.tr('select_patient'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
                     const SizedBox(height: 8),
-                    const Text('Search Emirates ID or select an eligible patient below.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                    Text(context.tr('select_patient_sub'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _searchController,
@@ -344,8 +585,8 @@ class _WebCenterShellState extends State<WebCenterShell> {
                           _searchQuery = val;
                         });
                       },
-                      decoration: const InputDecoration(
-                        hintText: 'Enter Emirates ID or Name',
+                      decoration:  InputDecoration(
+                        hintText: context.tr('search_eid_name'),
                         prefixIcon: Icon(LucideIcons.search, size: 20),
                         contentPadding: EdgeInsets.symmetric(vertical: 12),
                       ),
@@ -357,15 +598,29 @@ class _WebCenterShellState extends State<WebCenterShell> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12),
                 child: Text(
-                  _searchQuery.isEmpty ? 'Suggested Patients (Due/Eligible)' : 'Search Results',
+                  _searchQuery.isEmpty ? context.tr('suggested_eligible') : context.tr('search_results'),
                   style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary, fontSize: 12),
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: suggestions.length,
+                child: listPatients.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(
+                            _searchQuery.isEmpty
+                                ? context.tr('no_ready_to_dispense')
+                                : context.tr('no_matching_patients'),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                  itemCount: listPatients.length,
                   itemBuilder: (context, idx) {
-                    final patient = suggestions[idx];
+                    final patient = listPatients[idx];
+                    final uiStatus = provider.dispensingUiStatus(patient);
                     bool isSelected = _activePatient != null && _activePatient!.id == patient.id;
                     return Container(
                       color: isSelected ? AppColors.primary.withOpacity(0.04) : Colors.transparent,
@@ -377,11 +632,30 @@ class _WebCenterShellState extends State<WebCenterShell> {
                             style: TextStyle(color: isSelected ? Colors.white : AppColors.primary, fontWeight: FontWeight.bold),
                           ),
                         ),
-                        title: Text(patient.getLocalizedFullName(context), style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy), maxLines: 1, overflow: TextOverflow.ellipsis),
-                        subtitle: Text(patient.emiratesId, style: const TextStyle(fontSize: 12)),
+                        title: Text(
+                          patient.getLocalizedFullName(context),
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(patient.emiratesId, style: const TextStyle(fontSize: 12)),
+                            Text(
+                              '${context.tr('last_dispense_date')}: ${patient.lastDispensingDate ?? context.tr('never_dispensed')}',
+                              style: TextStyle(fontSize: 11, color: _statusColor(uiStatus)),
+                            ),
+                            Text(
+                              _dispensingStatusLabel(context, uiStatus),
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _statusColor(uiStatus)),
+                            ),
+                          ],
+                        ),
                         onTap: () {
+                          provider.ensureEarlyDispenseReviewQueued(patient.id);
                           setState(() {
-                            _activePatient = patient;
+                            _activePatient = provider.getPatientById(patient.id) ?? patient;
                           });
                         },
                       ),
@@ -396,28 +670,43 @@ class _WebCenterShellState extends State<WebCenterShell> {
         // Right Column (Medication Dispensing details & verify) - 65%
         Expanded(
           child: _activePatient == null
-              ? _buildEmptyState('Select a patient from the list or enter details to start verification')
-              : _buildVerificationPane(context, _activePatient!, center, provider),
+              ? _buildEmptyState(context.tr('empty_select_patient'))
+              : _buildVerificationPane(
+                  context,
+                  _livePatient(provider, _activePatient!),
+                  center,
+                  provider,
+                ),
         ),
       ],
     );
   }
 
   Widget _buildVerificationPane(BuildContext context, Patient patient, DispensingCenter center, DataProvider provider) {
-    // Check eligibility
-    bool isDuplicateRisk = patient.lastDispensingDate != null && patient.lastDispensingDate!.contains('2026-06');
+    final plan = provider.getPlanForPatient(patient.id);
+    final intervalDays = provider.dispensingIntervalDaysFor(patient.id);
+    final uiStatus = provider.dispensingUiStatus(patient);
+    final canDispense = provider.canDispensePatient(patient);
+    final displayDose = plan != null
+        ? DoseUtils.toInventoryDose(plan.medicationDose)
+        : patient.currentDose;
     final double price = 1000.0;
     final double coverage = patient.residencyStatus == ResidencyStatus.citizen ? 1.0 :
                             (patient.residencyStatus == ResidencyStatus.resident ? 0.5 : 0.0);
     final double govtPays = price * coverage;
     final double patientPays = price - govtPays;
 
-    // Center stock checks
     int stock = 0;
-    if (patient.currentDose == '2.5 mg') stock = center.inventory2_5mg;
-    else if (patient.currentDose == '5 mg') stock = center.inventory5mg;
-    else if (patient.currentDose == '7.5 mg') stock = center.inventory7_5mg;
-    else if (patient.currentDose == '10 mg') stock = center.inventory10mg;
+    final doseKey = DoseUtils.toInventoryDose(displayDose);
+    if (doseKey == '2.5 mg') {
+      stock = center.inventory2_5mg;
+    } else if (doseKey == '5 mg') {
+      stock = center.inventory5mg;
+    } else if (doseKey == '7.5 mg') {
+      stock = center.inventory7_5mg;
+    } else if (doseKey == '10 mg') {
+      stock = center.inventory10mg;
+    }
     
     bool outOfStock = stock <= 0;
 
@@ -429,27 +718,27 @@ class _WebCenterShellState extends State<WebCenterShell> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Dispensing Checkout & Safety Verification', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.navy)),
+              Text(context.tr('dispensing_checkout'), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.navy)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isDuplicateRisk ? AppColors.error.withOpacity(0.08) : AppColors.success.withOpacity(0.08),
+                  color: _statusColor(uiStatus).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isDuplicateRisk ? AppColors.error.withOpacity(0.2) : AppColors.success.withOpacity(0.2)),
+                  border: Border.all(color: _statusColor(uiStatus).withValues(alpha: 0.25)),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      isDuplicateRisk ? LucideIcons.shieldAlert : LucideIcons.checkCircle,
-                      color: isDuplicateRisk ? AppColors.error : AppColors.success,
+                      canDispense ? LucideIcons.checkCircle : LucideIcons.clock,
+                      color: _statusColor(uiStatus),
                       size: 18,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      isDuplicateRisk ? 'Safety Alert: Duplicate Dispense' : 'Eligible for Dispensation',
+                      _dispensingStatusLabel(context, uiStatus),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: isDuplicateRisk ? AppColors.error : AppColors.success,
+                        color: _statusColor(uiStatus),
                       ),
                     ),
                   ],
@@ -459,23 +748,69 @@ class _WebCenterShellState extends State<WebCenterShell> {
           ),
           const SizedBox(height: 32),
           
-          if (isDuplicateRisk)
+          ClinicalEligibilityBanner(patient: patient),
+          if (!canDispense && uiStatus != DispensingUiStatus.clinicalIneligible)
             Container(
               padding: const EdgeInsets.all(20),
               margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.08),
+                color: AppColors.warning.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                border: Border.all(color: AppColors.warning.withValues(alpha: 0.35)),
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.alertTriangle, color: AppColors.error, size: 28),
+                  const Icon(LucideIcons.clock, color: AppColors.warning, size: 28),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      'Alert: This patient already received their Mounjaro dosage on ${patient.lastDispensingDate}. Dispensing another dose requires an administrative override for clinical necessity.',
-                      style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 14, height: 1.4),
+                      uiStatus == DispensingUiStatus.pendingCarePlan
+                          ? context.tr('care_plan_pending_approval_msg')
+                          : context.tr('dispense_pending_clinical_msg', {'date': patient.nextEligibleDate ?? ''}),
+                      style: const TextStyle(color: AppColors.warning, fontWeight: FontWeight.bold, fontSize: 14, height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          if (plan != null)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(LucideIcons.clipboardList, color: AppColors.primary),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('active_care_plan'),
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy),
+                        ),
+                        const SizedBox(height: 6),
+                        if (plan.clinicalApprovalStatus == 'pending_review')
+                          Text(
+                            context.tr('care_plan_status_pending'),
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.warning),
+                          ),
+                        Text(
+                          '${context.tr('injection_interval')}: ${context.tr('every_n_days', {'n': '$intervalDays'})}',
+                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                        ),
+                        Text(
+                          '${context.tr('next_dispense_eligible')}: ${patient.nextEligibleDate ?? context.tr('now')}',
+                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -494,17 +829,30 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Patient Diagnostics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        Text(context.tr('patient_diagnostics'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
                         const SizedBox(height: 20),
-                        _buildDetailRow('Full Name', patient.getLocalizedFullName(context)),
+                        _buildDetailRow(context.tr('full_name'), patient.getLocalizedFullName(context)),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Emirates ID', patient.emiratesId),
+                        _buildDetailRow(context.tr('emirates_id'), patient.emiratesId),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Residency Status', patient.residencyStatus.toString().split('.')[1].toUpperCase()),
+                        _buildDetailRow(context.tr('residency_status'), _residencyLabel(context, patient.residencyStatus)),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Active Prescription', patient.currentDose, isHighlight: true),
+                        _buildDetailRow(
+                          context.tr('active_prescription'),
+                          context.mounjaroDoseLabel(displayDose),
+                          isHighlight: true,
+                        ),
                         const SizedBox(height: 12),
-                        _buildDetailRow('Last Dispense Date', patient.lastDispensingDate ?? 'Never Dispensed'),
+                        _buildDetailRow(context.tr('last_dispense_date'), patient.lastDispensingDate ?? context.tr('never_dispensed')),
+                        if (patient.lastDispensingCenterId != null) ...[
+                          const SizedBox(height: 12),
+                          _buildDetailRow(
+                            context.tr('last_dispensing_facility'),
+                            provider.dispensingFacilityLabel(context, patient.lastDispensingCenterId),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        _buildDetailRow(context.tr('next_dispense_eligible'), patient.nextEligibleDate ?? context.tr('now')),
                       ],
                     ),
                   ),
@@ -521,24 +869,24 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Coverage Calculation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        Text(context.tr('coverage_calculation'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
                         const SizedBox(height: 20),
-                        _buildDetailRow('Medication Cost', '1,000.00 AED'),
+                        _buildDetailRow(context.tr('medication_cost'), '1,000.00 AED'),
                         const SizedBox(height: 12),
                         _buildDetailRow(
-                          'Govt. Subsidy (${(coverage * 100).toStringAsFixed(0)}%)',
+                          context.tr('govt_subsidy_line', {'pct': (coverage * 100).toStringAsFixed(0)}),
                           '${govtPays.toStringAsFixed(2)} AED',
                           color: AppColors.success,
                         ),
                         const Divider(height: 24),
-                        _buildDetailRow('Patient Copay to Collect', '${patientPays.toStringAsFixed(2)} AED', isHighlight: true),
+                        _buildDetailRow(context.tr('patient_copay_collect'), '${patientPays.toStringAsFixed(2)} AED', isHighlight: true),
                         const SizedBox(height: 20),
                         Row(
                           children: [
                             Icon(LucideIcons.package, color: outOfStock ? AppColors.error : AppColors.success, size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              outOfStock ? 'Out of stock at this clinic' : 'Stock level: $stock units available',
+                              outOfStock ? context.tr('out_of_stock_clinic') : context.tr('stock_level_available', {'count': '$stock'}),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: outOfStock ? AppColors.error : AppColors.success,
@@ -565,29 +913,26 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     _activePatient = null;
                   });
                 },
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text('Cancel'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(context.tr('cancel')),
                 ),
               ),
               const SizedBox(width: 16),
               
-              if (isDuplicateRisk)
-                ElevatedButton.icon(
-                  onPressed: outOfStock 
-                      ? null 
-                      : () => _showManualOverrideDialog(context, patient, center, provider),
-                  icon: const Icon(LucideIcons.shieldAlert),
-                  label: const Text('Request Manual Override & Dispense'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+              if (!canDispense)
+                OutlinedButton.icon(
+                  onPressed: null,
+                  icon: const Icon(LucideIcons.clock),
+                  label: Text(context.tr('awaiting_clinical_approval')),
                 )
               else
                 ElevatedButton.icon(
-                  onPressed: outOfStock 
-                      ? null 
+                  onPressed: outOfStock
+                      ? null
                       : () => _dispenseMedicationDirectly(context, patient, center, provider, patientPays),
                   icon: const Icon(LucideIcons.check),
-                  label: const Text('Confirm Verification & Dispense'),
+                  label: Text(context.tr('confirm_verify_dispense')),
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
                 ),
             ],
@@ -595,6 +940,17 @@ class _WebCenterShellState extends State<WebCenterShell> {
         ],
       ),
     );
+  }
+
+  String _residencyLabel(BuildContext context, ResidencyStatus status) {
+    switch (status) {
+      case ResidencyStatus.citizen:
+        return context.tr('emirati');
+      case ResidencyStatus.resident:
+        return context.tr('resident');
+      case ResidencyStatus.visitor:
+        return context.tr('visitor');
+    }
   }
 
   Widget _buildDetailRow(String label, String value, {bool isHighlight = false, Color? color}) {
@@ -627,26 +983,26 @@ class _WebCenterShellState extends State<WebCenterShell> {
     );
   }
 
-  Widget _buildInventoryView(AppLocalizations t, DataProvider provider, DispensingCenter center) {
+  Widget _buildInventoryView(BuildContext context, DataProvider provider, DispensingCenter center) {
     return Padding(
       padding: const EdgeInsets.all(32.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Inventory Stock Dashboard', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('inventory_stock_dashboard'), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
           const SizedBox(height: 8),
-          const Text('Monitor stock levels of Mounjaro pens and request restocking supplies.', style: TextStyle(color: AppColors.textSecondary)),
+          Text(context.tr('inventory_stock_sub'), style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 32),
           
           Row(
             children: [
-              Expanded(child: _buildStockCard('Mounjaro 2.5 mg', center.inventory2_5mg, 'C001_2.5')),
+              Expanded(child: _buildStockCard(context, context.tr('mounjaro_dose_2_5'), center.inventory2_5mg, 'C001_2.5')),
               const SizedBox(width: 16),
-              Expanded(child: _buildStockCard('Mounjaro 5.0 mg', center.inventory5mg, 'C001_5.0')),
+              Expanded(child: _buildStockCard(context, context.tr('mounjaro_dose_5_0'), center.inventory5mg, 'C001_5.0')),
               const SizedBox(width: 16),
-              Expanded(child: _buildStockCard('Mounjaro 7.5 mg', center.inventory7_5mg, 'C001_7.5')),
+              Expanded(child: _buildStockCard(context, context.tr('mounjaro_dose_7_5'), center.inventory7_5mg, 'C001_7.5')),
               const SizedBox(width: 16),
-              Expanded(child: _buildStockCard('Mounjaro 10.0 mg', center.inventory10mg, 'C001_10.0')),
+              Expanded(child: _buildStockCard(context, context.tr('mounjaro_dose_10_0'), center.inventory10mg, 'C001_10.0')),
             ],
           ),
           
@@ -658,9 +1014,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Request Inventory Restock', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                  Text(context.tr('request_restock'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
                   const SizedBox(height: 12),
-                  const Text('Need additional Mounjaro supply? Submit a direct digital request to the MoH Central Pharmacy Depot.', style: TextStyle(color: AppColors.textSecondary)),
+                  Text(context.tr('request_restock_sub'), style: const TextStyle(color: AppColors.textSecondary)),
                   const SizedBox(height: 24),
                   Row(
                     children: [
@@ -669,16 +1025,16 @@ class _WebCenterShellState extends State<WebCenterShell> {
                           provider.updateInventory(center.id, d2_5: 20, d5: 20, d7_5: 20, d10: 20);
                           CustomToast.show(
                             context,
-                            title: 'Stock Updated',
-                            message: 'Restocking request approved. Added 20 units per dose to local inventory.',
+                            title: context.tr('stock_updated'),
+                            message: context.tr('stock_restock_msg'),
                             icon: LucideIcons.package,
                             color: AppColors.success,
                           );
 
                         },
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Text('Simulate Depot Restock (+20 Units each)'),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Text(context.tr('simulate_restock')),
                         ),
                       ),
                     ],
@@ -692,7 +1048,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
     );
   }
 
-  Widget _buildStockCard(String doseTitle, int stock, String code) {
+  Widget _buildStockCard(BuildContext context, String doseTitle, int stock, String code) {
     bool lowStock = stock < 10;
     return Card(
       child: Padding(
@@ -711,7 +1067,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    lowStock ? 'Low Stock' : 'Good Stock',
+                    lowStock ? context.tr('low_stock') : context.tr('good_stock'),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -733,23 +1089,31 @@ class _WebCenterShellState extends State<WebCenterShell> {
             const SizedBox(height: 4),
             Text(doseTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
             const SizedBox(height: 2),
-            Text('SKU: $code', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+            Text(context.tr('sku_label', {'code': code}), style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLogsView(AppLocalizations t, DataProvider provider) {
-    final centerLogs = provider.logs.where((l) => l.centerName == 'Dubai Central Hospital' || l.centerName == 'Dubai Central Depot').toList();
+  Widget _buildLogsView(BuildContext context, DataProvider provider) {
+    final facility = provider.getDispensingCenterById(_centerId) ?? provider.centers.first;
+    final centerLogs = provider.logs
+        .where(
+          (l) =>
+              l.centerName == facility.name ||
+              l.centerNameAr == facility.nameAr ||
+              l.getLocalizedCenterName(context) == facility.getLocalizedName(context),
+        )
+        .toList();
     return Padding(
       padding: const EdgeInsets.all(32.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Recent Center Activity Log', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('recent_center_activity'), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
           const SizedBox(height: 8),
-          const Text('Displaying dispensations, overrides, and restocks processed recently.', style: TextStyle(color: AppColors.textSecondary)),
+          Text(context.tr('recent_center_activity_sub'), style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 32),
           Expanded(
             child: Card(
@@ -760,14 +1124,18 @@ class _WebCenterShellState extends State<WebCenterShell> {
                   separatorBuilder: (context, index) => const Divider(),
                   itemBuilder: (context, index) {
                     final log = centerLogs[index];
-                    bool overridden = log.getLocalizedStatus(context) == 'Overridden';
+                    bool overridden = log.status == 'Overridden';
                     return ListTile(
                       leading: Icon(
                         overridden ? LucideIcons.shieldAlert : LucideIcons.checkCircle,
                         color: overridden ? AppColors.error : AppColors.success,
                       ),
                       title: Text('${log.getLocalizedPatientName(context)} - ${log.getLocalizedAction(context)}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
-                      subtitle: Text('Processed: ${log.timestamp.toString().split('.')[0]}'),
+                      subtitle: Text(
+                        log.eventKind == 'dispense'
+                            ? '${context.tr('dispensed_at_facility', {'facility': log.getLocalizedCenterName(context)})}\n${context.tr('processed_at', {'time': log.formattedTimestamp})}'
+                            : context.tr('processed_at', {'time': log.formattedTimestamp}),
+                      ),
                       trailing: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
@@ -815,13 +1183,11 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 centerId: center.id,
                 dose: patient.currentDose,
               );
-              setState(() {
-                _activePatient = null;
-              });
+              _afterDispenseComplete(provider, patient.id);
               CustomToast.show(
                 context,
-                title: 'Medication Dispensed',
-                message: 'Mounjaro ${patient.currentDose} successfully dispensed to ${patient.getLocalizedFullName(context)}.',
+                title: context.tr('medication_dispensed'),
+                message: context.tr('medication_dispensed_msg', {'dose': patient.currentDose, 'name': patient.getLocalizedFullName(context)}),
                 icon: LucideIcons.checkCircle,
                 color: AppColors.success,
               );
@@ -838,13 +1204,11 @@ class _WebCenterShellState extends State<WebCenterShell> {
         dose: patient.currentDose,
       );
       if (success) {
-        setState(() {
-          _activePatient = null;
-        });
+        _afterDispenseComplete(provider, patient.id);
         CustomToast.show(
           context,
-          title: 'Subsidy Dispensation Approved',
-          message: 'Mounjaro ${patient.currentDose} dispensed under 100% Emirati subsidy for ${patient.getLocalizedFullName(context)}.',
+          title: context.tr('subsidy_dispensation_approved'),
+          message: context.tr('subsidy_dispensation_msg', {'dose': patient.currentDose, 'name': patient.getLocalizedFullName(context)}),
           icon: LucideIcons.award,
           color: AppColors.success,
         );
@@ -853,70 +1217,4 @@ class _WebCenterShellState extends State<WebCenterShell> {
     }
   }
 
-  void _showManualOverrideDialog(
-    BuildContext context,
-    Patient patient,
-    DispensingCenter center,
-    DataProvider provider,
-  ) {
-    final reasonController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Safety Override Approval'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'A safety alert warns that this patient is receiving duplicate medication. Overriding requires entering clinical justification.',
-              style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: reasonController,
-              decoration: const InputDecoration(
-                labelText: 'Clinical Reason for Override',
-                hintText: 'e.g., Replacement for damaged pen/Lost dose...',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (reasonController.text.isNotEmpty) {
-                Navigator.pop(context);
-                final success = provider.dispenseMedication(
-                  patientId: patient.id,
-                  centerId: center.id,
-                  dose: patient.currentDose,
-                  isOverride: true,
-                );
-                if (success) {
-                  setState(() {
-                    _activePatient = null;
-                  });
-                  CustomToast.show(
-                    context,
-                    title: 'Override Dispensation Logged',
-                    message: 'Dispensed successfully under clinical override: ${reasonController.text}',
-                    icon: LucideIcons.shieldAlert,
-                    color: AppColors.error,
-                  );
-
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Approve & Dispense'),
-          ),
-        ],
-      ),
-    );
-  }
 }

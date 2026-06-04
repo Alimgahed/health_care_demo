@@ -8,6 +8,7 @@ import 'core/constants/mock_data.dart';
 import 'features/dashboard/splash_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
@@ -26,13 +27,14 @@ class MounjaroApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
+        final locale = localeProvider.locale;
         return MaterialApp(
           title: 'MoH Mounjaro Platform',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeMode.system,
-          locale: localeProvider.locale,
+          locale: locale,
           supportedLocales: const [
             Locale('en'),
             Locale('ar'),
@@ -43,6 +45,14 @@ class MounjaroApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          builder: (context, child) {
+            return Directionality(
+              textDirection: locale.languageCode == 'ar'
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           home: const SplashScreen(),
         );
       },

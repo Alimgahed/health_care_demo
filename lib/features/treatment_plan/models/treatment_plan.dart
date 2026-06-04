@@ -86,6 +86,8 @@ class TreatmentPlan {
   // Goals
   final double targetWeight;
   final String status; // "Active", "Completed", "Paused"
+  /// "approved" = ready for dispensing; "pending_review" = awaiting clinical sign-off.
+  final String clinicalApprovalStatus;
 
   TreatmentPlan({
     required this.id,
@@ -101,5 +103,30 @@ class TreatmentPlan {
     required this.homeExercises,
     required this.targetWeight,
     this.status = "Active",
+    this.clinicalApprovalStatus = "approved",
   });
+
+  TreatmentPlan copyWith({
+    String? clinicalApprovalStatus,
+    String? status,
+    String? medicationDose,
+    int? medicationFrequencyDays,
+  }) {
+    return TreatmentPlan(
+      id: id,
+      patientId: patientId,
+      doctorName: doctorName,
+      createdAt: createdAt,
+      medicationDose: medicationDose ?? this.medicationDose,
+      medicationFrequencyDays: medicationFrequencyDays ?? this.medicationFrequencyDays,
+      reminderTimes: reminderTimes,
+      assignedCenterId: assignedCenterId,
+      totalSessions: totalSessions,
+      sessions: sessions,
+      homeExercises: homeExercises,
+      targetWeight: targetWeight,
+      status: status ?? this.status,
+      clinicalApprovalStatus: clinicalApprovalStatus ?? this.clinicalApprovalStatus,
+    );
+  }
 }

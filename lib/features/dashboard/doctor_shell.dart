@@ -1,41 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/responsive_layout.dart';
 import '../patients/patient_list_screen.dart';
 import 'web/web_doctor_shell.dart';
 import '../../../core/constants/mock_data.dart';
+import '../../../core/models/activity_log.dart';
+import 'program_alerts.dart';
 
 class DoctorShell extends StatelessWidget {
-  const DoctorShell({super.key});
+  final String? initialPatientId;
+  final int initialTabIndex;
+
+  const DoctorShell({super.key, this.initialPatientId, this.initialTabIndex = 0});
 
   @override
   Widget build(BuildContext context) {
-    return const ResponsiveLayout(
-      mobile: MobileDoctorShell(),
-      web: WebDoctorShell(),
+    return ResponsiveLayout(
+      mobile: MobileDoctorShell(
+        initialPatientId: initialPatientId,
+        initialTabIndex: initialTabIndex,
+      ),
+      web: WebDoctorShell(
+        initialPatientId: initialPatientId,
+        initialTabIndex: initialTabIndex,
+      ),
     );
   }
 }
 
 class MobileDoctorShell extends StatefulWidget {
-  const MobileDoctorShell({super.key});
+  final String? initialPatientId;
+  final int initialTabIndex;
+
+  const MobileDoctorShell({super.key, this.initialPatientId, this.initialTabIndex = 0});
 
   @override
   State<MobileDoctorShell> createState() => _MobileDoctorShellState();
 }
 
 class _MobileDoctorShellState extends State<MobileDoctorShell> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
-  final List<Widget> _pages = [
-    const PatientListScreen(),
-    const MobileAssessmentsTab(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialTabIndex.clamp(0, 1);
+  }
+
+  List<Widget> get _pages => [
+        PatientListScreen(highlightPatientId: widget.initialPatientId),
+        const MobileAssessmentsTab(),
+      ];
 
   @override
   Widget build(BuildContext context) {
+    final pendingCount =
+        pendingAuthorizationReviewCount(context.watch<DataProvider>());
+    final assessmentsIcon = pendingCount > 0
+        ? Badge(
+            label: Text('$pendingCount'),
+            backgroundColor: AppColors.warning,
+            child: const Icon(LucideIcons.clipboardList),
+          )
+        : const Icon(LucideIcons.clipboardList);
+
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: NavigationBar(
@@ -45,14 +76,14 @@ class _MobileDoctorShellState extends State<MobileDoctorShell> {
             _currentIndex = index;
           });
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(LucideIcons.users),
-            label: 'Patients',
+            icon: const Icon(LucideIcons.users),
+            label: context.tr('main_nav_patients'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.clipboardList),
-            label: 'Assessments',
+            icon: assessmentsIcon,
+            label: context.tr('nav_assessments'),
           ),
         ],
       ),
@@ -66,15 +97,19 @@ class MobileAssessmentsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dataProvider = Provider.of<DataProvider>(context);
-    final logs = dataProvider.logs.where((l) => l.action.contains('escalated') || l.action.contains('Weight')).toList();
+    final logs = dataProvider.logs
+        .where((l) =>
+            l.eventType == ActivityEventType.doseChange ||
+            l.eventType == ActivityEventType.weightUpdate)
+        .toList();
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assessments Log'),
+        title: Text(context.tr('assessments_log')),
       ),
       body: logs.isEmpty
-          ? const Center(
-              child: Text('No assessments recorded yet'),
+          ? Center(
+              child: Text(context.tr('no_assessments')),
             )
           : ListView.separated(
               padding: const EdgeInsets.all(16),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/mock_data.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/status_badge.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -12,14 +13,14 @@ class ClinicalAssessmentCard extends StatelessWidget {
     required this.patient,
   });
 
-  String get _obesityClassification {
+  String _obesityClassification(BuildContext context) {
     final bmi = patient.bmi;
-    if (bmi < 18.5) return 'Underweight';
-    if (bmi < 25) return 'Normal weight';
-    if (bmi < 30) return 'Overweight';
-    if (bmi < 35) return 'Class I Obesity';
-    if (bmi < 40) return 'Class II Obesity';
-    return 'Class III Obesity';
+    if (bmi < 18.5) return context.tr('underweight');
+    if (bmi < 25) return context.tr('normal_weight');
+    if (bmi < 30) return context.tr('overweight');
+    if (bmi < 35) return context.tr('obesity_class_1');
+    if (bmi < 40) return context.tr('obesity_class_2');
+    return context.tr('obesity_class_3');
   }
 
   BadgeStatus get _recommendationStatus {
@@ -30,11 +31,11 @@ class ClinicalAssessmentCard extends StatelessWidget {
     return BadgeStatus.error;
   }
 
-  String get _recommendationText {
+  String _recommendationText(BuildContext context) {
     final status = _recommendationStatus;
-    if (status == BadgeStatus.success) return 'Eligible for Mounjaro';
-    if (status == BadgeStatus.warning) return 'Requires Medical Review';
-    return 'Not Eligible';
+    if (status == BadgeStatus.success) return context.tr('eligible_mounjaro');
+    if (status == BadgeStatus.warning) return context.tr('requires_review');
+    return context.tr('not_eligible');
   }
 
   @override
@@ -49,11 +50,11 @@ class ClinicalAssessmentCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Clinical Assessment',
+                  context.tr('clinical_assessment'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 StatusBadge(
-                  label: _recommendationText,
+                  label: _recommendationText(context),
                   status: _recommendationStatus,
                 ),
               ],
@@ -64,7 +65,7 @@ class ClinicalAssessmentCard extends StatelessWidget {
                 Expanded(
                   child: _buildMetric(
                     context,
-                    'Weight',
+                    context.tr('weight'),
                     '${patient.weight.toStringAsFixed(1)} kg',
                     LucideIcons.scale,
                   ),
@@ -72,7 +73,7 @@ class ClinicalAssessmentCard extends StatelessWidget {
                 Expanded(
                   child: _buildMetric(
                     context,
-                    'BMI',
+                    context.tr('col_bmi'),
                     patient.bmi.toStringAsFixed(1),
                     LucideIcons.activity,
                   ),
@@ -101,11 +102,11 @@ class ClinicalAssessmentCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Classification',
+                          context.tr('classification'),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         Text(
-                          _obesityClassification,
+                          _obesityClassification(context),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: AppColors.primary,
                           ),

@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../core/localization/app_localizations.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_colors.dart';
 
 class NationalCommandCenter extends StatelessWidget {
@@ -10,12 +10,10 @@ class NationalCommandCenter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(t.translate('ncc_title')),
+        title: Text(context.tr('ncc_title')),
         backgroundColor: Colors.white,
         foregroundColor: AppColors.navy,
         elevation: 0,
@@ -29,11 +27,11 @@ class NationalCommandCenter extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildExecutiveSummary(context, t),
+            _buildExecutiveSummary(context),
             const SizedBox(height: 32),
-            _buildObesityTrendChart(context, t),
+            _buildObesityTrendChart(context),
             const SizedBox(height: 32),
-            _buildConsumptionVsGoalChart(context, t),
+            _buildConsumptionVsGoalChart(context),
             const SizedBox(height: 100), // Safe area bottom
           ],
         ),
@@ -41,12 +39,12 @@ class NationalCommandCenter extends StatelessWidget {
     );
   }
 
-  Widget _buildExecutiveSummary(BuildContext context, AppLocalizations t) {
+  Widget _buildExecutiveSummary(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t.translate('exec_summary'),
+          context.tr('exec_summary'),
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color: AppColors.navy,
             fontWeight: FontWeight.bold,
@@ -65,30 +63,30 @@ class NationalCommandCenter extends StatelessWidget {
               childAspectRatio: constraints.maxWidth >= 800 ? 1.5 : 1.2,
               children: [
                 _buildKpiCard(
-                  title: t.translate('total_active_patients'),
+                  title: context.tr('total_active_patients'),
                   value: '14,289',
                   trend: '+12%',
                   isPositive: true,
                   icon: LucideIcons.users,
                 ),
                 _buildKpiCard(
-                  title: t.translate('govt_subsidy'),
+                  title: context.tr('govt_subsidy'),
                   value: '42.5M AED',
                   trend: '+8%',
                   isPositive: false,
                   icon: LucideIcons.wallet,
                 ),
                 _buildKpiCard(
-                  title: t.translate('national_bmi_drop'),
+                  title: context.tr('national_bmi_drop'),
                   value: '-4.2 kg/m²',
-                  trend: 'Target Met',
+                  trend: context.tr('target_met'),
                   isPositive: true,
                   icon: LucideIcons.activity,
                 ),
                 _buildKpiCard(
-                  title: t.translate('fraud_prevented'),
-                  value: '342 Cases',
-                  trend: '1.2M AED Saved',
+                  title: context.tr('fraud_prevented'),
+                  value: context.tr('cases_count', {'count': '342'}),
+                  trend: context.tr('cases_saved', {'amount': '1.2M'}),
                   isPositive: true,
                   icon: LucideIcons.shieldAlert,
                 ),
@@ -184,7 +182,7 @@ class NationalCommandCenter extends StatelessWidget {
     );
   }
 
-  Widget _buildObesityTrendChart(BuildContext context, AppLocalizations t) {
+  Widget _buildObesityTrendChart(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -209,14 +207,14 @@ class NationalCommandCenter extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      t.translate('obesity_index_title'),
+                      context.tr('obesity_index_title'),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: AppColors.navy,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      t.translate('obesity_index_subtitle'),
+                      context.tr('obesity_index_subtitle'),
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
@@ -258,13 +256,13 @@ class NationalCommandCenter extends StatelessWidget {
                       reservedSize: 30,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
-                        const months = [
-                          'Jan',
-                          'Mar',
-                          'May',
-                          'Jul',
-                          'Sep',
-                          'Nov',
+                        final months = [
+                          context.tr('month_jan'),
+                          context.tr('month_mar'),
+                          context.tr('month_may'),
+                          context.tr('month_jul'),
+                          context.tr('month_sep'),
+                          context.tr('month_nov'),
                         ];
                         if (value.toInt() % 2 == 0 &&
                             value.toInt() < months.length * 2) {
@@ -347,10 +345,7 @@ class NationalCommandCenter extends StatelessWidget {
     );
   }
 
-  Widget _buildConsumptionVsGoalChart(
-    BuildContext context,
-    AppLocalizations t,
-  ) {
+  Widget _buildConsumptionVsGoalChart(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -368,7 +363,7 @@ class NationalCommandCenter extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            t.translate('dispensing_vs_goals'),
+            context.tr('dispensing_vs_goals'),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: AppColors.navy,
               fontWeight: FontWeight.bold,
@@ -388,7 +383,12 @@ class NationalCommandCenter extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        const titles = ['Q1', 'Q2', 'Q3', 'Q4'];
+                        final titles = [
+                          context.tr('quarter_q1'),
+                          context.tr('quarter_q2'),
+                          context.tr('quarter_q3'),
+                          context.tr('quarter_q4'),
+                        ];
                         return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
@@ -449,9 +449,9 @@ class NationalCommandCenter extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegend(AppColors.primary, t.translate('actual_dispensed')),
+              _buildLegend(AppColors.primary, context.tr('actual_dispensed')),
               const SizedBox(width: 24),
-              _buildLegend(AppColors.accent, t.translate('ministry_target')),
+              _buildLegend(AppColors.accent, context.tr('ministry_target')),
             ],
           ),
         ],

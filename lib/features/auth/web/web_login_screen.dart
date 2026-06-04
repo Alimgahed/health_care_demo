@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../dashboard/admin_shell.dart';
 import '../../dashboard/center_shell.dart';
@@ -234,12 +235,12 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                   Expanded(
                                     child: Text(
                                       _selectedRole == UserRole.admin
-                                          ? 'Demo Credential: admin@moh.gov.ae (National Executive)'
+                                          ? context.tr('demo_cred_admin')
                                           : (_selectedRole == UserRole.doctor
-                                              ? 'Demo Credential: clinical@moh.gov.ae (Clinician Portal)'
+                                              ? context.tr('demo_cred_clinical')
                                               : (_selectedRole == UserRole.center
-                                                  ? 'Demo Credential: pharmacy@moh.gov.ae (Dispensing Depot)'
-                                                  : 'Demo Credential: patient@mounjaro.ae (Ahmed Al Mansoori)')),
+                                                  ? context.tr('demo_cred_pharmacy')
+                                                  : context.tr('demo_cred_patient'))),
                                       style: const TextStyle(
                                         color: AppColors.navy,
                                         fontWeight: FontWeight.bold,
@@ -315,7 +316,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                       },
                       icon: const Icon(LucideIcons.globe, color: AppColors.navy),
                       label: Text(
-                        localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+                        localeProvider.locale.languageCode == 'en'
+                            ? context.tr('arabic')
+                            : context.tr('english'),
                         style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.bold),
                       ),
                       style: TextButton.styleFrom(

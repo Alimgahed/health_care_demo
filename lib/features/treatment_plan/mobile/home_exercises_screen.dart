@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/mock_data.dart';
+import '../data/home_exercise_catalog.dart';
 import '../models/treatment_plan.dart';
 
 class HomeExercisesScreen extends StatelessWidget {
@@ -13,18 +14,17 @@ class HomeExercisesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.translate('home_exercises')),
+        title: Text(context.tr('home_exercises')),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(24),
         itemCount: plan.homeExercises.length,
         itemBuilder: (context, index) {
-          final ex = plan.homeExercises[index];
+          final ex = HomeExerciseCatalog.resolve(plan.homeExercises[index]);
           final isCompletedToday = ex.completedDates.any((d) => 
             d.year == DateTime.now().year && d.month == DateTime.now().month && d.day == DateTime.now().day
           );
@@ -56,7 +56,11 @@ class HomeExercisesScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(isAr ? ex.nameAr : ex.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                            Text('${ex.durationMinutes} min • ${ex.sets}x${ex.reps}'),
+                            Text(context.tr('exercise_duration_format', {
+                              'minutes': '${ex.durationMinutes}',
+                              'sets': '${ex.sets}',
+                              'reps': '${ex.reps}',
+                            })),
                           ],
                         ),
                       ),
@@ -74,10 +78,10 @@ class HomeExercisesScreen extends StatelessWidget {
                         onPressed: () {
                           final provider = Provider.of<DataProvider>(context, listen: false);
                           provider.completeExercise(plan.id, ex.id);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.translate('success'))));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr('success'))));
                         },
                         icon: const Icon(LucideIcons.check),
-                        label: Text(t.translate('mark_complete')),
+                        label: Text(context.tr('mark_complete')),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
                           side: const BorderSide(color: AppColors.primary),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/constants/mock_data.dart';
 import '../../core/widgets/kpi_card.dart';
@@ -51,9 +52,9 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Good Morning,',
-                          style: TextStyle(color: Colors.white70, fontSize: 16),
+                        Text(
+                          context.tr('good_morning'),
+                          style: const TextStyle(color: Colors.white70, fontSize: 16),
                         ),
                         Text(
                           patient.getLocalizedFullName(context).split(' ')[0],
@@ -91,9 +92,9 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
         onTap: (index) => setState(() => _currentIndex = index),
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textSecondary,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(LucideIcons.layoutDashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.clipboardList), label: 'My Plan'),
+        items: [
+          BottomNavigationBarItem(icon: const Icon(LucideIcons.layoutDashboard), label: context.tr('dashboard')),
+          BottomNavigationBarItem(icon: const Icon(LucideIcons.clipboardList), label: context.tr('my_plan')),
         ],
       ),
     );
@@ -111,7 +112,7 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
           
           // Progress Dashboard
           Text(
-            'Your Progress',
+            context.tr('your_progress'),
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 16),
@@ -123,7 +124,7 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
             physics: const NeverScrollableScrollPhysics(),
             children: [
               KpiCard(
-                title: 'Current Weight',
+                title: context.tr('current_weight'),
                 value: '${patient.weight.toStringAsFixed(1)} kg',
                 icon: LucideIcons.scale,
                 iconColor: AppColors.info,
@@ -131,11 +132,11 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
                 isTrendPositive: true,
               ),
               KpiCard(
-                title: 'Target Weight',
+                title: context.tr('target_weight'),
                 value: '85 kg',
                 icon: LucideIcons.target,
                 iconColor: AppColors.success,
-                subtitle: '${(patient.weight - 85.0).toStringAsFixed(1)} kg to go',
+                subtitle: context.tr('kg_to_go', {'kg': (patient.weight - 85.0).toStringAsFixed(1)}),
               ),
             ],
           ),
@@ -149,7 +150,7 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Weight Journey',
+                    context.tr('weight_loss_journey'),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 20),
@@ -196,16 +197,16 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
           
           // Achievements
           Text(
-            'Achievements',
+            context.tr('earned_badges'),
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildBadge(context, LucideIcons.medal, '1 Month\nStreak', AppColors.accent),
-              _buildBadge(context, LucideIcons.flame, 'First 5kg\nLost', AppColors.error),
-              _buildBadge(context, LucideIcons.award, 'Perfect\nAdherence', AppColors.primary),
+              _buildBadge(context, LucideIcons.medal, context.tr('badge_month_streak'), AppColors.accent),
+              _buildBadge(context, LucideIcons.flame, context.tr('badge_weight_reduction'), AppColors.error),
+              _buildBadge(context, LucideIcons.award, context.tr('badge_clinical_compliance'), AppColors.primary),
             ],
           ),
           const SizedBox(height: 32),
@@ -239,7 +240,7 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Next Injection',
+                context.tr('next_injection'),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
               ),
               Container(
@@ -249,23 +250,23 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${patient.currentDose} Dose',
+                  context.tr('prescribed_dose_badge', {'dose': patient.currentDose}),
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Tomorrow, 9:00 AM',
-            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+          Text(
+            context.tr('next_injection_reminder'),
+            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Dose logged successfully!'),
+                SnackBar(
+                  content: Text(context.tr('dose_logged')),
                   backgroundColor: AppColors.success,
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -276,7 +277,7 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
               foregroundColor: AppColors.primary,
               minimumSize: const Size(double.infinity, 50),
             ),
-            child: const Text('Mark as Taken'),
+            child: Text(context.tr('mark_as_taken')),
           ),
         ],
       ),

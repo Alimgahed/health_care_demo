@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/responsive_layout.dart';
 import '../patient_app/patient_app_screen.dart';
@@ -49,14 +50,14 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
             _currentIndex = index;
           });
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(LucideIcons.home),
-            label: 'Home',
+            icon: const Icon(LucideIcons.home),
+            label: context.tr('nav_home'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.userCircle),
-            label: 'Profile',
+            icon: const Icon(LucideIcons.userCircle),
+            label: context.tr('nav_profile'),
           ),
         ],
       ),
@@ -77,7 +78,7 @@ class MobilePatientProfileTab extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Health Profile'),
+        title: Text(context.tr('my_health_profile_title')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -110,11 +111,11 @@ class MobilePatientProfileTab extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Subsidy Info', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(context.tr('subsidy_info'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const Divider(),
-                    _buildRow('Coverage Rate', '${(coverage * 100).toStringAsFixed(0)}%'),
-                    _buildRow('Government Pays', '${govtPays.toStringAsFixed(0)} AED'),
-                    _buildRow('Your Copay', '${copay.toStringAsFixed(0)} AED'),
+                    _buildRow(context, context.tr('coverage_rate'), '${(coverage * 100).toStringAsFixed(0)}%'),
+                    _buildRow(context, context.tr('government_pays'), '${govtPays.toStringAsFixed(0)} AED'),
+                    _buildRow(context, context.tr('your_copay'), '${copay.toStringAsFixed(0)} AED'),
                   ],
                 ),
               ),
@@ -125,7 +126,7 @@ class MobilePatientProfileTab extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String label, String val) {
+  Widget _buildRow(BuildContext context, String label, String val) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/localization/app_localizations.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../eligibility/eligibility_card.dart';
@@ -12,56 +12,98 @@ import '../../auth/login_screen.dart';
 import '../../../core/widgets/skeleton_loader.dart';
 import '../../../core/widgets/custom_toast.dart';
 import '../../treatment_plan/web/patient_360_view.dart';
+import '../../clinical/clinical_review_detail_panel.dart';
+import '../../clinical/register_patient_dialog.dart';
+import '../program_alerts.dart';
 
 
 
 class WebDoctorShell extends StatefulWidget {
-  const WebDoctorShell({super.key});
+  final String? initialPatientId;
+  final int initialTabIndex;
+  /// When true, renders only clinical tools (no portal chrome) for Ministry admin embed.
+  final bool embeddedInAdmin;
+
+  const WebDoctorShell({
+    super.key,
+    this.initialPatientId,
+    this.initialTabIndex = 0,
+    this.embeddedInAdmin = false,
+  });
 
   @override
   State<WebDoctorShell> createState() => _WebDoctorShellState();
 }
 
 class _WebDoctorShellState extends State<WebDoctorShell> {
-  int _selectedIndex = 0; // 0 = Patients, 1 = Assessments
+  late int _selectedIndex;
   Patient? _selectedPatient;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedFilter = 'all'; // all, citizen, resident, critical, regular
   bool _isLoadingDetails = false;
+  int _selectedPendingReviewIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialTabIndex.clamp(0, 1);
+  }
+
+  Patient? _patientFromId(DataProvider dataProvider, String? id) {
+    if (id == null) return null;
+    return dataProvider.getPatientById(id);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
     final dataProvider = Provider.of<DataProvider>(context);
 
-    // Initial selected patient if not set
     final filtered = _getFilteredPatients(dataProvider.patients);
-    if (_selectedPatient == null && filtered.isNotEmpty) {
-      _selectedPatient = filtered.first;
+    final demoPatient = _patientFromId(dataProvider, widget.initialPatientId);
+    if (_selectedPatient == null) {
+      _selectedPatient = demoPatient ?? (filtered.isNotEmpty ? filtered.first : null);
     } else if (_selectedPatient != null) {
-      // Keep reference fresh from provider
-      _selectedPatient = dataProvider.patients.firstWhere((p) => p.id == _selectedPatient!.id, orElse: () => filtered.first);
+      final idx = dataProvider.patients.indexWhere((p) => p.id == _selectedPatient!.id);
+      _selectedPatient = idx >= 0
+          ? dataProvider.patients[idx]
+          : (filtered.isNotEmpty ? filtered.first : null);
+    }
+
+    final pendingAuthCount = pendingAuthorizationReviewCount(dataProvider);
+    final pendingAuthBadge =
+        pendingAuthCount > 0 ? '$pendingAuthCount' : null;
+
+    final body = _selectedIndex == 0
+        ? _buildPatientsView(context, dataProvider)
+        : _buildAssessmentsView(context, dataProvider);
+
+    if (widget.embeddedInAdmin) {
+      return ColoredBox(
+        color: AppColors.background,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildEmbeddedAdminHeader(context, pendingAuthBadge: pendingAuthBadge),
+            Expanded(child: body),
+          ],
+        ),
+      );
     }
 
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: Drawer(
-        child: _buildSidebar(t),
+        child: _buildSidebar(context, pendingAuthBadge: pendingAuthBadge),
       ),
       body: Row(
         children: [
           Expanded(
             child: Column(
               children: [
-                _buildTopbar(t, localeProvider, dataProvider),
-                Expanded(
-                  child: _selectedIndex == 0 
-                      ? _buildPatientsView(t, dataProvider)
-                      : _buildAssessmentsView(t, dataProvider),
-                ),
+                _buildTopbar(context, localeProvider, dataProvider),
+                Expanded(child: body),
               ],
             ),
           ),
@@ -70,7 +112,102 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     );
   }
 
-  Widget _buildTopbar(AppLocalizations t, LocaleProvider localeProvider, DataProvider dataProvider) {
+  Widget _buildEmbeddedAdminHeader(
+    BuildContext context, {
+    String? pendingAuthBadge,
+  }) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: AppColors.border)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.tr('admin_embed_clinical_title'),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.tr('admin_embed_clinical_sub'),
+            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _embeddedTab(context, LucideIcons.users, context.tr('patients_registry'), 0),
+              const SizedBox(width: 10),
+              _embeddedTab(
+                context,
+                LucideIcons.clipboardList,
+                context.tr('clinical_assessments'),
+                1,
+                badge: pendingAuthBadge,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _embeddedTab(
+    BuildContext context,
+    IconData icon,
+    String label,
+    int index, {
+    String? badge,
+  }) {
+    final selected = _selectedIndex == index;
+    return Material(
+      color: selected ? AppColors.primary.withValues(alpha: 0.12) : AppColors.background,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: () => setState(() => _selectedIndex = index),
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: selected ? AppColors.primary : AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: selected ? AppColors.primary : AppColors.textSecondary,
+                ),
+              ),
+              if (badge != null) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    badge,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopbar(BuildContext context, LocaleProvider localeProvider, DataProvider dataProvider) {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -89,17 +226,17 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
             ),
           ),
           const SizedBox(width: 16),
-          const Column(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Clinician Portal',
-                  style: TextStyle(
+              Text(context.tr('clinical_portal'),
+                  style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: AppColors.navy)),
-              Text('Dubai Clinic #4',
-                  style: TextStyle(
+              Text(context.tr('doc_clinic'),
+                  style: const TextStyle(
                       fontSize: 11, color: AppColors.textSecondary)),
             ],
           ),
@@ -107,7 +244,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
           OutlinedButton.icon(
             onPressed: localeProvider.toggleLanguage,
             icon: const Icon(LucideIcons.globe, size: 14, color: AppColors.navy),
-            label: Text(localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+            label: Text(localeProvider.locale.languageCode == 'en' ? context.tr('arabic') : context.tr('english'),
                 style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.navy,
@@ -134,7 +271,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     );
   }
 
-  Widget _buildSidebar(AppLocalizations t) {
+  Widget _buildSidebar(BuildContext context, {String? pendingAuthBadge}) {
     return Container(
       width: 240,
       color: AppColors.navy,
@@ -165,13 +302,13 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                       color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Mounjaro NCC',
-                        style: TextStyle(
+                        context.tr('clinical_brand'),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -179,8 +316,8 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                         ),
                       ),
                       Text(
-                        'Clinician Portal',
-                        style: TextStyle(
+                        context.tr('clinical_portal'),
+                        style: const TextStyle(
                           color: AppColors.accent,
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -198,9 +335,15 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _navSection('Clinical Tools'),
-                  _buildSidebarItem(LucideIcons.users, 'Patients Registry', 0),
-                  _buildSidebarItem(LucideIcons.clipboardList, 'Clinical Assessments', 1),
+                  _navSection(context.tr('clinical_tools')),
+                  _buildSidebarItem(context, LucideIcons.users, context.tr('patients_registry'), 0),
+                  _buildSidebarItem(
+                    context,
+                    LucideIcons.clipboardList,
+                    context.tr('clinical_assessments'),
+                    1,
+                    badge: pendingAuthBadge,
+                  ),
                 ],
               ),
             ),
@@ -231,19 +374,19 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Dr. Al Mandoos',
-                          style: TextStyle(
+                      Text(context.tr('doc_name'),
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
-                      Text('Dubai Clinic #4',
-                          style: TextStyle(
+                      Text(context.tr('doc_clinic'),
+                          style: const TextStyle(
                               color: Colors.white54, fontSize: 11),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
@@ -273,7 +416,13 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     );
   }
 
-  Widget _buildSidebarItem(IconData icon, String title, int index) {
+  Widget _buildSidebarItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    int index, {
+    String? badge,
+  }) {
     bool isSelected = _selectedIndex == index;
     return GestureDetector(
       onTap: () {
@@ -311,6 +460,22 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                 ),
               ),
             ),
+            if (badge != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.warning,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -334,7 +499,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     }).toList();
   }
 
-  Widget _buildPatientsView(AppLocalizations t, DataProvider provider) {
+  Widget _buildPatientsView(BuildContext context, DataProvider provider) {
     final filtered = _getFilteredPatients(provider.patients);
 
     return Row(
@@ -357,7 +522,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                         });
                       },
                       decoration: InputDecoration(
-                        hintText: 'Search by Name or Emirates ID',
+                        hintText: context.tr('search_patient'),
                         prefixIcon: const Icon(LucideIcons.search, size: 20),
                         contentPadding: const EdgeInsets.symmetric(vertical: 12),
                         suffixIcon: _searchQuery.isNotEmpty 
@@ -378,11 +543,11 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildFilterChip('all', 'All'),
+                          _buildFilterChip(context, 'all', context.tr('all')),
                           const SizedBox(width: 8),
-                          _buildFilterChip('citizen', 'Emiratis'),
+                          _buildFilterChip(context, 'citizen', context.tr('citizens')),
                           const SizedBox(width: 8),
-                          _buildFilterChip('resident', 'Residents'),
+                          _buildFilterChip(context, 'resident', context.tr('residents')),
                         ],
                       ),
                     ),
@@ -395,9 +560,23 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
                 child: ElevatedButton.icon(
-                  onPressed: () => _showRegisterPatientDialog(context, provider),
+                  onPressed: () async {
+                    final newP = await RegisterPatientDialog.show(context);
+                    if (newP != null && mounted) {
+                      setState(() => _selectedPatient = newP);
+                      CustomToast.show(
+                        context,
+                        title: context.tr('patient_registered_title'),
+                        message: context.tr('patient_registered_msg', {
+                          'name': newP.getLocalizedFullName(context),
+                        }),
+                        icon: LucideIcons.userPlus,
+                        color: AppColors.success,
+                      );
+                    }
+                  },
                   icon: const Icon(LucideIcons.userPlus, size: 18),
-                  label: const Text('Register New Patient'),
+                  label: Text(context.tr('register_patient')),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 44),
                   ),
@@ -408,7 +587,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
               // Patient List
               Expanded(
                 child: filtered.isEmpty 
-                    ? _buildEmptyState('No patients found')
+                    ? _buildEmptyState(context.tr('no_matching_patients'))
                     : ListView.builder(
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
@@ -433,7 +612,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              subtitle: Text('EID: ${patient.emiratesId}'),
+                              subtitle: Text(context.tr('eid_label', {'id': patient.emiratesId})),
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
@@ -441,7 +620,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  'BMI ${patient.bmi.toStringAsFixed(1)}',
+                                  context.tr('bmi_label', {'value': patient.bmi.toStringAsFixed(1)}),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
@@ -476,7 +655,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
         // Right Column (Details) - 65%
         Expanded(
           child: _selectedPatient == null 
-              ? _buildEmptyState('Select a patient to view full clinical profile')
+              ? _buildEmptyState(context.tr('select_patient_clinical_profile'))
               : (_isLoadingDetails
                   ? const Padding(
                       padding: EdgeInsets.all(32.0),
@@ -504,7 +683,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     );
   }
 
-  Widget _buildFilterChip(String filterCode, String label) {
+  Widget _buildFilterChip(BuildContext context, String filterCode, String label) {
     bool isSelected = _selectedFilter == filterCode;
     return ChoiceChip(
       label: Text(label),
@@ -538,89 +717,150 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     );
   }
 
-  Widget _buildAssessmentsView(AppLocalizations t, DataProvider provider) {
-    // Assessments view
-    final logs = provider.logs.where((l) => l.action.contains('escalated') || l.action.contains('Weight')).toList();
+  Widget _buildAssessmentsView(BuildContext context, DataProvider provider) {
+    final pending = provider.pendingClinicalReviews;
+    if (pending.isNotEmpty && _selectedPendingReviewIndex >= pending.length) {
+      _selectedPendingReviewIndex = 0;
+    }
+
     return Padding(
       padding: const EdgeInsets.all(32.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Clinical Assessments Dashboard',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy),
+          Text(
+            context.tr('clinical_assessments_dashboard'),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Track system-wide clinical diagnostics, patient checks, and dose changes.',
-            style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+          Text(
+            context.tr('clinical_assessments_dashboard_sub'),
+            style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.05),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  )
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Recent Assessments & Modifications Log', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: logs.isEmpty
-                          ? _buildEmptyState('No assessments recorded yet')
-                          : ListView.separated(
-                              itemCount: logs.length,
-                              separatorBuilder: (context, index) => const Divider(color: AppColors.border),
-                              itemBuilder: (context, index) {
-                                final log = logs[index];
-                                return ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  leading: Container(
-                                    width: 42,
-                                    height: 42,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(10),
+            child: pending.isEmpty
+                ? _buildEmptyState(context.tr('no_pending_reviews'))
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        width: 360,
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        context.tr('pending_reviews_queue'),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.navy,
+                                        ),
+                                      ),
                                     ),
-                                    child: const Icon(LucideIcons.stethoscope, color: AppColors.primary, size: 20),
-                                  ),
-                                  title: Text(
-                                    '${log.getLocalizedPatientName(context)} (${log.patientId}) - ${log.getLocalizedAction(context)}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy),
-                                  ),
-                                  subtitle: Text('Recorded by: ${log.getLocalizedCenterName(context)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                                  trailing: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.background,
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: AppColors.border),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.warning.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        '${pending.length}',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.warning,
+                                        ),
+                                      ),
                                     ),
-                                    child: Text(
-                                      '${log.timestamp.day}/${log.timestamp.month} ${log.timestamp.hour.toString().padLeft(2, '0')}:${log.timestamp.minute.toString().padLeft(2, '0')}',
-                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                                  ],
+                                ),
+                              ),
+                              const Divider(height: 1),
+                              Expanded(
+                                child: ListView.builder(
+                                  itemCount: pending.length,
+                                  itemBuilder: (context, index) {
+                                    final item = pending[index];
+                                    final p = item.patient;
+                                    final selected = index == _selectedPendingReviewIndex;
+                                    final reason = item.reviewType == 'care_plan'
+                                        ? context.tr('review_type_care_plan')
+                                        : context.tr('review_type_early_dispense');
+                                    return Material(
+                                      color: selected
+                                          ? AppColors.primary.withValues(alpha: 0.06)
+                                          : Colors.transparent,
+                                      child: ListTile(
+                                        selected: selected,
+                                        onTap: () => setState(() => _selectedPendingReviewIndex = index),
+                                        leading: CircleAvatar(
+                                          backgroundColor: AppColors.warning.withValues(alpha: 0.15),
+                                          child: Text(
+                                            p.getLocalizedFullName(context).substring(0, 1),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.warning,
+                                            ),
+                                          ),
+                                        ),
+                                        title: Text(
+                                          p.getLocalizedFullName(context),
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        subtitle: Text(reason, style: const TextStyle(fontSize: 12)),
+                                        trailing: Text(p.id, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          child: ClinicalReviewDetailPanel(
+                            patient: pending[_selectedPendingReviewIndex].patient,
+                            reviewType: pending[_selectedPendingReviewIndex].reviewType,
+                            onApprove: () {
+                              final item = pending[_selectedPendingReviewIndex];
+                              provider.approveClinicalReview(item.patient.id);
+                              CustomToast.show(
+                                context,
+                                title: context.tr('clinical_review_approved_title'),
+                                message: context.tr('clinical_review_approved_msg', {
+                                  'name': item.patient.getLocalizedFullName(context),
+                                }),
+                                icon: LucideIcons.checkCircle,
+                                color: AppColors.success,
+                              );
+                              setState(() {
+                                if (_selectedPendingReviewIndex >= provider.pendingClinicalReviews.length) {
+                                  _selectedPendingReviewIndex = 0;
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),
@@ -633,18 +873,18 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Record Weight Check-in for ${patient.getLocalizedFullName(context)}'),
+        title: Text(context.tr('record_weight_checkin', {'name': patient.getLocalizedFullName(context)})),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Enter new patient weight (kg). BMI will be calculated automatically.'),
+            Text(context.tr('enter_weight')),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'New Weight (kg)',
+              decoration: InputDecoration(
+                labelText: context.tr('weight_kg'),
                 suffixText: 'kg',
               ),
             ),
@@ -653,7 +893,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -661,17 +901,18 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
               if (w != null && w > 30.0) {
                 provider.recordWeight(patient.id, w);
                 Navigator.pop(context);
+                final bmi = (w / ((patient.height / 100) * (patient.height / 100))).toStringAsFixed(1);
                 CustomToast.show(
                   context,
-                  title: 'Weight Logged',
-                  message: 'Weight check-in recorded! New BMI is ${(w / ((patient.height / 100) * (patient.height / 100))).toStringAsFixed(1)} kg/m².',
+                  title: context.tr('weight_logged'),
+                  message: context.tr('weight_logged_bmi', {'bmi': bmi}),
                   icon: LucideIcons.scale,
                   color: AppColors.success,
                 );
 
               }
             },
-            child: const Text('Record'),
+            child: Text(context.tr('record')),
           ),
         ],
       ),
@@ -686,14 +927,14 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          title: Text('Escalate Mounjaro Dose for ${patient.getLocalizedFullName(context)}'),
+          title: Text(context.tr('escalate_dose_title', {'name': patient.getLocalizedFullName(context)})),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Current dose: ${patient.currentDose}'),
+              Text(context.tr('current_dose_label', {'dose': patient.currentDose})),
               const SizedBox(height: 16),
-              const Text('Select new prescription dose:'),
+              Text(context.tr('select_new_dose')),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: doses.contains(selectedDose) ? selectedDose : doses.first,
@@ -714,7 +955,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(context.tr('cancel')),
             ),
             ElevatedButton(
               onPressed: () {
@@ -722,14 +963,14 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                 Navigator.pop(context);
                 CustomToast.show(
                   context,
-                  title: 'Prescription Updated',
-                  message: 'Dose successfully escalated to $selectedDose.',
+                  title: context.tr('prescription_updated'),
+                  message: context.tr('dose_escalated_to', {'dose': selectedDose}),
                   icon: LucideIcons.trendingUp,
                   color: AppColors.success,
                 );
 
               },
-              child: const Text('Confirm Prescription'),
+              child: Text(context.tr('confirm_prescription')),
             ),
           ],
         ),
@@ -737,188 +978,4 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     );
   }
 
-  // Dialog to register a brand new patient
-
-  void _showRegisterPatientDialog(BuildContext context, DataProvider provider) {
-    final nameController = TextEditingController();
-    final emiratesIdController = TextEditingController(text: '784-1990-');
-    final ageController = TextEditingController();
-    final weightController = TextEditingController();
-    final heightController = TextEditingController();
-    ResidencyStatus residency = ResidencyStatus.citizen;
-    String gender = 'Male';
-    String nationality = 'United Arab Emirates';
-    String emirate = 'Dubai';
-    List<String> selectedConditions = ['Obesity'];
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('Register New Patient'),
-          content: SizedBox(
-            width: 600,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Full Name'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: emiratesIdController,
-                    decoration: const InputDecoration(labelText: 'Emirates ID'),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: ageController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Age'),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: gender,
-                          decoration: const InputDecoration(labelText: 'Gender'),
-                          items: ['Male', 'Female'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
-                          onChanged: (val) {
-                            if (val != null) setStateDialog(() => gender = val);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: weightController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Weight (kg)', suffixText: 'kg'),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
-                          controller: heightController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Height (cm)', suffixText: 'cm'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<ResidencyStatus>(
-                          value: residency,
-                          decoration: const InputDecoration(labelText: 'Residency Status'),
-                          items: const [
-                            DropdownMenuItem(value: ResidencyStatus.citizen, child: Text('Emirati')),
-                            DropdownMenuItem(value: ResidencyStatus.resident, child: Text('Resident')),
-                            DropdownMenuItem(value: ResidencyStatus.visitor, child: Text('Visitor')),
-                          ],
-                          onChanged: (val) {
-                            if (val != null) setStateDialog(() => residency = val);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: emirate,
-                          decoration: const InputDecoration(labelText: 'Emirate'),
-                          items: ['Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah']
-                              .map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                          onChanged: (val) {
-                            if (val != null) setStateDialog(() => emirate = val);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    value: nationality,
-                    decoration: const InputDecoration(labelText: 'Nationality'),
-                    items: ['United Arab Emirates', 'United Kingdom', 'United States', 'India', 'Pakistan', 'Egypt']
-                        .map((n) => DropdownMenuItem(value: n, child: Text(n))).toList(),
-                    onChanged: (val) {
-                      if (val != null) setStateDialog(() => nationality = val);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final name = nameController.text;
-                final eid = emiratesIdController.text;
-                final age = int.tryParse(ageController.text) ?? 0;
-                final w = double.tryParse(weightController.text) ?? 0.0;
-                final h = double.tryParse(heightController.text) ?? 0.0;
-
-                if (name.isNotEmpty && eid.isNotEmpty && w > 0 && h > 0) {
-                  final newP = Patient(
-                    id: 'P${provider.patients.length + 1}',
-                    emiratesId: eid,
-                    fullName: name,
-                    fullNameAr: name,
-                    nationality: nationality,
-                    nationalityAr: nationality,
-                    residencyStatus: residency,
-                    age: age,
-                    gender: gender,
-                    genderAr: gender == 'Male' ? 'ذكر' : 'أنثى',
-                    weight: w,
-                    height: h,
-                    medicalConditions: selectedConditions,
-                    medicalConditionsAr: selectedConditions,
-                    lastDispensingDate: null,
-                    nextEligibleDate: 'Eligible Now',
-                    currentDose: '2.5 mg',
-                    latitude: 24.4539,
-                    longitude: 54.3773,
-                    emirate: emirate,
-                    emirateAr: emirate,
-                    weightHistory: [w],
-                    doseHistory: ['2.5 mg'],
-                    complianceRate: 1.0,
-                  );
-                  provider.registerPatient(newP);
-                  setState(() {
-                    _selectedPatient = newP;
-                  });
-                  Navigator.pop(context);
-                  CustomToast.show(
-                    context,
-                    title: 'Patient Registered',
-                    message: '${newP.getLocalizedFullName(context)} registered successfully on Emirates Registry.',
-                    icon: LucideIcons.userPlus,
-                    color: AppColors.success,
-                  );
-
-                }
-              },
-              child: const Text('Register Patient'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/mock_data.dart';
 import '../models/treatment_plan.dart';
 import 'medication_reminder_widget.dart';
 import 'session_checkin_screen.dart';
+import '../data/home_exercise_catalog.dart';
 import 'home_exercises_screen.dart';
 
 class PatientPlanScreen extends StatelessWidget {
@@ -16,7 +17,6 @@ class PatientPlanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
     final dataProvider = Provider.of<DataProvider>(context);
     final plan = dataProvider.getPlanForPatient(patient.id);
 
@@ -27,9 +27,9 @@ class PatientPlanScreen extends StatelessWidget {
           children: [
             Icon(LucideIcons.clipboardList, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
-            Text('No Active Treatment Plan', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            Text(context.tr('no_treatment_plan_mobile'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
             const SizedBox(height: 8),
-            Text('Your doctor hasn\'t assigned a plan yet.', style: const TextStyle(color: AppColors.textSecondary)),
+            Text(context.tr('no_treatment_plan_sub'), style: const TextStyle(color: AppColors.textSecondary)),
           ],
         ),
       );
@@ -42,26 +42,30 @@ class PatientPlanScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.translate('my_plan'), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('my_plan'), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.navy)),
           const SizedBox(height: 24),
           
           MedicationReminderWidget(plan: plan),
           const SizedBox(height: 32),
 
-          Text(t.translate('therapy_plan'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('therapy_plan'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
           const SizedBox(height: 16),
-          _buildTherapySection(context, plan, t),
+          _buildTherapySection(context, plan),
           
           const SizedBox(height: 32),
-          Text(t.translate('home_exercises'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('home_exercises'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
           const SizedBox(height: 16),
-          _buildExercisesSection(context, plan, t, isAr),
+          _buildExercisesSection(context, plan, isAr),
         ],
       ),
     );
   }
 
-  Widget _buildTherapySection(BuildContext context, TreatmentPlan plan, AppLocalizations t) {
+  Widget _buildTherapySection(BuildContext context, TreatmentPlan plan) {
+    final provider = Provider.of<DataProvider>(context);
+    final centerName = plan.assignedCenterId == null
+        ? context.tr('not_assigned')
+        : provider.therapyCenterLabel(context, plan.assignedCenterId);
     final upcomingSession = plan.sessions.firstWhere((s) => !s.isAttended, orElse: () => plan.sessions.last);
 
     return Container(
@@ -79,7 +83,14 @@ class PatientPlanScreen extends StatelessWidget {
             children: [
               const Icon(LucideIcons.mapPin, color: AppColors.primary),
               const SizedBox(width: 12),
-              Expanded(child: Text(plan.assignedCenterId ?? '', style: const TextStyle(fontWeight: FontWeight.bold))),
+              Expanded(
+                child: Text(
+                  centerName,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -91,7 +102,7 @@ class PatientPlanScreen extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Session ${upcomingSession.sessionNumber} / ${plan.totalSessions}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(context.tr('session_n_of_total', {'n': '${upcomingSession.sessionNumber}', 'total': '${plan.totalSessions}'}), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   Text('${upcomingSession.scheduledDate.day}/${upcomingSession.scheduledDate.month}/${upcomingSession.scheduledDate.year}', style: const TextStyle(color: AppColors.textSecondary)),
                 ],
               ),
@@ -101,7 +112,7 @@ class PatientPlanScreen extends StatelessWidget {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => SessionCheckinScreen(plan: plan, session: upcomingSession)));
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-                  child: Text(t.translate('session_checkin')),
+                  child: Text(context.tr('session_checkin')),
                 )
               else
                 const Icon(LucideIcons.checkCircle, color: AppColors.success),
@@ -112,7 +123,7 @@ class PatientPlanScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildExercisesSection(BuildContext context, TreatmentPlan plan, AppLocalizations t, bool isAr) {
+  Widget _buildExercisesSection(BuildContext context, TreatmentPlan plan, bool isAr) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -131,8 +142,15 @@ class PatientPlanScreen extends StatelessWidget {
               ),
               child: const Icon(LucideIcons.activity, color: AppColors.primary),
             ),
-            title: Text(isAr ? e.nameAr : e.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('${e.durationMinutes} min • ${e.sets}x${e.reps}'),
+            title: Text(
+              HomeExerciseCatalog.displayName(HomeExerciseCatalog.resolve(e), isAr),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(context.tr('exercise_duration_format', {
+              'minutes': '${e.durationMinutes}',
+              'sets': '${e.sets}',
+              'reps': '${e.reps}',
+            })),
             trailing: const Icon(LucideIcons.chevronRight),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => HomeExercisesScreen(plan: plan)));
@@ -143,7 +161,7 @@ class PatientPlanScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => HomeExercisesScreen(plan: plan)));
               },
-              child: const Text('View All Exercises'),
+              child: Text(context.tr('view_all_exercises')),
             ),
         ],
       ),

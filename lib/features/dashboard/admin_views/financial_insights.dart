@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_colors.dart';
 
 class FinancialInsights extends StatelessWidget {
@@ -11,7 +12,7 @@ class FinancialInsights extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Financial & Demographic Insights'),
+        title: Text(context.tr('financial_insights')),
         backgroundColor: Colors.white,
         foregroundColor: AppColors.navy,
         elevation: 0,
@@ -49,16 +50,16 @@ class FinancialInsights extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Subsidy Financial Distribution',
+            context.tr('subsidy_financial_distribution'),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: AppColors.navy,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Cost distribution based on patient residency status.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          Text(
+            context.tr('subsidy_distribution_sub'),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -97,9 +98,9 @@ class FinancialInsights extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegend(AppColors.primary, 'Citizens (100% Covered)'),
+              _buildLegend(context, AppColors.primary, context.tr('legend_citizens_full_coverage')),
               const SizedBox(width: 16),
-              _buildLegend(AppColors.accent, 'Residents (50% Covered)'),
+              _buildLegend(context, AppColors.accent, context.tr('legend_residents_half_coverage')),
             ],
           ),
         ],
@@ -107,7 +108,7 @@ class FinancialInsights extends StatelessWidget {
     );
   }
 
-  Widget _buildLegend(Color color, String text) {
+  Widget _buildLegend(BuildContext context, Color color, String text) {
     return Row(
       children: [
         Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
@@ -150,14 +151,14 @@ class FinancialInsights extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'AI Budget Predictor',
+                      context.tr('ai_budget_predictor'),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Next Quarter Projection',
+                      context.tr('next_quarter_projection'),
                       style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
                     ),
                   ],
@@ -167,13 +168,13 @@ class FinancialInsights extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           Text(
-            'Estimated Q3 Subsidy Requirement',
+            context.tr('estimated_q3_subsidy_requirement'),
             style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
           ),
           const SizedBox(height: 8),
-          const Text(
-            '58,400,000 AED',
-            style: TextStyle(
+          Text(
+            context.tr('q3_subsidy_amount_aed'),
+            style: const TextStyle(
               color: AppColors.accent,
               fontSize: 36,
               fontWeight: FontWeight.bold,
@@ -194,7 +195,7 @@ class FinancialInsights extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Based on current growth rates, expect a 12% increase in budget requirements for Abu Dhabi and Dubai regions.',
+                    context.tr('budget_forecast_abu_dhabi_dubai'),
                     style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13, height: 1.5),
                   ),
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../auth/login_screen.dart';
 
@@ -37,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     _controller.forward().then((_) {
-      Future.delayed(const Duration(milliseconds: 1000), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
@@ -113,7 +114,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        'Mounjaro Platform',
+                        context.tr('splash_platform'),
                         style: Theme.of(context).textTheme.displaySmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -122,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'MINISTRY OF HEALTH',
+                        context.tr('splash_moh'),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: AppColors.accentLight,
                           fontWeight: FontWeight.w600,

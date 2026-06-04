@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/mock_data.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/status_badge.dart';
 
@@ -33,10 +34,10 @@ class EligibilityCard extends StatelessWidget {
     return BadgeStatus.warning;
   }
 
-  String get _coverageText {
-    if (_coveragePercentage == 1.0) return '100% Covered (Citizen)';
-    if (_coveragePercentage == 0.5) return '50% Covered (Resident)';
-    return '0% Covered (Visitor)';
+  String _coverageText(BuildContext context) {
+    if (_coveragePercentage == 1.0) return context.tr('coverage_citizen');
+    if (_coveragePercentage == 0.5) return context.tr('coverage_resident');
+    return context.tr('coverage_visitor');
   }
 
   @override
@@ -51,11 +52,11 @@ class EligibilityCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Eligibility Status',
+                  context.tr('eligibility_status'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 StatusBadge(
-                  label: _coverageText,
+                  label: _coverageText(context),
                   status: _coverageBadgeStatus,
                 ),
               ],
@@ -66,7 +67,7 @@ class EligibilityCard extends StatelessWidget {
                 Expanded(
                   child: _buildCostColumn(
                     context,
-                    'Govt. Contribution',
+                    context.tr('govt_contribution'),
                     'AED ${_governmentContribution.toStringAsFixed(2)}',
                     AppColors.success,
                   ),
@@ -79,7 +80,7 @@ class EligibilityCard extends StatelessWidget {
                 Expanded(
                   child: _buildCostColumn(
                     context,
-                    'Patient Contribution',
+                    context.tr('patient_contribution'),
                     'AED ${_patientContribution.toStringAsFixed(2)}',
                     AppColors.warning,
                   ),
