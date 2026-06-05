@@ -25,12 +25,14 @@ const Map<String, String> translationsAr = {
   'english': 'English',
   'arabic': 'العربية',
   'logout': 'تسجيل الخروج',
+  'view_details': 'عرض التفاصيل',
   'export_report': 'تصدير التقرير',
   'last_synced': 'آخر مزامنة',
   'today': 'اليوم',
 
   'login_title': 'منصة إدارة برنامج الرعاية الصحية',
-  'login_subtitle': 'دولة الإمارات العربية المتحدة · وزارة الصحة ووقاية المجتمع',
+  'login_subtitle':
+      'دولة الإمارات العربية المتحدة · وزارة الصحة ووقاية المجتمع',
   'select_role': 'اختر صلاحية الدخول',
   'choose_portal': 'اختر البوابة المصرّح بها للمتابعة',
   'ministry_executive': 'الإدارة\nالتنفيذية',
@@ -39,9 +41,11 @@ const Map<String, String> translationsAr = {
   'patient_portal': 'بوابة\nالمستفيد',
   'access_portal': 'الدخول إلى البوابة',
   'demo_cred_admin': 'وصول تجريبي: المسؤول التنفيذي (admin@moh.gov.ae)',
-  'demo_cred_clinical': 'وصول تجريبي: بوابة الطبيب المعالج (clinical@moh.gov.ae)',
+  'demo_cred_clinical':
+      'وصول تجريبي: بوابة الطبيب المعالج (clinical@moh.gov.ae)',
   'demo_cred_pharmacy': 'وصول تجريبي: منشأة الصرف (pharmacy@moh.gov.ae)',
-  'demo_cred_patient': 'وصول تجريبي: المستفيد (patient@mounjaro.ae · أحمد المنصوري)',
+  'demo_cred_patient':
+      'وصول تجريبي: المستفيد (patient@mounjaro.ae · أحمد المنصوري)',
 
   'splash_platform': 'منصة إدارة برنامج الرعاية الصحية',
   'splash_moh': 'وزارة الصحة ووقاية المجتمع',
@@ -57,7 +61,7 @@ const Map<String, String> translationsAr = {
   'nav_inventory': 'المخزون الوطني',
   'nav_ai_alerts': 'تنبيهات السلامة والإمداد',
   'nav_fraud_log': 'سجل منع إساءة الاستخدام',
-  'nav_reports': 'التقارير الإقليمية',
+  'nav_reports': 'التقارير',
   'nav_section_operations': 'الطبيب والصرف',
   'nav_clinical_ops': 'بوابة الطبيب المعالج (كاملة)',
   'nav_dispensing_ops': 'منشأة الصرف (كاملة)',
@@ -89,28 +93,37 @@ const Map<String, String> translationsAr = {
   'demo_mark_done': 'تمت الخطوة',
   'demo_reset_progress': 'إعادة ضبط القائمة',
   'demo_step_1_title': 'لوحة القيادة الوطنية',
-  'demo_step_1_body': 'عرض نطاق البرنامج: المستفيدون، الدعم الحكومي، مؤشرات BMI، ومنع الاحتيال.',
+  'demo_step_1_body':
+      'عرض نطاق البرنامج: المستفيدون، الدعم الحكومي، مؤشرات BMI، ومنع الاحتيال.',
   'demo_step_1_tip': 'أبرز الخريطة ومؤشرات العينة قبل الانتقال للأدوار الأخرى.',
   'demo_step_2_title': 'السجل الوطني والمخزون',
-  'demo_step_2_body': 'مراجعة سجل المستفيدين ومستويات المخزون في منشآت الصرف المعتمدة.',
+  'demo_step_2_body':
+      'مراجعة سجل المستفيدين ومستويات المخزون في منشآت الصرف المعتمدة.',
   'demo_step_2_tip': 'ابحث عن أحمد (P001) أو الحالات المُعلَّمة للسرد الوزاري.',
   'demo_step_3_title': 'بوابة الطبيب المعالج — الخطة والأهلية',
-  'demo_step_3_body': 'ملف المستفيد 360°، أهلية البرنامج، خطة الرعاية (جرعة، فترة، مركز علاج).',
-  'demo_step_3_tip': 'استخدم «تعديل خطة الرعاية»، شريط الأهلية، وتبويب سجل التدقيق.',
+  'demo_step_3_body':
+      'ملف المستفيد 360°، أهلية البرنامج، خطة الرعاية (جرعة، فترة، مركز علاج).',
+  'demo_step_3_tip':
+      'استخدم «تعديل خطة الرعاية»، شريط الأهلية، وتبويب سجل التدقيق.',
   'demo_step_4_title': 'مراجعات الاعتماد — الموافقة',
-  'demo_step_4_body': 'قائمة الانتظار: تحديث الخطة بعد صرف حديث أو صرف مبكر بموافقة طبية.',
+  'demo_step_4_body':
+      'قائمة الانتظار: تحديث الخطة بعد صرف حديث أو صرف مبكر بموافقة طبية.',
   'demo_step_4_tip': 'سارة (P002) لعدم الأهلية؛ اعتماد حالة أخرى لفتح الصرف.',
   'demo_step_5_title': 'الصرف — مستفيد مؤهل',
-  'demo_step_5_body': 'المنشأة تتحقق من الخطة والأهلية والفترة؛ ثم الصرف وتسجيل الدعم.',
-  'demo_step_5_tip': 'أحمد (P001) يظهر «جاهز للصرف» عند اعتماد الخطة واستيفاء المدة.',
+  'demo_step_5_body':
+      'المنشأة تتحقق من الخطة والأهلية والفترة؛ ثم الصرف وتسجيل الدعم.',
+  'demo_step_5_tip':
+      'أحمد (P001) يظهر «جاهز للصرف» عند اعتماد الخطة واستيفاء المدة.',
   'demo_step_6_title': 'الصرف — خطة بدون تسليم',
   'demo_step_6_body': 'مايكل (P003): خطة نشطة في السجل دون تسليم دواء بعد.',
   'demo_step_6_tip': 'قارن «خطة رعاية» مع «صرف دواء» في سجل التدقيق.',
   'demo_step_7_title': 'تجربة المستفيد (التطبيق)',
-  'demo_step_7_body': 'عرض الخطة، تذكير الحقن، تمارين المنزل، والبيانات الديموغرافية.',
+  'demo_step_7_body':
+      'عرض الخطة، تذكير الحقن، تمارين المنزل، والبيانات الديموغرافية.',
   'demo_step_7_tip': 'الدخول كأحمد — نفس البيانات المتزامنة من الطبيب والصرف.',
   'demo_step_8_title': 'سجل الاحتيال والتحليلات الإقليمية',
-  'demo_step_8_body': 'إغلاق العرض بمسار الامتثال والتجاوزات والتقارير على مستوى الإمارة.',
+  'demo_step_8_body':
+      'إغلاق العرض بمسار الامتثال والتجاوزات والتقارير على مستوى الإمارة.',
   'demo_step_8_tip': 'اربط النتائج بمؤشرات الخطوة 1.',
   'demo_start_cycle': 'بدء دورة العرض الكاملة',
   'ministry_executive_user': 'مسؤول تنفيذي — الوزارة',
@@ -137,7 +150,8 @@ const Map<String, String> translationsAr = {
   'q2_budget': 'استخدام ميزانية الربع الثاني',
 
   'obesity_index_title': 'المؤشر الوطني للسمنة',
-  'obesity_index_subtitle': 'اتجاه متوسط مؤشر كتلة الجسم للمستفيدين المسجلين (12 شهراً)',
+  'obesity_index_subtitle':
+      'اتجاه متوسط مؤشر كتلة الجسم للمستفيدين المسجلين (12 شهراً)',
   'dispensing_vs_goals': 'حجم الصرف مقابل المستهدفات الاستراتيجية',
   'actual_dispensed': 'المستفيدون النشطون',
   'ministry_target': 'السقف المستهدف للبرنامج',
@@ -153,10 +167,11 @@ const Map<String, String> translationsAr = {
   'monthly_bmi_sub': 'متوسط مؤشر كتلة الجسم الشهري للمستفيدين المسجلين',
 
   'patient_registry': 'سجل المستفيدين',
-  'patient_registry_sub': 'استعراض وبحث ومتابعة المستفيدين المسجلين على مستوى الدولة.',
+  'patient_registry_sub':
+      'استعراض وبحث ومتابعة المستفيدين المسجلين على مستوى الدولة.',
   'search_name_or_id': 'البحث بالاسم أو رقم المستفيد…',
-  'filter_flagged': 'مُعلّم',
-  'filter_overridden': 'تجاوز معتمد',
+  'filter_flagged': 'مطلوب المتابعة',
+  'filter_overridden': 'استثناءات الإدارة',
   'patients_pagination': '{count} مستفيد · صفحة {page} من {total}',
   'col_patient': 'المستفيد',
   'col_id': 'الرقم',
@@ -165,20 +180,40 @@ const Map<String, String> translationsAr = {
   'col_residency': 'الإقامة',
   'col_status': 'الحالة',
   'status_active': 'نشط',
-  'status_flagged': 'مُعلّم',
-  'status_override': 'تجاوز',
+  'status_flagged': 'مطلوب المتابعة',
+  'status_override': 'استثناءات الإدارة',
 
   'inventory_management': 'إدارة المخزون الوطني',
-  'inventory_management_sub': 'مستويات المخزون اللحظية في منشآت الصرف المعتمدة.',
+  'inventory_management_sub':
+      'مستويات المخزون اللحظية في منشآت الصرف المعتمدة.',
   'low_stock': 'مخزون منخفض',
   'stable': 'كافٍ',
 
   'ai_alerts_title': 'تنبيهات السلامة والإمداد',
-  'ai_alerts_sub': 'مخاطر المخزون، التجاوزات المعتمدة، واشتباه إساءة الاستخدام في جميع الإمارات.',
+  'ai_alerts_sub':
+      'مخاطر المخزون، التجاوزات المعتمدة، واشتباه إساءة الاستخدام في جميع الإمارات.',
   'fraud_prevention_log': 'سجل منع إساءة الاستخدام',
   'no_flagged_alerts': 'لا توجد تنبيهات نشطة لإساءة الاستخدام',
   'inventory_stable': 'جميع مخزونات المنشآت ضمن الحدود الآمنة.',
   'alert_ready_dispense': '{count} مستفيد جاهز للصرف في المنشآت',
+  'alert_fraud_attempt': 'اشتباه احتيال: محاولة صرف مزدوج للمريض {name}',
+  'alert_clinical_ineffective':
+      'تنبيه سريري: لا يوجد تحسن ملحوظ في وزن المريض {name} منذ شهرين',
+  'alert_critical_shortage':
+      'نقص حاد: مخزون {center} من جرعة {dose} وصل للحد الحرج ({count} متبقية)',
+  'alert_non_compliance':
+      'عدم التزام: المريض {name} متأخر عن موعد الجرعة {days} يوم',
+  'action_freeze_account': 'تجميد الحساب',
+  'action_emergency_restock': 'إرسال إمداد طارئ',
+  'action_review_plan': 'مراجعة الخطة',
+  'action_contact_patient': 'التواصل مع المريض',
+  'metrics_fraud': 'أمن واحتيال',
+  'metrics_clinical': 'متابعة طبية',
+  'metrics_supply': 'أزمات الإمداد',
+  'ai_alerts_command_center':
+      'غرفة عمليات التنبيهات الذكية (AI Command Center)',
+  'ai_alerts_command_desc':
+      'نظام مراقبة ذكي يعتمد على الذكاء الاصطناعي لاكتشاف التجاوزات، التنبؤ بنقص المخزون، وتحليل استجابة المرضى.',
   'alert_pending_reviews': '{count} اعتماد طبيب بانتظار الموافقة',
   'badge_ready_dispense': 'جاهز للصرف',
   'inventory_low_msg': '{center}: نقص حرج في {dose} ({units} وحدة متبقية)',
@@ -233,7 +268,8 @@ const Map<String, String> translationsAr = {
   'dispensed_at_facility': 'صُرف في: {facility}',
   'dispense_record_line': '{date} · {dose} · {facility}',
   'record_weight_title': 'تسجيل الوزن — {name}',
-  'enter_weight': 'أدخل الوزن الحالي (كجم). سيتم احتساب مؤشر كتلة الجسم تلقائياً.',
+  'enter_weight':
+      'أدخل الوزن الحالي (كجم). سيتم احتساب مؤشر كتلة الجسم تلقائياً.',
   'escalate_dose_title': 'تعديل الجرعة — {name}',
   'current_dose_label': 'الجرعة الحالية: {dose}',
   'select_new_dose': 'اختر الجرعة المعتمدة الجديدة:',
@@ -273,7 +309,8 @@ const Map<String, String> translationsAr = {
   'select_patient_sub': 'ابحث برقم الهوية أو اختر مستفيداً مؤهلاً أدناه.',
   'search_eid_name': 'أدخل رقم الهوية أو الاسم',
   'suggested_eligible': 'جاهزون للصرف الآن',
-  'no_ready_to_dispense': 'لا يوجد مستفيدون جاهزون للصرف. من تم صرفهم يُزالون من القائمة حتى موعد الاستحقاق التالي.',
+  'no_ready_to_dispense':
+      'لا يوجد مستفيدون جاهزون للصرف. من تم صرفهم يُزالون من القائمة حتى موعد الاستحقاق التالي.',
   'search_results': 'نتائج البحث',
   'empty_select_patient': 'اختر مستفيداً من القائمة لبدء التحقق',
   'dispensing_checkout': 'التحقق من الصرف وإتمامه',
@@ -290,26 +327,31 @@ const Map<String, String> translationsAr = {
   'recent_center_activity_sub': 'عمليات الصرف والتجاوز والتزويد.',
   'processed_at': 'تاريخ المعالجة: {time}',
   'safety_override_title': 'اعتماد تجاوز ضوابط السلامة الطبية',
-  'override_reason_prompt': 'أدخل المبرر الطبي لتجاوز فترة الصرف 28 يوماً.\n\nرمز المشرف التجريبي: 1234',
+  'override_reason_prompt':
+      'أدخل المبرر الطبي لتجاوز فترة الصرف 28 يوماً.\n\nرمز المشرف التجريبي: 1234',
   'override_reason_label': 'المبرر الطبي',
   'approve_dispense': 'اعتماد وصرف',
   'override_logged': 'تم تسجيل صرف بتجاوز معتمد',
   'insufficient_inventory': 'المخزون غير كافٍ في هذه المنشأة.',
 
   'patient_search': 'الاستعلام عن المستفيد',
-  'patient_search_sub': 'أدخل رقم الهوية أو امسح رمز الاستجابة السريعة لبدء الصرف.',
+  'patient_search_sub':
+      'أدخل رقم الهوية أو امسح رمز الاستجابة السريعة لبدء الصرف.',
   'search_eid_hint': 'رقم الهوية (مثال 784-…) أو الاسم',
   'scan_qr': 'مسح رمز المستفيد',
   'scanning_qr': 'جاري مسح الرمز…',
   'patient_not_found': 'لم يتم العثور على مستفيد. تحقق من رقم الهوية أو الاسم.',
   'dispensing_review': 'مراجعة الصرف',
   'duplicate_dispensing_title': 'تنبيه صرف مكرر',
-  'duplicate_dispensing_body': 'المستفيد {name} تلقى الرعاية الصحية بتاريخ {date}. تاريخ الاستحقاق التالي: {next}.',
+  'duplicate_dispensing_body':
+      'المستفيد {name} تلقى الرعاية الصحية بتاريخ {date}. تاريخ الاستحقاق التالي: {next}.',
   'authorize_override': 'اعتماد التجاوز',
   'supervisor_authorization': 'اعتماد المشرف',
-  'supervisor_pin_hint': 'أدخل رمز المشرف لتجاوز فترة الصرف 28 يوماً.\n\nالرمز التجريبي: 1234',
+  'supervisor_pin_hint':
+      'أدخل رمز المشرف لتجاوز فترة الصرف 28 يوماً.\n\nالرمز التجريبي: 1234',
   'confirm_override': 'تأكيد التجاوز',
-  'duplicate_warning_banner': 'تلقى المستفيد العلاج خلال فترة 28 يوماً. الصرف موقوف حتى {date}.',
+  'duplicate_warning_banner':
+      'تلقى المستفيد العلاج خلال فترة 28 يوماً. الصرف موقوف حتى {date}.',
   'current_dose': 'الجرعة الحالية',
   'last_dispensed': 'آخر صرف',
   'next_eligible': 'تاريخ الاستحقاق التالي',
@@ -320,7 +362,7 @@ const Map<String, String> translationsAr = {
   'review_alert': 'مراجعة تنبيه الصرف',
   'proceed_copayment': 'المتابعة إلى المساهمة',
   'never': 'لم يُصرف سابقاً',
-  'now': 'مؤهل الآن',
+  'now': 'الآن',
 
   'patient_copayment': 'مساهمة المستفيد',
   'amount_to_pay': 'المبلغ المستحق',
@@ -337,7 +379,8 @@ const Map<String, String> translationsAr = {
 
   'coverage_simulator': 'محاكي التغطية الحكومية',
   'simulate_coverage': 'محاكاة التغطية الحكومية',
-  'simulate_coverage_sub': 'تقدير الدعم الحكومي ومساهمة المستفيد حسب فئة الإقامة.',
+  'simulate_coverage_sub':
+      'تقدير الدعم الحكومي ومساهمة المستفيد حسب فئة الإقامة.',
   'patient_status': 'فئة الإقامة',
   'mounjaro_price': 'سعر العلاج (درهم)',
   'simulation_results': 'نتائج المحاكاة',
@@ -354,7 +397,8 @@ const Map<String, String> translationsAr = {
   'weight_journey_sub': 'قياسات الوزن المسجلة من قبل الطبيب المعالج.',
   'earned_badges': 'إنجازات البرنامج',
   'my_health_profile': 'الملف الصحي والتغطية الحكومية',
-  'my_health_profile_sub': 'استعراض البيانات الديموغرافية والتغطية المدعومة حكومياً.',
+  'my_health_profile_sub':
+      'استعراض البيانات الديموغرافية والتغطية المدعومة حكومياً.',
   'demographics': 'البيانات الديموغرافية',
   'gov_subsidy_details': 'تفاصيل الدعم الحكومي',
   'my_prescription': 'الوصفة النشطة',
@@ -510,7 +554,7 @@ const Map<String, String> translationsAr = {
   'patient_registered_msg': 'تم تسجيل {name} بنجاح في السجل الوطني.',
   'register_beneficiary_btn': 'تسجيل مستفيد',
   'obesity_condition': 'سمنة',
-  'eligible_now': 'مؤهل الآن',
+  'eligible_now': 'متاح الآن',
   'doc_name': 'د. المنصوري',
   'nav_assessments': 'الاعتمادات',
   'nav_home': 'الرئيسية',
@@ -541,12 +585,14 @@ const Map<String, String> translationsAr = {
   'center_depot': 'المستودع المركزي للصيدلة',
   'pharmacist_role': 'صيدلي مرخّص',
   'stock_updated': 'تم تحديث المخزون',
-  'stock_restock_msg': 'اعتُمد طلب التزويد. أُضيف 20 وحدة لكل تركيز في مخزون المنشأة.',
+  'stock_restock_msg':
+      'اعتُمد طلب التزويد. أُضيف 20 وحدة لكل تركيز في مخزون المنشأة.',
   'sku_label': 'رمز الصنف: {code}',
   'medication_dispensed': 'تم صرف الدواء',
   'medication_dispensed_msg': 'تم صرف الرعاية الصحية {dose} للمستفيد {name}.',
   'subsidy_dispensation_approved': 'اعتُمد صرف الدعم',
-  'subsidy_dispensation_msg': 'تم صرف الرعاية الصحية {dose} بدعم كامل للمواطن {name}.',
+  'subsidy_dispensation_msg':
+      'تم صرف الرعاية الصحية {dose} بدعم كامل للمواطن {name}.',
   'override_logged_msg': 'تم الصرف بموجب تجاوز طبي معتمد: {reason}',
   'override_hint_example': 'مثال: استبدال قلم تالف / جرعة مفقودة…',
   'select_center': 'اختر المنشأة',
@@ -602,8 +648,7 @@ const Map<String, String> translationsAr = {
 
   // Financial insights
   'subsidy_financial_distribution': 'توزيع الإعانة المالية',
-  'subsidy_distribution_sub':
-      'توزيع التكلفة حسب فئة إقامة المستفيد.',
+  'subsidy_distribution_sub': 'توزيع التكلفة حسب فئة إقامة المستفيد.',
   'legend_citizens_full_coverage': 'مواطنو الدولة (تغطية 100%)',
   'legend_residents_half_coverage': 'المقيمون (تغطية 50%)',
   'ai_budget_predictor': 'متوقّع الميزانية الذكي',
@@ -647,7 +692,8 @@ const Map<String, String> translationsAr = {
       'آخر صرف بتاريخ {date}. ستُحفظ الخطة بحالة «قيد المراجعة» ويلزم اعتماد الطبيب قبل الصرف.',
   'plan_submitted_for_review':
       'تم إرسال خطة الرعاية لاعتماد الطبيب — اعتمدها من «مراجعات الاعتماد».',
-  'care_plan_synced': 'تم اعتماد خطة الرعاية ومزامنتها — ستظهر الجرعة والتواريخ في شاشة الصرف.',
+  'care_plan_synced':
+      'تم اعتماد خطة الرعاية ومزامنتها — ستظهر الجرعة والتواريخ في شاشة الصرف.',
   'care_plan_status_pending': 'الحالة: بانتظار اعتماد الطبيب',
   'care_plan_pending_approval_msg':
       'خطة الرعاية بانتظار اعتماد الطبيب. يجب الموافقة من بوابة الطبيب المعالج قبل الصرف.',
@@ -658,7 +704,8 @@ const Map<String, String> translationsAr = {
   'status_clinical_approved_dispense': 'معتمد من الطبيب — جاهز للصرف',
   'awaiting_clinical_approval': 'بانتظار اعتماد الطبيب',
   'pending_reviews_queue': 'طابور اعتمادات معلّقة',
-  'no_pending_reviews': 'لا توجد اعتمادات معلّقة — جميع المستفيدين مُصرّح لهم بالصرف.',
+  'no_pending_reviews':
+      'لا توجد اعتمادات معلّقة — جميع المستفيدين مُصرّح لهم بالصرف.',
   'review_type_care_plan': 'تحديث خطة الرعاية بعد صرف حديث',
   'review_type_early_dispense': 'صرف مبكر قبل موعد الجرعة التالية',
   'approve_clinical_review': 'اعتماد',
@@ -668,7 +715,8 @@ const Map<String, String> translationsAr = {
   'full_name_en': 'الاسم الكامل (إنجليزي)',
   'full_name_ar': 'الاسم الكامل (عربي)',
   'has_chronic_disease': 'أمراض مزمنة',
-  'has_chronic_disease_hint': 'حدّد إن كان المستفيد يعاني من أمراض مزمنة مسجّلة.',
+  'has_chronic_disease_hint':
+      'حدّد إن كان المستفيد يعاني من أمراض مزمنة مسجّلة.',
   'yes': 'نعم',
   'no': 'لا',
   'none_reported': 'لا يوجد',
@@ -682,7 +730,8 @@ const Map<String, String> translationsAr = {
   'document_uploaded_at': 'تاريخ الرفع: {date}',
   'calculated_bmi': 'مؤشر كتلة الجسم: {bmi}',
   'lab_values_section': 'قيم المختبر',
-  'lab_values_hint': 'تُستخدم في قواعد البرنامج — عدّل الحدود في ClinicalEligibilityConfig.',
+  'lab_values_hint':
+      'تُستخدم في قواعد البرنامج — عدّل الحدود في ClinicalEligibilityConfig.',
   'hba1c_label': 'السكر التراكمي (HbA1c)',
   'fasting_glucose_label': 'سكر الصيام',
   'not_recorded': 'غير مسجّل',
@@ -690,12 +739,15 @@ const Map<String, String> translationsAr = {
   'program_ineligible_title': 'صرف الرعاية الصحية موقوف',
   'program_ineligible_sub':
       'لم يجتز قواعد البرنامج الوطني. حدّث البيانات الطبية أو عدّل الحدود في clinical_eligibility_config.dart.',
-  'rule_bmi_too_low': 'مؤشر كتلة الجسم {bmi} أقل من الحد الأدنى ({min}) لهذا الملف.',
+  'rule_bmi_too_low':
+      'مؤشر كتلة الجسم {bmi} أقل من الحد الأدنى ({min}) لهذا الملف.',
   'rule_hba1c_too_high': 'HbA1c {value}% أعلى من الحد المسموح ({max}%).',
-  'rule_glucose_too_high': 'سكر الصيام {value} mg/dL أعلى من الحد ({max} mg/dL).',
+  'rule_glucose_too_high':
+      'سكر الصيام {value} mg/dL أعلى من الحد ({max} mg/dL).',
   'rule_labs_missing': 'يلزم تسجيل HbA1c وسكر الصيام قبل الصرف.',
   'rule_contraindication': 'موانع على الملف: {condition}.',
-  'plan_blocked_ineligible': 'لا يمكن حفظ خطة الرعاية — المستفيد لا يستوفي قواعد الأهلية.',
+  'plan_blocked_ineligible':
+      'لا يمكن حفظ خطة الرعاية — المستفيد لا يستوفي قواعد الأهلية.',
   'assigned_home_exercises': 'تمارين منزلية مُعيَّنة (من مكتبة البرنامج)',
   'medication_history_section': 'سجل الدواء والصرف',
   'dose_history': 'سجل الجرعات',
@@ -730,8 +782,7 @@ const Map<String, String> translationsAr = {
   'demo_obesity_class_ii': 'السمنة (الدرجة الثانية)',
   'demo_diabetes_t2': 'داء السكري من النوع الثاني',
   'demo_appendectomy_2015': 'استئصال الزائدة الدودية (2015)',
-  'demo_family_hypertension_diabetes':
-      'الأب: ارتفاع ضغط الدم · الأم: سكري',
+  'demo_family_hypertension_diabetes': 'الأب: ارتفاع ضغط الدم · الأم: سكري',
   'exercise_duration_format': '{minutes} د · {sets}×{reps}',
   'exercises_picked_count': 'تم اختيار {count} تمرين',
   'prescribed_dose_badge': 'جرعة {dose}',
@@ -741,7 +792,8 @@ const Map<String, String> translationsAr = {
   'wizard_title': 'طلب إعادة صرف الدواء',
   'wizard_checking_eligibility': 'جاري التقييم الطبي للأهلية...',
   'wizard_eligibility_review': 'تقييم الأهلية الطبية',
-  'wizard_eligibility_desc': 'نقوم بمراجعة السجلات الطبية الأخيرة لضمان السلامة للصرف الآلي للجرعة القادمة.',
+  'wizard_eligibility_desc':
+      'نقوم بمراجعة السجلات الطبية الأخيرة لضمان السلامة للصرف الآلي للجرعة القادمة.',
   'wizard_bmi_req': 'توافق مؤشر كتلة الجسم',
   'wizard_bmi_current': 'مؤشر كتلة الجسم الحالي: {bmi}',
   'wizard_glycemic_control': 'استقرار المؤشرات الجلايسيمية (السكر)',
@@ -750,7 +802,8 @@ const Map<String, String> translationsAr = {
   'wizard_refill_too_early': 'لم يحن موعد استحقاق الجرعة القادمة',
   'wizard_refill_ready': 'مؤهل لصرف الجرعة القادمة',
   'wizard_eligible_success': 'أنت مؤهل طبياً لصرف الجرعة القادمة.',
-  'wizard_ineligible_error': 'غير مؤهل حالياً للإصدار الآلي. يرجى مراجعة الطبيب المعالج.',
+  'wizard_ineligible_error':
+      'غير مؤهل حالياً للإصدار الآلي. يرجى مراجعة الطبيب المعالج.',
   'wizard_continue': 'المتابعة',
   'wizard_med_details': 'التفاصيل الدوائية للوصفة',
   'wizard_prescribed_med': 'الدواء الموصوف طبياً',
@@ -775,7 +828,7 @@ const Map<String, String> translationsAr = {
   'wizard_pickup_msg': 'الدواء الموصوف سيكون جاهزاً للاستلام من {center}.',
   'wizard_delivery_msg': 'سيتم توصيل الدواء الموصوف إلى العنوان المدخل.',
   'wizard_back_dashboard': 'العودة إلى لوحة المتابعة',
-  
+
   'dashboard_weight_lost': 'إجمالي فقدان الوزن: {amount} كغ',
   'dashboard_bmi_kpi': 'مؤشر كتلة الجسم: {bmi}',
   'dashboard_adherence_kpi': 'نسبة الالتزام {pct}%',
@@ -784,7 +837,8 @@ const Map<String, String> translationsAr = {
   'dashboard_greeting_afternoon_web': '☀️ مساء الخير،',
   'dashboard_greeting_evening_web': '🌙 مساء الخير،',
   'dashboard_request_med_now': 'طلب إعادة صرف الدواء',
-  'dashboard_request_med_desc': 'تحقق من الأهلية الطبية واطلب إعادة صرف الدواء فوراً مع خيارات الاستلام أو التوصيل.',
+  'dashboard_request_med_desc':
+      'تحقق من الأهلية الطبية واطلب إعادة صرف الدواء فوراً مع خيارات الاستلام أو التوصيل.',
   'dashboard_weight_progress_title': 'تقدم الوزن نحو الهدف',
   'dashboard_completed_pct': '% نسبة الإنجاز',
   'dashboard_remaining_kg': 'متبقي {kg} كغ',
@@ -801,16 +855,36 @@ const Map<String, String> translationsAr = {
   'nav_section_administration': 'إدارة النظام',
   'nav_manage_doctors': 'إدارة الأطباء',
   'nav_manage_centers': 'إدارة مراكز العلاج',
-  
+
   'manage_doctors_title': 'إدارة الأطباء المعتمدين',
   'manage_doctors_sub': 'إضافة ومتابعة الأطباء المصرح لهم بصرف خطط الرعاية.',
+  'system_audit_log': 'سجل النظام',
+  'system_audit_log_desc':
+      'مراقبة حية لجميع الحركات والعمليات التي تمت في النظام.',
   'add_doctor': 'إضافة طبيب',
   'doctor_name': 'اسم الطبيب',
   'specialty': 'التخصص',
   'hospital': 'المستشفى / العيادة',
+  'doctor_name_en_label': 'الاسم (EN)',
+  'doctor_name_ar_label': 'الاسم (AR)',
+  'doctor_specialty_en_label': 'التخصص (EN)',
+  'doctor_specialty_ar_label': 'التخصص (AR)',
+  'doctor_hospital_en_label': 'المستشفى (EN)',
+  'doctor_hospital_ar_label': 'المستشفى (AR)',
+  'doctor_emirate_en_label': 'الإمارة (EN)',
+  'doctor_emirate_ar_label': 'الإمارة (AR)',
+  'doctor_added_successfully': 'تم إضافة الطبيب بنجاح',
+  'center_name_en_label': 'اسم المركز (EN)',
+  'center_name_ar_label': 'اسم المركز (AR)',
+  'center_emirate_en_label': 'الإمارة (EN)',
+  'center_emirate_ar_label': 'الإمارة (AR)',
+  'chief_therapist_en_label': 'المعالج الرئيسي (EN)',
+  'chief_therapist_ar_label': 'المعالج الرئيسي (AR)',
+  'therapy_center_added_successfully': 'تم إضافة المركز بنجاح',
 
   'manage_therapy_centers_title': 'إدارة مراكز العلاج الطبيعي',
-  'manage_therapy_centers_sub': 'إضافة ومتابعة المراكز المعتمدة للتأهيل وبرامج السمنة.',
+  'manage_therapy_centers_sub':
+      'إضافة ومتابعة المراكز المعتمدة للتأهيل وبرامج السمنة.',
   'add_therapy_center': 'إضافة مركز',
 
   'add_stock_btn': 'إضافة مخزون',
@@ -819,5 +893,153 @@ const Map<String, String> translationsAr = {
   'add_units_50': 'إضافة وحدات 5.0 ملغ',
   'add_units_75': 'إضافة وحدات 7.5 ملغ',
   'add_units_100': 'إضافة وحدات 10.0 ملغ',
-};
 
+  // ── Smart Watch ────────────────────────────────────────────────────────────
+  'watch_connected': 'Apple Watch متصلة',
+  'watch_live_sync': 'مزامنة حية',
+  'watch_synced_ago': '(قبل دقيقتين)',
+  'watch_heart_rate': 'معدل نبضات القلب',
+  'watch_caloric_expenditure': 'حرق السعرات الحرارية',
+  'watch_daily_steps': 'النشاط اليومي',
+  'watch_bpm': 'نبضة/د',
+  'watch_kcal': 'سعرة حرارية',
+  'watch_steps': 'خطوة',
+  'watch_activity_tip':
+      'النشاط البدني المستمر يُحسّن استجابة جسمك للعلاج الدوائي بنسبة 40%',
+
+  // ── AI ROI Banner ──────────────────────────────────────────────────────────
+  'ai_roi_title': 'تحليل الذكاء الاصطناعي: العائد على الاستثمار (ROI)',
+  'ai_roi_millions_aed': 'مليون درهم',
+  'ai_roi_savings_label': 'وفر مالي',
+  'ai_roi_description':
+      'التوفير المتوقع من تقليل تكاليف علاج مضاعفات السمنة والسكري نتيجة التزام المرضى ببرنامج العلاج.',
+  'ai_roi_complication_reduction': 'نسبة خفض المضاعفات',
+
+  // ── Reports Center ─────────────────────────────────────────────────────────
+  'reports_center_title': 'مركز التقارير الشاملة',
+  'report_tab_geo': 'التوزيع الجغرافي',
+  'report_tab_hospitals': 'المستشفيات والمراكز',
+  'report_tab_doctors': 'أداء الأطباء',
+  'report_tab_financial': 'التقرير المالي',
+
+  'report_geo_emirate': 'الإمارة',
+  'report_geo_total_patients': 'إجمالي المستفيدين',
+  'report_geo_doses_dispensed': 'الجرعات المصروفة',
+  'report_geo_avg_bmi': 'متوسط مؤشر الكتلة',
+  'report_geo_target_pct': 'نسبة تحقيق المستهدف',
+
+  'report_hosp_name': 'اسم المركز / المستشفى',
+  'report_hosp_emirate': 'الإمارة التابع لها',
+  'report_hosp_total_doses': 'إجمالي الجرعات المصروفة',
+  'report_hosp_active_patients': 'المستفيدون النشطون',
+  'report_hosp_stock_status': 'حالة المخزون',
+  'report_hosp_low_stock': 'مخزون منخفض',
+  'report_hosp_available': 'متوفر',
+
+  'report_doc_name': 'اسم الطبيب المعالج',
+  'report_doc_specialty': 'التخصص الطبي',
+  'report_doc_patients': 'المرضى المسجلون',
+  'report_doc_prescriptions': 'الوصفات الطبية المعتمدة',
+  'report_doc_compliance': 'نسبة الالتزام العلاجي',
+
+  'report_fin_category': 'فئة المستفيد',
+  'report_fin_total_patients': 'إجمالي عدد المستفيدين',
+  'report_fin_total_cost': 'التكلفة الإجمالية (درهم)',
+  'report_fin_govt_subsidy': 'قيمة الدعم الحكومي',
+  'report_fin_patient_copay': 'مساهمة المستفيدين',
+  'report_fin_citizen': 'مواطن (دعم 100%)',
+  'report_fin_resident': 'مقيم (دعم 50%)',
+
+  // ── Patient App Screen ─────────────────────────────────────────────────────
+  'app_injection_done_label': 'تم تسجيل الحقنة ✓',
+  'app_injection_days_left': 'بعد {days} أيام',
+  'app_injection_success_msg': 'تم تسجيل الحقنة بنجاح! 🎉',
+  'app_injection_keep_up': 'استمر في الالتزام بخطتك العلاجية',
+  'app_injection_reminder': 'لا تنسَ تسجيل حقنتك الأسبوعية لمتابعة الالتزام',
+  'app_injection_recorded': 'تم التسجيل',
+  'app_stat_weight_loss': 'فقدان الوزن',
+  'app_stat_sessions': 'الجلسات العلاجية',
+  'app_goal_label': 'الوزن المستهدف: {target} كغ  •  الحالي: {current} كغ',
+  'app_no_exercises_today': 'لا توجد تمارين مجدولة اليوم',
+
+  // ── Center Shell ────────────────────────────────────────────────────────────
+  'stock_total': 'الإجمالي',
+  'stock_dispensed': 'المنصرف',
+  'stock_available': 'المتاح',
+
+  // ── Payment Screen ──────────────────────────────────────────────────────────
+  'payment_invoice_title': 'فاتورة المستفيد',
+  'payment_medication_label': 'العلاج الدوائي',
+  'payment_dose_label': 'الجرعة',
+  'payment_date_label': 'التاريخ',
+  'payment_ref_label': 'رقم المرجع',
+  'payment_subtotal': 'المجموع الجزئي',
+  'payment_govt_discount': 'خصم الدعم الحكومي',
+  'payment_total_due': 'الإجمالي المستحق',
+  'payment_receipt_title': 'إيصال الدفع',
+  'payment_receipt_subtitle': 'تم الدفع بنجاح',
+  'payment_receipt_paid_by': 'طريقة الدفع',
+  'payment_receipt_amount_paid': 'المبلغ المدفوع',
+  'payment_print_receipt': 'طباعة الإيصال',
+  'payment_new_transaction': 'معاملة جديدة',
+  'payment_wallet_label': 'المحفظة الصحية الحكومية',
+  'payment_card_label': 'بطاقة ائتمانية / خصم مباشر',
+
+  // ── Exercises ──────────────────────────────────────────────────────────────
+  'exercise_streak_title': 'سلسلة التمرين اليومية 🔥',
+  'exercise_streak_unit': 'يوم متتالٍ',
+  'exercise_week_activity': 'نشاط الأسبوع',
+  'exercise_today_title': 'تمارين اليوم',
+  'exercise_remaining': 'متبقي {remaining} تمارين • {minutes} دقيقة',
+  'exercise_description': 'الوصف',
+  'exercise_tips': 'نصائح للتمرين',
+  'exercise_tip_1': 'ابدأ ببطء وزد التكثيف تدريجياً',
+  'exercise_tip_2': 'اشرب كمية كافية من الماء قبل وبعد التمرين',
+  'exercise_tip_3': 'أبلغ طبيبك الفوري عند الشعور بأي ألم',
+  'exercise_mark_done': 'تم إنجاز التمرين',
+  'exercise_daily_tip_title': 'نصيحة اليوم الطبية',
+  'exercise_daily_tip_body':
+      'الاتساق أهم من الشدة! 15 دقيقة يومياً أفضل من ساعة مرة أسبوعياً.',
+  'exercise_no_results': 'لم يتم العثور على تمارين تطابق معايير البحث الحالية',
+  'exercise_week_days': 'س,ح,ن,ث,ر,خ,ج',
+
+  // ── Web Patient Shell ───────────────────────────────────────────────────────
+  'patient_shell_plan_card': 'خطة الرعاية العلاجية',
+  'patient_shell_next_session': 'الجلسة العلاجية القادمة',
+  'patient_shell_compliance_label': 'مؤشر الالتزام',
+  'patient_shell_weight_goal': 'الوزن المستهدف',
+
+  // ── Web Plan Overview ───────────────────────────────────────────────────────
+  'plan_overview_current_dose': 'الجرعة الفعالة الحالية',
+  'plan_overview_frequency': 'فترة الحقن',
+  'plan_overview_target_weight': 'الوزن المستهدف',
+  'plan_overview_assigned_center': 'مركز التأهيل المعيَّن',
+  'plan_overview_sessions_progress': 'تقدم الجلسات العلاجية',
+  'plan_overview_no_center': 'لم يُعيَّن مركز بعد',
+
+  // ── Register Patient ────────────────────────────────────────────────────────
+  'register_personal_info': 'البيانات الشخصية',
+  'register_medical_info': 'البيانات الطبية والسريرية',
+  'register_id_placeholder': '784-XXXX-XXXXXXX-X',
+  // ── Inventory Management Web ───────────────────────────────────────────────────
+  'export_csv': 'تصدير بصيغة CSV',
+  'sync_all_nodes': 'مزامنة جميع الفروع',
+  'total_distribution_centers': 'إجمالي مراكز التوزيع',
+  'critical_outages_low_stocks': 'نواقص حرجة / مخزون منخفض',
+  'total_tracked_inventory_units': 'إجمالي وحدات المخزون المتتبعة',
+  'filter_specific_nodes': 'تصفية حسب مركز الصرف أو المنطقة...',
+  'all_statuses': 'جميع الحالات',
+  'low_stock_alerts': 'تنبيهات انخفاض المخزون',
+  'active_global_sync': 'مزامنة نشطة',
+  'last_dispensed_ago': 'آخر صرف: منذ {time} دقائق',
+  'critical_low': 'نقص حرج',
+  'total_available': 'المتاح',
+  'total_dispensed': 'المنصرف',
+  'total_handled': 'إجمالي المعاملات',
+  'dosage_label': 'الجرعة',
+  'available_label': 'المتاح',
+  'dispensed_label': 'المنصرف',
+  'utilization_overview': 'نظرة عامة على الاستخدام',
+  'last_updated_just_now': 'آخر تحديث: الآن',
+  'manage_stock_replenish': 'إدارة المخزون / إعادة التعبئة',
+};

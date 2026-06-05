@@ -96,6 +96,10 @@ class _PatientAppScreenState extends State<PatientAppScreen>
             _buildMedicationAction(context),
             const SizedBox(height: 24),
 
+            // ── Smart Watch Integration ───────────────────────────────────
+            _buildSmartWatchSync(context),
+            const SizedBox(height: 24),
+
             // ── Goal Progress ────────────────────────────────────────────
             _buildGoalProgress(context, patient, targetWeight, progress),
             const SizedBox(height: 24),
@@ -284,7 +288,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        _injectionDone ? '✓ تم التسجيل' : 'بعد $days أيام',
+                        _injectionDone ? context.tr('app_injection_done_label') : context.tr('app_injection_days_left').replaceAll('{days}', '$days'),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -297,7 +301,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                 const SizedBox(height: 20),
                 Text(
                   _injectionDone
-                      ? 'تم تسجيل الحقنة بنجاح! 🎉'
+                      ? context.tr('app_injection_success_msg')
                       : context.tr('next_injection_reminder'),
                   style: const TextStyle(
                     color: Colors.white,
@@ -309,8 +313,8 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                 const SizedBox(height: 8),
                 Text(
                   _injectionDone
-                      ? 'استمر في الالتزام بخطة علاجك'
-                      : 'لا تنسى تسجيل حقنتك الأسبوعية لمتابعة التزامك',
+                      ? context.tr('app_injection_keep_up')
+                      : context.tr('app_injection_reminder'),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 13,
@@ -356,7 +360,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                         const SizedBox(width: 8),
                         Text(
                           _injectionDone
-                              ? 'تم التسجيل'
+                              ? context.tr('app_injection_recorded')
                               : context.tr('mark_injection_taken'),
                           style: TextStyle(
                             color: _injectionDone
@@ -392,7 +396,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
           context,
           icon: LucideIcons.trendingDown,
           value: '${weightLost.toStringAsFixed(1)} kg',
-          label: 'فقدان الوزن',
+          label: context.tr('app_stat_weight_loss'),
           color: AppColors.success,
           flex: 2,
         ),
@@ -410,7 +414,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
           context,
           icon: LucideIcons.calendar,
           value: '$sessionsAttended/$totalSessions',
-          label: 'الجلسات',
+          label: context.tr('app_stat_sessions'),
           color: AppColors.primary,
           flex: 1,
         ),
@@ -582,7 +586,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'الهدف: $targetWeight kg  •  الحالي: ${patient.weight.toStringAsFixed(1)} kg',
+                    context.tr('app_goal_label').replaceAll('{target}', targetWeight.toStringAsFixed(1)).replaceAll('{current}', patient.weight.toStringAsFixed(1)),
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
@@ -882,13 +886,13 @@ class _PatientAppScreenState extends State<PatientAppScreen>
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(LucideIcons.checkCircle, color: AppColors.success),
-          SizedBox(width: 12),
+          const Icon(LucideIcons.checkCircle, color: AppColors.success),
+          const SizedBox(width: 12),
           Text(
-            'لا توجد تمارين مجدولة اليوم',
-            style: TextStyle(color: AppColors.textSecondary),
+            context.tr('app_no_exercises_today'),
+            style: const TextStyle(color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -1122,6 +1126,146 @@ class _PatientAppScreenState extends State<PatientAppScreen>
           ],
         ),
       ),
+    );
+  }
+  Widget _buildSmartWatchSync(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(LucideIcons.watch, color: Colors.black, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Apple Watch متصلة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy)),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.success,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text('${context.tr('watch_live_sync')} ${context.tr('watch_synced_ago')}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(LucideIcons.refreshCw, size: 20, color: AppColors.primary),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(color: AppColors.border),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildWatchMetric(
+                  icon: LucideIcons.activity,
+                  color: AppColors.error,
+                  value: '72',
+                  unit: 'bpm',
+                  label: context.tr('watch_heart_rate'),
+                ),
+              ),
+              Container(width: 1, height: 40, color: AppColors.border),
+              Expanded(
+                child: _buildWatchMetric(
+                  icon: LucideIcons.flame,
+                  color: AppColors.warning,
+                  value: '450',
+                  unit: 'kcal',
+                  label: context.tr('watch_caloric_expenditure'),
+                ),
+              ),
+              Container(width: 1, height: 40, color: AppColors.border),
+              Expanded(
+                child: _buildWatchMetric(
+                  icon: LucideIcons.footprints,
+                  color: AppColors.primary,
+                  value: '6.4k',
+                  unit: context.tr('watch_steps'),
+                  label: context.tr('watch_daily_steps'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(LucideIcons.info, color: AppColors.primary, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    context.tr('watch_activity_tip'),
+                    style: const TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWatchMetric({required IconData icon, required Color color, required String value, required String unit, required String label}) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.navy)),
+            const SizedBox(width: 2),
+            Text(unit, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+      ],
     );
   }
 }

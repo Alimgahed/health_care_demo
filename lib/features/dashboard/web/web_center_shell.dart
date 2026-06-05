@@ -1169,52 +1169,30 @@ class _WebCenterShellState extends State<WebCenterShell> {
     DataProvider provider,
     double copay,
   ) {
-    if (copay > 0.0) {
-      // Direct payment flow
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PaymentScreen(
-            patient: patient,
-            amountToPay: copay,
-            onPaymentSuccess: () {
-              provider.dispenseMedication(
-                patientId: patient.id,
-                centerId: center.id,
-                dose: patient.currentDose,
-              );
-              _afterDispenseComplete(provider, patient.id);
-              CustomToast.show(
-                context,
-                title: context.tr('medication_dispensed'),
-                message: context.tr('medication_dispensed_msg', {'dose': patient.currentDose, 'name': patient.getLocalizedFullName(context)}),
-                icon: LucideIcons.checkCircle,
-                color: AppColors.success,
-              );
-
-            },
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentScreen(
+          patient: patient,
+          amountToPay: copay,
+          onPaymentSuccess: () {
+            provider.dispenseMedication(
+              patientId: patient.id,
+              centerId: center.id,
+              dose: patient.currentDose,
+            );
+            _afterDispenseComplete(provider, patient.id);
+            CustomToast.show(
+              context,
+              title: context.tr('medication_dispensed'),
+              message: context.tr('medication_dispensed_msg', {'dose': patient.currentDose, 'name': patient.getLocalizedFullName(context)}),
+              icon: LucideIcons.checkCircle,
+              color: AppColors.success,
+            );
+          },
         ),
-      );
-    } else {
-      // Citizen free subsidy
-      final success = provider.dispenseMedication(
-        patientId: patient.id,
-        centerId: center.id,
-        dose: patient.currentDose,
-      );
-      if (success) {
-        _afterDispenseComplete(provider, patient.id);
-        CustomToast.show(
-          context,
-          title: context.tr('subsidy_dispensation_approved'),
-          message: context.tr('subsidy_dispensation_msg', {'dose': patient.currentDose, 'name': patient.getLocalizedFullName(context)}),
-          icon: LucideIcons.award,
-          color: AppColors.success,
-        );
-
-      }
-    }
+      ),
+    );
   }
 
 }

@@ -80,28 +80,16 @@ class PatientDispensingDetails extends StatelessWidget {
       }
     }
 
-    if (patientToPay == 0.0) {
-      completeDispense();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PaymentSuccessScreen(
-            patientName: p.getLocalizedFullName(context),
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentScreen(
+          patient: p,
+          amountToPay: patientToPay,
+          onPaymentSuccess: completeDispense,
         ),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PaymentScreen(
-            patient: p,
-            amountToPay: patientToPay,
-            onPaymentSuccess: completeDispense,
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   @override

@@ -11,7 +11,8 @@ enum ActivityEventType {
   weightUpdate,
   doseChange,
   documentUpload,
-  inventory,
+  inventoryReplenish,
+  adminAction,
   other,
 }
 
@@ -60,6 +61,8 @@ class ActivityLog {
         ActivityEventType.carePlan => 'care_plan',
         ActivityEventType.registration => 'registration',
         ActivityEventType.clinicalReview => 'clinical_review',
+        ActivityEventType.inventoryReplenish => 'inventory_replenish',
+        ActivityEventType.adminAction => 'admin_action',
         _ => 'other',
       };
 
@@ -153,6 +156,53 @@ class ActivityLog {
       actionAr: 'اعتماد الطبيب · صرف مُصرّح',
       centerName: 'Physician Portal',
       centerNameAr: 'بوابة الطبيب المعالج',
+      timestamp: timestamp,
+      status: 'Success',
+      statusAr: 'ناجح',
+    );
+  }
+
+  static ActivityLog inventoryReplenish({
+    required String id,
+    required String centerName,
+    required String centerNameAr,
+    required String dose,
+    required int amount,
+    required DateTime timestamp,
+  }) {
+    final d = DoseUtils.toInventoryDose(dose);
+    return ActivityLog(
+      id: id,
+      patientName: 'System',
+      patientNameAr: 'النظام',
+      patientId: 'SYS',
+      eventType: ActivityEventType.inventoryReplenish,
+      action: 'Inventory replenished · $amount units added ($d)',
+      actionAr: 'تزويد مخزون · تمت إضافة $amount وحدة ($d)',
+      centerName: centerName,
+      centerNameAr: centerNameAr,
+      timestamp: timestamp,
+      status: 'Success',
+      statusAr: 'ناجح',
+    );
+  }
+
+  static ActivityLog adminAction({
+    required String id,
+    required String actionDesc,
+    required String actionDescAr,
+    required DateTime timestamp,
+  }) {
+    return ActivityLog(
+      id: id,
+      patientName: 'Admin',
+      patientNameAr: 'المدير',
+      patientId: 'ADM',
+      eventType: ActivityEventType.adminAction,
+      action: actionDesc,
+      actionAr: actionDescAr,
+      centerName: 'MoHAP Headquarters',
+      centerNameAr: 'المقر الرئيسي للوزارة',
       timestamp: timestamp,
       status: 'Success',
       statusAr: 'ناجح',

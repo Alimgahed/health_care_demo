@@ -147,7 +147,7 @@ class _DispensingScreenState extends State<DispensingScreen> {
                 hintText: context.tr('search_eid_hint'),
                 prefixIcon: const Icon(LucideIcons.search),
                 suffixIcon: IconButton(
-                  icon: const Icon(LucideIcons.arrowRight, color: AppColors.primary),
+                  icon: const Icon(LucideIcons.arrowLeft, color: AppColors.primary),
                   onPressed: _searchPatient,
                 ),
               ),

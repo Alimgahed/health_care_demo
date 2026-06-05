@@ -1344,6 +1344,38 @@ class DataProvider extends ChangeNotifier {
   DataProvider() {
     _doctors = List.from(MockData.doctors);
     _patients = List.from(MockData.patients);
+    
+    // Inject a hardcoded "Clinical Ineffective" patient for demo purposes
+    _patients.insert(0, Patient(
+      id: 'P999',
+      emiratesId: '784-1990-1234567-1',
+      fullName: 'Ahmed Al Mansoori',
+      fullNameAr: 'أحمد المنصوري',
+      nationality: 'Emirati',
+      nationalityAr: 'إماراتي',
+      residencyStatus: ResidencyStatus.citizen,
+      age: 45,
+      gender: 'Male',
+      genderAr: 'ذكر',
+      weight: 120.0,
+      height: 175.0,
+      medicalConditions: ['Type 2 Diabetes'],
+      medicalConditionsAr: ['النوع الثاني من السكري'],
+      lastDispensingDate: '2026-05-15',
+      nextEligibleDate: '2026-06-15',
+      currentDose: '10 mg',
+      latitude: 25.2048,
+      longitude: 55.2708,
+      emirate: 'Dubai',
+      emirateAr: 'دبي',
+      weightHistory: [120.5, 120.2, 120.0],
+      doseHistory: ['5 mg', '7.5 mg', '10 mg'],
+      complianceRate: 0.95,
+      hasChronicDisease: true,
+      clinicalAttachments: [],
+      hba1cPercent: 8.5,
+      fastingGlucoseMgDl: 160.0,
+    ));
     _centers = List.from(MockData.centers);
     _therapyCenters = List.from(MockData.therapyCenters);
     
@@ -1693,6 +1725,49 @@ class DataProvider extends ChangeNotifier {
     return true;
   }
 
+  // Replenish inventory for a center
+  void replenishInventory(String centerId, String dose, int amount) {
+    final centerIndex = _centers.indexWhere((c) => c.id == centerId);
+    if (centerIndex == -1) return;
+
+    final c = _centers[centerIndex];
+    int inv25 = c.inventory2_5mg;
+    int inv5 = c.inventory5mg;
+    int inv75 = c.inventory7_5mg;
+    int inv10 = c.inventory10mg;
+
+    if (dose == '2.5 mg') {
+      inv25 += amount;
+    } else if (dose == '5 mg' || dose == '5.0 mg') {
+      inv5 += amount;
+    } else if (dose == '7.5 mg') {
+      inv75 += amount;
+    } else if (dose == '10 mg' || dose == '10.0 mg') {
+      inv10 += amount;
+    }
+
+    _centers[centerIndex] = c.copyWith(
+      inventory2_5mg: inv25,
+      inventory5mg: inv5,
+      inventory7_5mg: inv75,
+      inventory10mg: inv10,
+    );
+
+    _logs.insert(
+      0,
+      ActivityLog.inventoryReplenish(
+        id: 'LOG${_logs.length + 1}',
+        centerName: c.name,
+        centerNameAr: c.nameAr,
+        dose: dose,
+        amount: amount,
+        timestamp: DateTime.now(),
+      ),
+    );
+
+    notifyListeners();
+  }
+
   // Record a Patient weight check-in (Doctor or Patient portal)
   void recordWeight(String patientId, double newWeight) {
 
@@ -1824,6 +1899,15 @@ class DataProvider extends ChangeNotifier {
   // Add new Doctor
   void addDoctor(Doctor doctor) {
     _doctors.add(doctor);
+    _logs.insert(
+      0,
+      ActivityLog.adminAction(
+        id: 'LOG${_logs.length + 1}',
+        actionDesc: 'Added new physician: ${doctor.name}',
+        actionDescAr: 'تمت إضافة طبيب جديد: ${doctor.name}',
+        timestamp: DateTime.now(),
+      ),
+    );
     notifyListeners();
   }
 
@@ -1836,6 +1920,15 @@ class DataProvider extends ChangeNotifier {
   // Add new Dispensing Center
   void addDispensingCenter(DispensingCenter center) {
     _centers.add(center);
+    _logs.insert(
+      0,
+      ActivityLog.adminAction(
+        id: 'LOG${_logs.length + 1}',
+        actionDesc: 'Added new dispensing center: ${center.name}',
+        actionDescAr: 'تمت إضافة منفذ صرف جديد: ${center.nameAr}',
+        timestamp: DateTime.now(),
+      ),
+    );
     notifyListeners();
   }
 
@@ -1858,8 +1951,8 @@ class DataProvider extends ChangeNotifier {
         id: 'LOG${_logs.length + 1}',
         patientName: 'System Inventory',
         patientNameAr: 'جرد النظام',
-        patientId: 'INV',
-        eventType: ActivityEventType.inventory,
+        patientId: 'SYS',
+        eventType: ActivityEventType.inventoryReplenish,
         action: 'Inventory restocked · ${c.name}',
         actionAr: 'إعادة تخزين · ${c.nameAr}',
         centerName: 'Central Depot',

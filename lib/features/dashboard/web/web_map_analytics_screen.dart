@@ -247,6 +247,39 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             width: 400,
             child: _buildDrawer(context),
           ),
+
+          // 4. Zoom Controls (Bottom Right)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOutCubic,
+            bottom: 24,
+            right: _isDrawerOpen ? 424 : 24,
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  heroTag: 'zoomInBtn',
+                  mini: true,
+                  backgroundColor: Colors.white,
+                  onPressed: () {
+                    final currentZoom = _mapController.camera.zoom;
+                    _mapController.move(_mapController.camera.center, currentZoom + 1);
+                  },
+                  child: const Icon(LucideIcons.plus, color: AppColors.navy),
+                ),
+                const SizedBox(height: 8),
+                FloatingActionButton(
+                  heroTag: 'zoomOutBtn',
+                  mini: true,
+                  backgroundColor: Colors.white,
+                  onPressed: () {
+                    final currentZoom = _mapController.camera.zoom;
+                    _mapController.move(_mapController.camera.center, currentZoom - 1);
+                  },
+                  child: const Icon(LucideIcons.minus, color: AppColors.navy),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

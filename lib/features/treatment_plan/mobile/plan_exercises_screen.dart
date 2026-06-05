@@ -23,7 +23,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
   final Set<String> _completedToday = {};
 
   // Weekly days — S M T W T F S aligned to today
-  final List<String> _weekDays = ['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج'];
+  List<String> get _weekDays => context.tr('exercise_week_days').split(',');
   final Set<int> _activeDays = {0, 1, 2, 3}; // Mocked: last 4 days done
 
   @override
@@ -180,7 +180,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('سلسلة تمرينك 🔥',
+                    Text(context.tr('exercise_streak_title'),
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -196,9 +196,9 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                                 fontWeight: FontWeight.bold,
                                 height: 1.0,
                                 letterSpacing: -2)),
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.only(bottom: 6, left: 6),
-                          child: Text('يوم متتالي',
+                          child: Text(context.tr('exercise_streak_unit'),
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -249,7 +249,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('نشاط الأسبوع',
+              Text(context.tr('exercise_week_activity'),
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -345,7 +345,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('تمارين اليوم',
+                  Text(context.tr('exercise_today_title'),
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -398,7 +398,10 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
           ),
           if (progress > 0 && progress < 1.0) ...[
             const SizedBox(height: 8),
-            Text('متبقي ${total - completed} تمارين • ${totalMinutes - (completed * (totalMinutes ~/ total.clamp(1, 999)))} دقيقة',
+            Text(
+                context.tr('exercise_remaining')
+                    .replaceAll('{remaining}', '${total - completed}')
+                    .replaceAll('{minutes}', '${totalMinutes - (completed * (totalMinutes ~/ total.clamp(1, 999)))}'),
                 style: const TextStyle(
                     color: AppColors.textSecondary, fontSize: 12)),
           ],
@@ -661,7 +664,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       const SizedBox(height: 24),
 
                       // Description
-                      Text('الوصف',
+                      Text(context.tr('exercise_description'),
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -682,15 +685,15 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       const SizedBox(height: 24),
 
                       // Tips
-                      Text('نصائح للتمرين',
+                      Text(context.tr('exercise_tips'),
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 12),
-                      _tipRow('ابدأ ببطء وزد التكثيف تدريجياً'),
-                      _tipRow('اشرب ماءً كافياً قبل وبعد التمرين'),
-                      _tipRow('أخبر طبيبك إذا شعرت بأي ألم'),
+                      _tipRow(context.tr('exercise_tip_1')),
+                      _tipRow(context.tr('exercise_tip_2')),
+                      _tipRow(context.tr('exercise_tip_3')),
                       const SizedBox(height: 24),
 
                       // Mark Done Button
@@ -702,7 +705,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                             Navigator.pop(ctx);
                           },
                           icon: const Icon(LucideIcons.checkCircle),
-                          label: const Text('تم إنجاز التمرين'),
+                          label: Text(context.tr('exercise_mark_done')),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: catColor,
                             foregroundColor: Colors.white,
@@ -786,19 +789,19 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
             child: const Icon(LucideIcons.lightbulb, color: AppColors.primary, size: 20),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('نصيحة اليوم',
-                    style: TextStyle(
+                Text(context.tr('exercise_daily_tip_title'),
+                    style: const TextStyle(
                         color: AppColors.primary,
                         fontSize: 13,
                         fontWeight: FontWeight.bold)),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'الاتساق أهم من الكثافة! 15 دقيقة يومياً أفضل من ساعة مرة في الأسبوع.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                  context.tr('exercise_daily_tip_body'),
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
                 ),
               ],
             ),

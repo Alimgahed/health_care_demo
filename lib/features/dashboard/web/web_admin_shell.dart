@@ -11,6 +11,7 @@ import '../../../core/localization/locale_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/login_screen.dart';
 import '../admin_views/regional_analytics.dart';
+import '../admin_views/system_audit_log_view.dart';
 import '../program_alerts.dart';
 import 'web_center_shell.dart';
 import 'web_doctor_shell.dart';
@@ -30,10 +31,27 @@ class WebAdminShell extends StatefulWidget {
 
 class _WebAdminShellState extends State<WebAdminShell> {
   int _selectedIndex = 0;
+  int _lastSeenLogsCount = -1;
 
-  void _navigate(int index) {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final dp = Provider.of<DataProvider>(context, listen: false);
+        setState(() => _lastSeenLogsCount = dp.logs.length);
+      }
+    });
+  }
+
+  void _navigate(int index, int totalLogs) {
     if (_selectedIndex == index) return;
-    setState(() => _selectedIndex = index);
+    setState(() {
+      _selectedIndex = index;
+      if (index == 11) {
+        _lastSeenLogsCount = totalLogs;
+      }
+    });
   }
 
   @override
@@ -45,18 +63,25 @@ class _WebAdminShellState extends State<WebAdminShell> {
       builder: (context, constraints) {
         final showSidebar = constraints.maxWidth >= 1100;
         final sidebar = Consumer<DataProvider>(
-          builder: (context, dp, _) => _Sidebar(
-            selectedIndex: _selectedIndex,
-            onNavigate: (index) {
-              _navigate(index);
-              if (!showSidebar) Navigator.of(context).maybePop();
-            },
-            t: t,
-            localeProvider: localeProvider,
-            alertBadgeCount: programAlertBadgeCount(context, dp),
-            readyDispenseCount: dp.countPatientsReadyToDispense(),
-            pendingAuthCount: pendingAuthorizationReviewCount(dp),
-          ),
+          builder: (context, dp, _) {
+            final totalLogs = dp.logs.length;
+            final unreadLogs = _lastSeenLogsCount == -1
+                ? 0
+                : (totalLogs - _lastSeenLogsCount);
+            return _Sidebar(
+              selectedIndex: _selectedIndex,
+              onNavigate: (index) {
+                _navigate(index, totalLogs);
+                if (!showSidebar) Navigator.of(context).maybePop();
+              },
+              t: t,
+              localeProvider: localeProvider,
+              alertBadgeCount: programAlertBadgeCount(context, dp),
+              readyDispenseCount: dp.countPatientsReadyToDispense(),
+              pendingAuthCount: pendingAuthorizationReviewCount(dp),
+              unreadAuditLogsCount: unreadLogs,
+            );
+          },
         );
 
         return Scaffold(
@@ -112,6 +137,8 @@ class _WebAdminShellState extends State<WebAdminShell> {
         return _ManageDoctorsView(t: t);
       case 10:
         return _ManageCentersView(t: t);
+      case 11:
+        return SystemAuditLogView(t: t);
       default:
         return _OverviewDashboard(t: t);
     }
@@ -130,6 +157,7 @@ class _Sidebar extends StatelessWidget {
   final int alertBadgeCount;
   final int readyDispenseCount;
   final int pendingAuthCount;
+  final int unreadAuditLogsCount;
 
   const _Sidebar({
     required this.selectedIndex,
@@ -139,6 +167,7 @@ class _Sidebar extends StatelessWidget {
     required this.alertBadgeCount,
     required this.readyDispenseCount,
     required this.pendingAuthCount,
+    required this.unreadAuditLogsCount,
   });
 
   @override
@@ -263,6 +292,15 @@ class _Sidebar extends StatelessWidget {
                     LucideIcons.building,
                     context.tr('nav_manage_centers'),
                     10,
+                  ),
+                  _navItem(
+                    LucideIcons.activitySquare,
+                    t.translate('system_audit_log') ?? 'سجل النظام',
+                    11,
+                    badge: unreadAuditLogsCount > 0
+                        ? '$unreadAuditLogsCount'
+                        : null,
+                    badgeDanger: unreadAuditLogsCount > 0,
                   ),
                 ],
               ),
@@ -607,6 +645,10 @@ class _OverviewDashboard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ── AI Cost & ROI Index ───────────────────────────────────────
+              _buildAiRoiBanner(context),
+              const SizedBox(height: 24),
+
               // ── KPI Row ─────────────────────────────────────────────────────
               Row(
                 children: [
@@ -784,6 +826,164 @@ class _OverviewDashboard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAiRoiBanner(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.navy, AppColors.navy.withValues(alpha: 0.8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              LucideIcons.brainCircuit,
+              color: AppColors.accent,
+              size: 48,
+            ),
+          ),
+          const SizedBox(width: 24),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr('ai_roi_title'),
+                  style: const TextStyle(
+                    color: AppColors.accent,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    const Text(
+                      '45.2',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.tr('ai_roi_millions_aed'),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: AppColors.success.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            LucideIcons.trendingUp,
+                            color: AppColors.success,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            context.tr('ai_roi_savings_label'),
+                            style: const TextStyle(
+                              color: AppColors.success,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr('ai_roi_description'),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 24),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  context.tr('ai_roi_complication_reduction'),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  '22%',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: 150,
+                  child: LinearProgressIndicator(
+                    value: 0.22,
+                    backgroundColor: Colors.white.withValues(alpha: 0.1),
+                    color: AppColors.success,
+                    minHeight: 6,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1916,6 +2116,7 @@ class _PatientsViewState extends State<_PatientsView> {
                           _PatCol(context.tr('col_bmi'), flex: 1),
                           _PatCol(context.tr('col_residency'), flex: 1),
                           _PatCol(context.tr('col_status'), flex: 1),
+                          const SizedBox(width: 48), // Action column space
                         ],
                       ),
                     ),
@@ -2003,6 +2204,16 @@ class _PatientsViewState extends State<_PatientsView> {
                                         : 'Active',
                                   ),
                                 ),
+                                IconButton(
+                                  icon: const Icon(
+                                    LucideIcons.fileText,
+                                    size: 18,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                  tooltip: context.tr('view_details'),
+                                  onPressed: () =>
+                                      _showPatientDetails(context, p),
+                                ),
                               ],
                             ),
                           );
@@ -2012,6 +2223,318 @@ class _PatientsViewState extends State<_PatientsView> {
                   ],
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPatientDetails(BuildContext context, Patient p) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Container(
+            width: 800,
+            height: 600,
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: AppColors.primary.withValues(
+                            alpha: 0.1,
+                          ),
+                          child: const Icon(
+                            LucideIcons.user,
+                            size: 32,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              p.getLocalizedFullName(context),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.navy,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${p.id} • ${p.age} سنة • ${p.getLocalizedGender(context)}',
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(LucideIcons.x),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Right column: Clinical info
+                      Expanded(
+                        flex: 3,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _sectionTitle(
+                                'الخطة العلاجية الحالية',
+                                LucideIcons.fileText,
+                              ),
+                              _infoRow('الجرعة الحالية:', p.currentDose),
+                              _infoRow(
+                                'تاريخ آخر صرف:',
+                                p.lastDispensingDate ?? 'غير متوفر',
+                              ),
+                              _infoRow(
+                                'تاريخ الاستحقاق القادم:',
+                                p.nextEligibleDate ?? 'غير متوفر',
+                              ),
+                              _infoRow(
+                                'معدل الالتزام:',
+                                '${(p.complianceRate * 100).toInt()}%',
+                              ),
+                              const SizedBox(height: 24),
+                              _sectionTitle(
+                                'المقاييس الحيوية',
+                                LucideIcons.activity,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _metricBox(
+                                      'الوزن',
+                                      '${p.weight} kg',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _metricBox(
+                                      'الطول',
+                                      '${p.height} cm',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _metricBox(
+                                      'مؤشر الكتلة',
+                                      p.bmi.toStringAsFixed(1),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              _sectionTitle(
+                                'تاريخ الجرعات',
+                                LucideIcons.history,
+                              ),
+                              Wrap(
+                                spacing: 8,
+                                children: p.doseHistory
+                                    .map(
+                                      (d) => Chip(
+                                        label: Text(d),
+                                        backgroundColor: AppColors.surface,
+                                        side: const BorderSide(
+                                          color: AppColors.border,
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 32),
+                      // Left column: Profile details
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _sectionTitle(
+                                  'البيانات الشخصية',
+                                  LucideIcons.userCheck,
+                                ),
+                                _infoRow('رقم الهوية:', p.emiratesId),
+                                _infoRow(
+                                  'الجنسية:',
+                                  p.getLocalizedNationality(context),
+                                ),
+                                _infoRow(
+                                  'الإقامة:',
+                                  p.getLocalizedResidency(context),
+                                ),
+                                _infoRow(
+                                  'الإمارة:',
+                                  p.getLocalizedEmirate(context),
+                                ),
+                                const SizedBox(height: 24),
+                                _sectionTitle(
+                                  'الحالة الصحية المسبقة',
+                                  LucideIcons.stethoscope,
+                                ),
+                                ...p
+                                    .getLocalizedMedicalConditions(context)
+                                    .map(
+                                      (c) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              LucideIcons.checkCircle2,
+                                              size: 16,
+                                              color: AppColors.primary,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                c,
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                if (p.medicalConditions.isEmpty)
+                                  const Text(
+                                    'لا يوجد أمراض مزمنة',
+                                    style: TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _sectionTitle(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: AppColors.navy),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.navy,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 130,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: AppColors.navy,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _metricBox(String title, String value) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
             ),
           ),
         ],
@@ -2091,9 +2614,7 @@ class _StatusChip extends StatelessWidget {
 //  INVENTORY VIEW  (new full page)
 // ─────────────────────────────────────────────────────────────────────────────
 
-
 // Placeholder for localization context extensions if used
-
 
 class InventoryView extends StatelessWidget {
   const InventoryView({super.key});
@@ -2101,7 +2622,7 @@ class InventoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dp = context.watch<DataProvider>();
-    
+
     // Calculate global KPIs for enterprise feel
     final totalCenters = dp.centers.length;
     int criticalStockCenters = 0;
@@ -2131,7 +2652,7 @@ class InventoryView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.tr('Inventory Management'),
+                      context.tr('inventory_management'),
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -2141,7 +2662,7 @@ class InventoryView extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      context.tr('Monitor, filter, and replenish medical stock distributions globally.'),
+                      context.tr('inventory_management_sub'),
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
@@ -2155,38 +2676,52 @@ class InventoryView extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: () {},
                       icon: const Icon(Icons.download_rounded, size: 18),
-                      label: const Text('Export CSV'),
+                      label: Text(context.tr('export_csv')),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.textPrimary,
                         side: const BorderSide(color: AppColors.border),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton.icon(
                       onPressed: () {},
                       icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Sync All Nodes'),
+                      label: Text(context.tr('sync_all_nodes')),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
             const SizedBox(height: 32),
 
             // Enterprise KPI Cards Summary Strip
-            _buildKPIRibbon(totalCenters, criticalStockCenters, totalItems2_5 + totalItems5),
+            _buildKPIRibbon(
+              totalCenters,
+              criticalStockCenters,
+              totalItems2_5 + totalItems5,
+            ),
             const SizedBox(height: 32),
 
             // Active Search & Table controls section
-            _buildFilterUtilityRow(),
+            _buildFilterUtilityRow(context),
             const SizedBox(height: 20),
 
             // Responsive ListView for detailed data cards
@@ -2207,22 +2742,49 @@ class InventoryView extends StatelessWidget {
   }
 
   Widget _buildKPIRibbon(int total, int critical, int totalUnits) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final isMobileStack = constraints.maxWidth < 750;
-      return Flex(
-        direction: isMobileStack ? Axis.vertical : Axis.horizontal,
-        children: [
-          Expanded(flex: isMobileStack ? 0 : 1, child: _KPICard(title: 'Total Distribution Centers', value: '$total', icon: Icons.maps_home_work_rounded, iconColor: AppColors.primary)),
-          if (!isMobileStack) const SizedBox(width: 16),
-          Expanded(flex: isMobileStack ? 0 : 1, child: _KPICard(title: 'Critical Outages / Low Stocks', value: '$critical', icon: Icons.warning_amber_rounded, iconColor: AppColors.error, isCritical: critical > 0)),
-          if (!isMobileStack) const SizedBox(width: 16),
-          Expanded(flex: isMobileStack ? 0 : 1, child: _KPICard(title: 'Total Tracked Inventory Units', value: '$totalUnits items', icon: Icons.inventory_2_rounded, iconColor: AppColors.accent)),
-        ],
-      );
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobileStack = constraints.maxWidth < 750;
+        return Flex(
+          direction: isMobileStack ? Axis.vertical : Axis.horizontal,
+          children: [
+            Expanded(
+              flex: isMobileStack ? 0 : 1,
+              child: _KPICard(
+                title: context.tr('total_distribution_centers'),
+                value: '$total',
+                icon: Icons.maps_home_work_rounded,
+                iconColor: AppColors.primary,
+              ),
+            ),
+            if (!isMobileStack) const SizedBox(width: 16),
+            Expanded(
+              flex: isMobileStack ? 0 : 1,
+              child: _KPICard(
+                title: context.tr('critical_outages_low_stocks'),
+                value: '$critical',
+                icon: Icons.warning_amber_rounded,
+                iconColor: AppColors.error,
+                isCritical: critical > 0,
+              ),
+            ),
+            if (!isMobileStack) const SizedBox(width: 16),
+            Expanded(
+              flex: isMobileStack ? 0 : 1,
+              child: _KPICard(
+                title: context.tr('total_tracked_inventory_units'),
+                value: '$totalUnits',
+                icon: Icons.inventory_2_rounded,
+                iconColor: AppColors.accent,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  Widget _buildFilterUtilityRow() {
+  Widget _buildFilterUtilityRow(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -2235,12 +2797,25 @@ class InventoryView extends StatelessWidget {
           Expanded(
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Filter specific fulfillment nodes or regions...',
-                prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
+                hintText: context.tr('filter_specific_nodes'),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  size: 20,
+                  color: AppColors.textSecondary,
+                ),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border)),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
               ),
             ),
           ),
@@ -2248,9 +2823,15 @@ class InventoryView extends StatelessWidget {
           DropdownButton<String>(
             value: 'All Statuses',
             underline: const SizedBox(),
-            items: const [
-              DropdownMenuItem(value: 'All Statuses', child: Text('All Statuses')),
-              DropdownMenuItem(value: 'Low Stock', child: Text('Low Stock Alerts')),
+            items: [
+              DropdownMenuItem(
+                value: 'All Statuses',
+                child: Text(context.tr('all_statuses')),
+              ),
+              DropdownMenuItem(
+                value: 'Low Stock',
+                child: Text(context.tr('low_stock_alerts')),
+              ),
             ],
             onChanged: (val) {},
           ),
@@ -2277,8 +2858,12 @@ class _InventoryCardState extends State<_InventoryCard> {
   @override
   Widget build(BuildContext context) {
     final c = widget.center;
-    final anyLow = c.inventory2_5mg <= 10 || c.inventory5mg <= 10 || c.inventory7_5mg <= 10 || c.inventory10mg <= 10;
-    
+    final anyLow =
+        c.inventory2_5mg <= 10 ||
+        c.inventory5mg <= 10 ||
+        c.inventory7_5mg <= 10 ||
+        c.inventory10mg <= 10;
+
     // Pseudo-random last dispensed time based on ID length/hash
     final mockMinsAgo = (c.id.hashCode % 59) + 1;
 
@@ -2292,9 +2877,11 @@ class _InventoryCardState extends State<_InventoryCard> {
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: anyLow 
-                ? AppColors.error.withOpacity(0.7) 
-                : (_isHovered ? AppColors.primary.withOpacity(0.5) : AppColors.border),
+            color: anyLow
+                ? AppColors.error.withOpacity(0.7)
+                : (_isHovered
+                      ? AppColors.primary.withOpacity(0.5)
+                      : AppColors.border),
             width: anyLow || _isHovered ? 1.5 : 1.0,
           ),
           boxShadow: [
@@ -2318,7 +2905,10 @@ class _InventoryCardState extends State<_InventoryCard> {
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(LucideIcons.store, color: AppColors.primary),
+                  child: const Icon(
+                    LucideIcons.store,
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -2337,14 +2927,21 @@ class _InventoryCardState extends State<_InventoryCard> {
                           ),
                           const SizedBox(width: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.border,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               c.getLocalizedRegion(context),
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                           ),
                         ],
@@ -2352,18 +2949,35 @@ class _InventoryCardState extends State<_InventoryCard> {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(LucideIcons.activity, size: 14, color: AppColors.success),
-                          const SizedBox(width: 6),
-                          const Text(
-                            'Active Global Sync',
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          const Icon(
+                            LucideIcons.activity,
+                            size: 14,
+                            color: AppColors.success,
                           ),
-                          const SizedBox(width: 16),
-                          const Icon(LucideIcons.clock, size: 14, color: AppColors.textSecondary),
                           const SizedBox(width: 6),
                           Text(
-                            'Last dispensed: $mockMinsAgo mins ago',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                            context.tr('active_global_sync'),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          const Icon(
+                            LucideIcons.clock,
+                            size: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            context
+                                .tr('last_dispensed_ago')
+                                .replaceAll('{time}', '$mockMinsAgo'),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
@@ -2371,18 +2985,35 @@ class _InventoryCardState extends State<_InventoryCard> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: anyLow ? AppColors.error.withOpacity(0.08) : AppColors.success.withOpacity(0.08),
+                    color: anyLow
+                        ? AppColors.error.withOpacity(0.08)
+                        : AppColors.success.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: anyLow ? AppColors.error.withOpacity(0.3) : AppColors.success.withOpacity(0.3)),
+                    border: Border.all(
+                      color: anyLow
+                          ? AppColors.error.withOpacity(0.3)
+                          : AppColors.success.withOpacity(0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      Icon(anyLow ? LucideIcons.alertTriangle : LucideIcons.checkCircle2, size: 14, color: anyLow ? AppColors.error : AppColors.success),
+                      Icon(
+                        anyLow
+                            ? LucideIcons.alertTriangle
+                            : LucideIcons.checkCircle2,
+                        size: 14,
+                        color: anyLow ? AppColors.error : AppColors.success,
+                      ),
                       const SizedBox(width: 6),
                       Text(
-                        anyLow ? context.tr('CRITICAL LOW') : context.tr('STABLE'),
+                        anyLow
+                            ? context.tr('critical_low')
+                            : context.tr('stable'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -2396,19 +3027,43 @@ class _InventoryCardState extends State<_InventoryCard> {
               ],
             ),
             const SizedBox(height: 24),
-            
+
             // SUMMARY KPI ROW
             Row(
               children: [
-                Expanded(child: _buildMiniKpi(context, 'Total Available', '${c.totalAvailable}', LucideIcons.packageCheck, AppColors.success)),
+                Expanded(
+                  child: _buildMiniKpi(
+                    context,
+                    context.tr('total_available'),
+                    '${c.totalAvailable}',
+                    LucideIcons.packageCheck,
+                    AppColors.success,
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: _buildMiniKpi(context, 'Total Dispensed', '${c.totalDispensed}', LucideIcons.logOut, AppColors.info)),
+                Expanded(
+                  child: _buildMiniKpi(
+                    context,
+                    context.tr('total_dispensed'),
+                    '${c.totalDispensed}',
+                    LucideIcons.logOut,
+                    AppColors.info,
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: _buildMiniKpi(context, 'Total Handled', '${c.totalAllocated}', LucideIcons.boxes, AppColors.primary)),
+                Expanded(
+                  child: _buildMiniKpi(
+                    context,
+                    context.tr('total_handled'),
+                    '${c.totalAllocated}',
+                    LucideIcons.boxes,
+                    AppColors.primary,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 24),
-            
+
             // DOSAGE BREAKDOWN TABLE
             Container(
               decoration: BoxDecoration(
@@ -2418,18 +3073,65 @@ class _InventoryCardState extends State<_InventoryCard> {
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.background,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
-                      border: const Border(bottom: BorderSide(color: AppColors.border)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(11),
+                      ),
+                      border: const Border(
+                        bottom: BorderSide(color: AppColors.border),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Expanded(flex: 2, child: Text('Dosage', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary))),
-                        const Expanded(flex: 2, child: Text('Available', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary))),
-                        const Expanded(flex: 2, child: Text('Dispensed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary))),
-                        const Expanded(flex: 4, child: Text('Utilization Overview', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary))),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            context.tr('dosage_label'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            context.tr('available_label'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            context.tr('dispensed_label'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Text(
+                            context.tr('utilization_overview'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -2439,37 +3141,63 @@ class _InventoryCardState extends State<_InventoryCard> {
                   const Divider(height: 1, color: AppColors.border),
                   _buildDosageRow('7.5 mg', c.inventory7_5mg, c.dispensed7_5mg),
                   const Divider(height: 1, color: AppColors.border),
-                  _buildDosageRow('10.0 mg', c.inventory10mg, c.dispensed10mg, isLast: true),
+                  _buildDosageRow(
+                    '10.0 mg',
+                    c.inventory10mg,
+                    c.dispensed10mg,
+                    isLast: true,
+                  ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
             // FOOTER
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Last updated: Just Now', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(
+                  context.tr('last_updated_just_now'),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 ElevatedButton.icon(
-                  onPressed: () => _showProfessionalReplenishDialog(context, widget.dataProvider, c),
+                  onPressed: () => _showProfessionalReplenishDialog(
+                    context,
+                    widget.dataProvider,
+                    c,
+                  ),
                   icon: const Icon(LucideIcons.packagePlus, size: 16),
-                  label: const Text('Manage Stock / Replenish'),
+                  label: Text(context.tr('manage_stock_replenish')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMiniKpi(BuildContext context, String title, String value, IconData icon, Color color) {
+  Widget _buildMiniKpi(
+    BuildContext context,
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -2488,21 +3216,40 @@ class _InventoryCardState extends State<_InventoryCard> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: color)),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDosageRow(String label, int available, int dispensed, {bool isLast = false}) {
+  Widget _buildDosageRow(
+    String label,
+    int available,
+    int dispensed, {
+    bool isLast = false,
+  }) {
     final total = available + dispensed;
     final dispensedPct = total == 0 ? 0.0 : (dispensed / total);
     final availablePct = total == 0 ? 0.0 : (available / total);
-    
+
     final lowStock = available <= 10;
 
     return Padding(
@@ -2514,11 +3261,21 @@ class _InventoryCardState extends State<_InventoryCard> {
             child: Row(
               children: [
                 Container(
-                  width: 8, height: 8,
-                  decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(4)),
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                Text(label, style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.navy)),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.navy,
+                  ),
+                ),
               ],
             ),
           ),
@@ -2526,17 +3283,35 @@ class _InventoryCardState extends State<_InventoryCard> {
             flex: 2,
             child: Row(
               children: [
-                Text('$available', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: lowStock ? AppColors.error : AppColors.navy)),
+                Text(
+                  '$available',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: lowStock ? AppColors.error : AppColors.navy,
+                  ),
+                ),
                 if (lowStock) ...[
                   const SizedBox(width: 6),
-                  const Icon(LucideIcons.alertCircle, size: 14, color: AppColors.error),
-                ]
+                  const Icon(
+                    LucideIcons.alertCircle,
+                    size: 14,
+                    color: AppColors.error,
+                  ),
+                ],
               ],
             ),
           ),
           Expanded(
             flex: 2,
-            child: Text('$dispensed', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.info)),
+            child: Text(
+              '$dispensed',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: AppColors.info,
+              ),
+            ),
           ),
           Expanded(
             flex: 4,
@@ -2554,10 +3329,20 @@ class _InventoryCardState extends State<_InventoryCard> {
                           ),
                           Expanded(
                             flex: (availablePct * 100).toInt(),
-                            child: Container(height: 8, color: lowStock ? AppColors.error : AppColors.success),
+                            child: Container(
+                              height: 8,
+                              color: lowStock
+                                  ? AppColors.error
+                                  : AppColors.success,
+                            ),
                           ),
                         ] else
-                          Expanded(child: Container(height: 8, color: AppColors.border)),
+                          Expanded(
+                            child: Container(
+                              height: 8,
+                              color: AppColors.border,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -2567,7 +3352,11 @@ class _InventoryCardState extends State<_InventoryCard> {
                   width: 40,
                   child: Text(
                     '${(dispensedPct * 100).toStringAsFixed(0)}%',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textSecondary,
+                    ),
                     textAlign: TextAlign.end,
                   ),
                 ),
@@ -2588,7 +3377,13 @@ class _KPICard extends StatelessWidget {
   final Color iconColor;
   final bool isCritical;
 
-  const _KPICard({required this.title, required this.value, required this.icon, required this.iconColor, this.isCritical = false});
+  const _KPICard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.iconColor,
+    this.isCritical = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2598,7 +3393,11 @@ class _KPICard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isCritical ? const Color(0xFFFFF1F2) : AppColors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isCritical ? AppColors.error.withOpacity(0.3) : AppColors.border),
+        border: Border.all(
+          color: isCritical
+              ? AppColors.error.withOpacity(0.3)
+              : AppColors.border,
+        ),
       ),
       child: Row(
         children: [
@@ -2611,11 +3410,24 @@ class _KPICard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy)),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.navy,
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -2623,7 +3435,11 @@ class _KPICard extends StatelessWidget {
 }
 
 // Professional Variable Input Multi-Dose Replenishment Dialog
-void _showProfessionalReplenishDialog(BuildContext context, DataProvider dp, DispensingCenter center) {
+void _showProfessionalReplenishDialog(
+  BuildContext context,
+  DataProvider dp,
+  DispensingCenter center,
+) {
   final formKey = GlobalKey<FormState>();
   int input2_5 = 0;
   int input5_0 = 0;
@@ -2640,16 +3456,27 @@ void _showProfessionalReplenishDialog(BuildContext context, DataProvider dp, Dis
           padding: const EdgeInsets.all(24),
           decoration: const BoxDecoration(
             color: AppColors.navy,
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
           ),
           child: Row(
             children: [
-              const Icon(LucideIcons.packagePlus, color: AppColors.accent, size: 24),
+              const Icon(
+                LucideIcons.packagePlus,
+                color: AppColors.accent,
+                size: 24,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Replenish Node Stock: ${center.getLocalizedName(context)}',
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -2665,17 +3492,32 @@ void _showProfessionalReplenishDialog(BuildContext context, DataProvider dp, Dis
               children: [
                 const Text(
                   'Specify standard batches allocation quantities to supply to this center. Enter units for each dosage.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
                 ),
                 const SizedBox(height: 20),
-                
-                _buildDoseInputRow('2.5 mg', (val) => input2_5 = int.tryParse(val ?? '0') ?? 0),
+
+                _buildDoseInputRow(
+                  '2.5 mg',
+                  (val) => input2_5 = int.tryParse(val ?? '0') ?? 0,
+                ),
                 const SizedBox(height: 12),
-                _buildDoseInputRow('5.0 mg', (val) => input5_0 = int.tryParse(val ?? '0') ?? 0),
+                _buildDoseInputRow(
+                  '5.0 mg',
+                  (val) => input5_0 = int.tryParse(val ?? '0') ?? 0,
+                ),
                 const SizedBox(height: 12),
-                _buildDoseInputRow('7.5 mg', (val) => input7_5 = int.tryParse(val ?? '0') ?? 0),
+                _buildDoseInputRow(
+                  '7.5 mg',
+                  (val) => input7_5 = int.tryParse(val ?? '0') ?? 0,
+                ),
                 const SizedBox(height: 12),
-                _buildDoseInputRow('10.0 mg', (val) => input10_0 = int.tryParse(val ?? '0') ?? 0),
+                _buildDoseInputRow(
+                  '10.0 mg',
+                  (val) => input10_0 = int.tryParse(val ?? '0') ?? 0,
+                ),
               ],
             ),
           ),
@@ -2684,14 +3526,19 @@ void _showProfessionalReplenishDialog(BuildContext context, DataProvider dp, Dis
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel Operation', style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Cancel Operation',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () {
               formKey.currentState?.save();
@@ -2708,7 +3555,9 @@ void _showProfessionalReplenishDialog(BuildContext context, DataProvider dp, Dis
                   behavior: SnackBarBehavior.floating,
                   width: 400,
                   backgroundColor: AppColors.success,
-                  content: Text('Successfully authorized batch supply drops to ${center.getLocalizedName(context)}!'),
+                  content: Text(
+                    'Successfully authorized batch supply drops to ${center.getLocalizedName(context)}!',
+                  ),
                 ),
               );
             },
@@ -2724,18 +3573,27 @@ Widget _buildDoseInputRow(String label, void Function(String?) onSaved) {
   return Row(
     children: [
       Expanded(
-        flex: 2, 
-        child: Text('Dosage $label Stock Up:', style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy)),
+        flex: 2,
+        child: Text(
+          'Dosage $label Stock Up:',
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppColors.navy,
+          ),
+        ),
       ),
       Expanded(
         flex: 3,
         child: TextFormField(
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)), 
-            hintText: '0 units', 
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            hintText: '0 units',
             isDense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 14,
+            ),
           ),
           onSaved: onSaved,
         ),
@@ -2860,7 +3718,10 @@ class _FraudAuditView extends StatelessWidget {
 class _AiAlertsFullView extends StatelessWidget {
   final AppLocalizations t;
   final String titleKey;
-  const _AiAlertsFullView({required this.t, this.titleKey = 'ai_alerts_title'});
+  const _AiAlertsFullView({
+    required this.t,
+    this.titleKey = 'ai_alerts_command_center',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2870,100 +3731,511 @@ class _AiAlertsFullView extends StatelessWidget {
         .where((a) => a.kind != ProgramAlertKind.allClear)
         .toList();
 
+    final fraudCount = actionable
+        .where(
+          (a) =>
+              a.kind == ProgramAlertKind.fraudAttempt ||
+              a.kind == ProgramAlertKind.override,
+        )
+        .length;
+    final clinicalCount = actionable
+        .where(
+          (a) =>
+              a.kind == ProgramAlertKind.clinicalIneffective ||
+              a.kind == ProgramAlertKind.nonCompliance ||
+              a.kind == ProgramAlertKind.clinicalPending,
+        )
+        .length;
+    final supplyCount = actionable
+        .where(
+          (a) =>
+              a.kind == ProgramAlertKind.criticalShortage ||
+              a.kind == ProgramAlertKind.inventory ||
+              a.kind == ProgramAlertKind.readyDispense,
+        )
+        .length;
+
     return Padding(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            context.tr(titleKey),
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: AppColors.navy,
-            ),
+          Row(
+            children: [
+              const Icon(LucideIcons.bot, color: AppColors.primary, size: 28),
+              const SizedBox(width: 12),
+              Text(
+                context.tr(titleKey) == titleKey
+                    ? 'غرفة عمليات التنبيهات الذكية (AI Command Center)'
+                    : context.tr(titleKey),
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.navy,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
-            context.tr('ai_alerts_sub'),
+            context.tr('ai_alerts_command_desc') == 'ai_alerts_command_desc'
+                ? 'نظام مراقبة ذكي يعتمد على الذكاء الاصطناعي لاكتشاف التجاوزات، التنبؤ بنقص المخزون، وتحليل استجابة المرضى.'
+                : context.tr('ai_alerts_command_desc'),
             style: const TextStyle(
               color: AppColors.textSecondary,
-              fontSize: 13,
+              fontSize: 14,
             ),
           ),
           const SizedBox(height: 24),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+          Row(
+            children: [
+              Expanded(
+                child: _buildMetricCard(
+                  context,
+                  context.tr('metrics_fraud') == 'metrics_fraud'
+                      ? 'أمن واحتيال'
+                      : context.tr('metrics_fraud'),
+                  fraudCount,
+                  AppColors.error,
+                  LucideIcons.shieldAlert,
+                ),
               ),
-              child: actionable.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            LucideIcons.checkSquare,
-                            size: 56,
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildMetricCard(
+                  context,
+                  context.tr('metrics_clinical') == 'metrics_clinical'
+                      ? 'متابعة سريرية'
+                      : context.tr('metrics_clinical'),
+                  clinicalCount,
+                  AppColors.accent,
+                  LucideIcons.activity,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildMetricCard(
+                  context,
+                  context.tr('metrics_supply') == 'metrics_supply'
+                      ? 'أزمات الإمداد'
+                      : context.tr('metrics_supply'),
+                  supplyCount,
+                  AppColors.warning,
+                  LucideIcons.packageX,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Expanded(
+            child: actionable.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          LucideIcons.checkCircle,
+                          size: 64,
+                          color: AppColors.success,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          context.tr('no_flagged_alerts'),
+                          style: const TextStyle(
+                            fontSize: 18,
                             color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            context.tr('no_flagged_alerts'),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: actionable.length,
-                      separatorBuilder: (_, __) =>
-                          const Divider(color: AppColors.border, height: 1),
-                      itemBuilder: (context, i) {
-                        final alert = actionable[i];
-                        return ListTile(
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: alert.color.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              alert.icon,
-                              color: alert.color,
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            alert.message,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.navy,
-                            ),
-                          ),
-                          trailing: Text(
-                            alert.time,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
-            ),
+                  )
+                : GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 400,
+                          mainAxisExtent: 220,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                    itemCount: actionable.length,
+                    itemBuilder: (context, i) {
+                      final alert = actionable[i];
+                      return _buildAlertCard(context, alert);
+                    },
+                  ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMetricCard(
+    BuildContext context,
+    String title,
+    int count,
+    Color color,
+    IconData icon,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            color.withValues(alpha: 0.08),
+            color.withValues(alpha: 0.02),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.04),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            right: -10,
+            top: -10,
+            child: Icon(icon, size: 80, color: color.withValues(alpha: 0.08)),
+          ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: color, size: 28),
+              ),
+              const SizedBox(width: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$count',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w900,
+                      color: color,
+                      height: 1.1,
+                      letterSpacing: -1,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlertCard(BuildContext context, ProgramAlert alert) {
+    String actionLabel = '';
+    IconData actionIcon = LucideIcons.arrowRight;
+    Color actionColor = alert.color;
+
+    switch (alert.kind) {
+      case ProgramAlertKind.fraudAttempt:
+        actionLabel =
+            context.tr('action_freeze_account') == 'action_freeze_account'
+            ? 'تجميد الحساب'
+            : context.tr('action_freeze_account');
+        actionIcon = LucideIcons.lock;
+        break;
+      case ProgramAlertKind.clinicalIneffective:
+        actionLabel = context.tr('action_review_plan') == 'action_review_plan'
+            ? 'مراجعة الخطة'
+            : context.tr('action_review_plan');
+        actionIcon = LucideIcons.fileSearch;
+        break;
+      case ProgramAlertKind.criticalShortage:
+      case ProgramAlertKind.inventory:
+        actionLabel =
+            context.tr('action_emergency_restock') == 'action_emergency_restock'
+            ? 'إرسال إمداد طارئ'
+            : context.tr('action_emergency_restock');
+        actionIcon = LucideIcons.truck;
+        break;
+      case ProgramAlertKind.nonCompliance:
+        actionLabel =
+            context.tr('action_contact_patient') == 'action_contact_patient'
+            ? 'التواصل مع المريض'
+            : context.tr('action_contact_patient');
+        actionIcon = LucideIcons.phoneCall;
+        break;
+      default:
+        actionLabel = context.tr('view_details');
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
+        boxShadow: [
+          BoxShadow(
+            color: alert.color.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(right: BorderSide(color: alert.color, width: 4)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: alert.color.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(alert.icon, color: alert.color, size: 22),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            alert.message,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.navy,
+                              height: 1.4,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(
+                                LucideIcons.clock,
+                                size: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                alert.time,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.background.withValues(alpha: 0.5),
+                  border: Border(
+                    top: BorderSide(
+                      color: AppColors.border.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () => _showAlertDialog(context, alert),
+                      icon: Icon(actionIcon, size: 16, color: actionColor),
+                      label: Text(
+                        actionLabel,
+                        style: TextStyle(
+                          color: actionColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        backgroundColor: actionColor.withValues(alpha: 0.08),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAlertDialog(BuildContext context, ProgramAlert alert) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: alert.color.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(alert.icon, color: alert.color),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'تفاصيل التنبيه (Alert Details)',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.navy,
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  alert.message,
+                  style: const TextStyle(fontSize: 16, height: 1.5),
+                ),
+                const SizedBox(height: 20),
+                if (alert.metadata.isNotEmpty) ...[
+                  const Text(
+                    'البيانات المرتبطة:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: alert.metadata.entries
+                          .map(
+                            (e) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${e.key}: ',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.navy,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${e.value}',
+                                      style: const TextStyle(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'إغلاق',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تم تنفيذ الإجراء بنجاح'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: alert.color,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('تنفيذ الإجراء'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -3146,8 +4418,8 @@ class _ManageDoctorsView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Name (EN)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('doctor_name_en_label'),
                           ),
                         ),
                       ),
@@ -3155,8 +4427,8 @@ class _ManageDoctorsView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: nameArController,
-                          decoration: const InputDecoration(
-                            labelText: 'Name (AR)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('doctor_name_ar_label'),
                           ),
                         ),
                       ),
@@ -3168,8 +4440,8 @@ class _ManageDoctorsView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: specialtyController,
-                          decoration: const InputDecoration(
-                            labelText: 'Specialty (EN)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('doctor_specialty_en_label'),
                           ),
                         ),
                       ),
@@ -3177,8 +4449,8 @@ class _ManageDoctorsView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: specialtyArController,
-                          decoration: const InputDecoration(
-                            labelText: 'Specialty (AR)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('doctor_specialty_ar_label'),
                           ),
                         ),
                       ),
@@ -3190,8 +4462,8 @@ class _ManageDoctorsView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: hospitalController,
-                          decoration: const InputDecoration(
-                            labelText: 'Hospital (EN)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('doctor_hospital_en_label'),
                           ),
                         ),
                       ),
@@ -3199,8 +4471,8 @@ class _ManageDoctorsView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: hospitalArController,
-                          decoration: const InputDecoration(
-                            labelText: 'Hospital (AR)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('doctor_hospital_ar_label'),
                           ),
                         ),
                       ),
@@ -3212,8 +4484,8 @@ class _ManageDoctorsView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: emirateController,
-                          decoration: const InputDecoration(
-                            labelText: 'Emirate (EN)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('doctor_emirate_en_label'),
                           ),
                         ),
                       ),
@@ -3221,8 +4493,8 @@ class _ManageDoctorsView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: emirateArController,
-                          decoration: const InputDecoration(
-                            labelText: 'Emirate (AR)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('doctor_emirate_ar_label'),
                           ),
                         ),
                       ),
@@ -3270,7 +4542,9 @@ class _ManageDoctorsView extends StatelessWidget {
                 dp.addDoctor(newDoc);
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Doctor added successfully")),
+                  SnackBar(
+                    content: Text(context.tr('doctor_added_successfully')),
+                  ),
                 );
               },
               child: Text(context.tr('add_doctor')),
@@ -3422,8 +4696,8 @@ class _ManageCentersView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Center Name (EN)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('center_name_en_label'),
                           ),
                         ),
                       ),
@@ -3431,8 +4705,8 @@ class _ManageCentersView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: nameArController,
-                          decoration: const InputDecoration(
-                            labelText: 'Center Name (AR)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('center_name_ar_label'),
                           ),
                         ),
                       ),
@@ -3444,8 +4718,8 @@ class _ManageCentersView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: emirateController,
-                          decoration: const InputDecoration(
-                            labelText: 'Emirate (EN)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('center_emirate_en_label'),
                           ),
                         ),
                       ),
@@ -3453,8 +4727,8 @@ class _ManageCentersView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: emirateArController,
-                          decoration: const InputDecoration(
-                            labelText: 'Emirate (AR)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('center_emirate_ar_label'),
                           ),
                         ),
                       ),
@@ -3466,8 +4740,8 @@ class _ManageCentersView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: therapistController,
-                          decoration: const InputDecoration(
-                            labelText: 'Chief Therapist (EN)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('chief_therapist_en_label'),
                           ),
                         ),
                       ),
@@ -3475,8 +4749,8 @@ class _ManageCentersView extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: therapistArController,
-                          decoration: const InputDecoration(
-                            labelText: 'Chief Therapist (AR)',
+                          decoration: InputDecoration(
+                            labelText: context.tr('chief_therapist_ar_label'),
                           ),
                         ),
                       ),
@@ -3524,8 +4798,10 @@ class _ManageCentersView extends StatelessWidget {
                 dp.addPhysicalTherapyCenter(newCenter);
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Therapy Center added successfully"),
+                  SnackBar(
+                    content: Text(
+                      context.tr('therapy_center_added_successfully'),
+                    ),
                   ),
                 );
               },

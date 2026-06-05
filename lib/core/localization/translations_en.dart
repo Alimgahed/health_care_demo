@@ -27,6 +27,7 @@ const Map<String, String> translationsEn = {
   'english': 'English',
   'arabic': 'العربية',
   'logout': 'Sign out',
+  'view_details': 'View details',
   'export_report': 'Export Report',
   'last_synced': 'Last synced',
   'today': 'Today',
@@ -64,7 +65,7 @@ const Map<String, String> translationsEn = {
   'nav_inventory': 'National Inventory',
   'nav_ai_alerts': 'Safety & Supply Alerts',
   'nav_fraud_log': 'Misuse Prevention Log',
-  'nav_reports': 'Regional Reports',
+  'nav_reports': 'Reports',
   'nav_section_operations': 'Physician & dispensing',
   'nav_clinical_ops': 'Physician portal (full)',
   'nav_dispensing_ops': 'Dispensing facility (full)',
@@ -203,6 +204,11 @@ const Map<String, String> translationsEn = {
   'low_stock': 'Low stock',
   'stable': 'Adequate',
 
+  // Inventory management KPIs
+  'total_available': 'Total Available',
+  'total_dispensed': 'Total Dispensed',
+  'total_handled': 'Total Handled',
+
   // Alerts
   'ai_alerts_title': 'Safety & Supply Alerts',
   'ai_alerts_sub':
@@ -210,7 +216,26 @@ const Map<String, String> translationsEn = {
   'fraud_prevention_log': 'Misuse Prevention Log',
   'no_flagged_alerts': 'No active misuse alerts',
   'inventory_stable': 'All facility inventories are within safe thresholds.',
-  'alert_ready_dispense': '{count} beneficiaries ready for dispensing at facilities',
+  'alert_ready_dispense':
+      '{count} beneficiaries ready for dispensing at facilities',
+  'alert_fraud_attempt':
+      'Fraud Alert: Suspected double dispense attempt for {name}',
+  'alert_clinical_ineffective':
+      'Clinical Alert: No significant weight loss for {name} in 2 months',
+  'alert_critical_shortage':
+      'Critical Shortage: {center} is out of {dose} ({count} remaining)',
+  'alert_non_compliance':
+      'Non-Compliance: {name} is overdue for their dose by {days} days',
+  'action_freeze_account': 'Freeze Account',
+  'action_emergency_restock': 'Emergency Restock',
+  'action_review_plan': 'Review Care Plan',
+  'action_contact_patient': 'Contact Patient',
+  'metrics_fraud': 'Security & Fraud',
+  'metrics_clinical': 'Clinical Tracking',
+  'metrics_supply': 'Supply Crisis',
+  'ai_alerts_command_center': 'AI Intelligence Command Center',
+  'ai_alerts_command_desc':
+      'Smart monitoring system powered by AI to detect abuse, predict stockouts, and analyze patient response.',
   'alert_pending_reviews': '{count} physician authorization(s) pending',
   'badge_ready_dispense': 'Ready to dispense',
   'inventory_low_msg':
@@ -314,7 +339,8 @@ const Map<String, String> translationsEn = {
       'Search Emirates ID or select an eligible beneficiary below.',
   'search_eid_name': 'Enter Emirates ID or name',
   'suggested_eligible': 'Ready to dispense now',
-  'no_ready_to_dispense': 'No beneficiaries are ready for dispensing. Completed handovers are removed from this queue until the next eligible date.',
+  'no_ready_to_dispense':
+      'No beneficiaries are ready for dispensing. Completed handovers are removed from this queue until the next eligible date.',
   'search_results': 'Search results',
   'empty_select_patient':
       'Select a beneficiary from the list to begin verification',
@@ -545,7 +571,8 @@ const Map<String, String> translationsEn = {
   'flexibility': 'Flexibility',
   'category': 'Category',
   'nearest_centers': 'Nearest centers',
-  'nearest_centers_sub': 'Showing {count} closest facilities to beneficiary ({emirate})',
+  'nearest_centers_sub':
+      'Showing {count} closest facilities to beneficiary ({emirate})',
   'center_distance_km': '{km} km away',
   'nearest_center_badge': 'Nearest',
   'no_therapy_centers_nearby': 'No rehabilitation centers found.',
@@ -614,7 +641,8 @@ const Map<String, String> translationsEn = {
   'subsidy_dispensation_approved': 'Subsidy dispensation approved',
   'subsidy_dispensation_msg':
       'Health Care {dose} dispensed under full UAE National subsidy for {name}.',
-  'override_logged_msg': 'Dispensed under authorized medical override: {reason}',
+  'override_logged_msg':
+      'Dispensed under authorized medical override: {reason}',
   'override_hint_example': 'e.g. replacement for damaged pen / lost dose…',
   'select_center': 'Select facility',
   'month_jan': 'Jan',
@@ -723,8 +751,7 @@ const Map<String, String> translationsEn = {
       'Early dispensing requires physician approval (next scheduled date: {date}). Approve in Authorization Reviews, then return here.',
   'status_pending_clinical_review': 'Pending physician approval',
   'status_pending_care_plan': 'Care plan pending approval',
-  'status_clinical_approved_dispense':
-      'Physician approved — ready to dispense',
+  'status_clinical_approved_dispense': 'Physician approved — ready to dispense',
   'awaiting_clinical_approval': 'Awaiting physician approval',
   'pending_reviews_queue': 'Pending authorizations queue',
   'no_pending_reviews':
@@ -820,7 +847,8 @@ const Map<String, String> translationsEn = {
   'wizard_title': 'Request Medication',
   'wizard_checking_eligibility': 'Checking Clinical Eligibility...',
   'wizard_eligibility_review': 'Eligibility Review',
-  'wizard_eligibility_desc': 'We review your recent medical records to ensure it is safe to dispense your next dose.',
+  'wizard_eligibility_desc':
+      'We review your recent medical records to ensure it is safe to dispense your next dose.',
   'wizard_bmi_req': 'BMI Requirement',
   'wizard_bmi_current': 'Current BMI: {bmi}',
   'wizard_glycemic_control': 'Glycemic Control',
@@ -829,7 +857,8 @@ const Map<String, String> translationsEn = {
   'wizard_refill_too_early': 'Too early for next refill',
   'wizard_refill_ready': 'Ready for next refill',
   'wizard_eligible_success': 'You are clinically eligible for your next dose.',
-  'wizard_ineligible_error': 'Not currently eligible. Please contact your care team for clinical review.',
+  'wizard_ineligible_error':
+      'Not currently eligible. Please contact your care team for clinical review.',
   'wizard_continue': 'Continue',
   'wizard_med_details': 'Medication Details',
   'wizard_prescribed_med': 'Prescribed Medication',
@@ -854,7 +883,7 @@ const Map<String, String> translationsEn = {
   'wizard_pickup_msg': 'Your medication will be ready for pickup at {center}.',
   'wizard_delivery_msg': 'Your medication will be delivered to your address.',
   'wizard_back_dashboard': 'Back to Dashboard',
-  
+
   'dashboard_weight_lost': '{amount} kg Lost',
   'dashboard_bmi_kpi': 'BMI {bmi}',
   'dashboard_adherence_kpi': '{pct}% Adherence',
@@ -863,7 +892,8 @@ const Map<String, String> translationsEn = {
   'dashboard_greeting_afternoon_web': 'Good afternoon,',
   'dashboard_greeting_evening_web': 'Good evening,',
   'dashboard_request_med_now': 'Request Medication Now',
-  'dashboard_request_med_desc': 'Check eligibility and request immediate delivery or pickup.',
+  'dashboard_request_med_desc':
+      'Check eligibility and request immediate delivery or pickup.',
   'dashboard_weight_progress_title': 'Weight Progress to Target',
   'dashboard_completed_pct': '% Completed',
   'dashboard_remaining_kg': '{kg} kg remaining',
@@ -880,16 +910,37 @@ const Map<String, String> translationsEn = {
   'nav_section_administration': 'ADMINISTRATION',
   'nav_manage_doctors': 'Manage Doctors',
   'nav_manage_centers': 'Manage Therapy Centers',
-  
+
   'manage_doctors_title': 'Manage Authorized Doctors',
-  'manage_doctors_sub': 'Add and monitor doctors authorized to prescribe care plans.',
+  'manage_doctors_sub':
+      'Add and monitor doctors authorized to prescribe care plans.',
+  'system_audit_log': 'System Audit Log',
+  'system_audit_log_desc':
+      'Live monitoring of system operations and activity logs.',
   'add_doctor': 'Add Doctor',
   'doctor_name': 'Doctor Name',
   'specialty': 'Specialty',
   'hospital': 'Hospital / Clinic',
+  'doctor_name_en_label': 'Name (EN)',
+  'doctor_name_ar_label': 'Name (AR)',
+  'doctor_specialty_en_label': 'Specialty (EN)',
+  'doctor_specialty_ar_label': 'Specialty (AR)',
+  'doctor_hospital_en_label': 'Hospital (EN)',
+  'doctor_hospital_ar_label': 'Hospital (AR)',
+  'doctor_emirate_en_label': 'Emirate (EN)',
+  'doctor_emirate_ar_label': 'Emirate (AR)',
+  'doctor_added_successfully': 'Doctor added successfully',
+  'center_name_en_label': 'Center Name (EN)',
+  'center_name_ar_label': 'Center Name (AR)',
+  'center_emirate_en_label': 'Emirate (EN)',
+  'center_emirate_ar_label': 'Emirate (AR)',
+  'chief_therapist_en_label': 'Chief Therapist (EN)',
+  'chief_therapist_ar_label': 'Chief Therapist (AR)',
+  'therapy_center_added_successfully': 'Therapy Center added successfully',
 
   'manage_therapy_centers_title': 'Manage Therapy Centers',
-  'manage_therapy_centers_sub': 'Add and monitor authorized physical therapy & obesity rehab centers.',
+  'manage_therapy_centers_sub':
+      'Add and monitor authorized physical therapy & obesity rehab centers.',
   'add_therapy_center': 'Add Therapy Center',
 
   'add_stock_btn': 'Add Stock',
@@ -898,5 +949,153 @@ const Map<String, String> translationsEn = {
   'add_units_50': 'Add 5.0 mg units',
   'add_units_75': 'Add 7.5 mg units',
   'add_units_100': 'Add 10.0 mg units',
-};
 
+  // ── Smart Watch ────────────────────────────────────────────────────────────
+  'watch_connected': 'Apple Watch Connected',
+  'watch_live_sync': 'Live sync',
+  'watch_synced_ago': '(2 minutes ago)',
+  'watch_heart_rate': 'Heart Rate',
+  'watch_caloric_expenditure': 'Caloric Expenditure',
+  'watch_daily_steps': 'Daily Activity',
+  'watch_bpm': 'bpm',
+  'watch_kcal': 'kcal',
+  'watch_steps': 'steps',
+  'watch_activity_tip':
+      'Consistent physical activity improves your therapeutic response to treatment by up to 40%',
+
+  // ── AI ROI Banner ──────────────────────────────────────────────────────────
+  'ai_roi_title': 'AI Analysis: Return on Investment (ROI)',
+  'ai_roi_millions_aed': 'Million AED',
+  'ai_roi_savings_label': 'Cost savings',
+  'ai_roi_description':
+      'Projected savings from reducing complication treatment costs for obesity and diabetes through patient treatment adherence.',
+  'ai_roi_complication_reduction': 'Complication Reduction Rate',
+
+  // ── Reports Center ─────────────────────────────────────────────────────────
+  'reports_center_title': 'Comprehensive Reports Center',
+  'report_tab_geo': 'Geographic Distribution',
+  'report_tab_hospitals': 'Hospitals & Centers',
+  'report_tab_doctors': 'Physician Performance',
+  'report_tab_financial': 'Financial Report',
+
+  'report_geo_emirate': 'Emirate',
+  'report_geo_total_patients': 'Total Beneficiaries',
+  'report_geo_doses_dispensed': 'Doses Dispensed',
+  'report_geo_avg_bmi': 'Average BMI',
+  'report_geo_target_pct': 'Target Achievement Rate',
+
+  'report_hosp_name': 'Center / Hospital Name',
+  'report_hosp_emirate': 'Emirate',
+  'report_hosp_total_doses': 'Total Doses Dispensed',
+  'report_hosp_active_patients': 'Active Beneficiaries',
+  'report_hosp_stock_status': 'Inventory Status',
+  'report_hosp_low_stock': 'Low Stock',
+  'report_hosp_available': 'Adequate',
+
+  'report_doc_name': 'Treating Physician',
+  'report_doc_specialty': 'Medical Specialty',
+  'report_doc_patients': 'Registered Patients',
+  'report_doc_prescriptions': 'Approved Prescriptions',
+  'report_doc_compliance': 'Patient Compliance Rate',
+
+  'report_fin_category': 'Beneficiary Category',
+  'report_fin_total_patients': 'Total Beneficiaries',
+  'report_fin_total_cost': 'Total Cost (AED)',
+  'report_fin_govt_subsidy': 'Government Subsidy Value',
+  'report_fin_patient_copay': 'Patient Co-payment',
+  'report_fin_citizen': 'National (100% subsidy)',
+  'report_fin_resident': 'Resident (50% subsidy)',
+
+  // ── Patient App Screen ─────────────────────────────────────────────────────
+  'app_injection_done_label': 'Injection Recorded ✓',
+  'app_injection_days_left': 'In {days} days',
+  'app_injection_success_msg': 'Injection recorded successfully! 🎉',
+  'app_injection_keep_up': 'Keep adhering to your treatment plan',
+  'app_injection_reminder':
+      'Don\'t forget to record your weekly injection to track adherence',
+  'app_injection_recorded': 'Recorded',
+  'app_stat_weight_loss': 'Weight Loss',
+  'app_stat_sessions': 'Clinical Sessions',
+  'app_goal_label': 'Target: {target} kg  •  Current: {current} kg',
+  'app_no_exercises_today': 'No exercises scheduled for today',
+
+  // ── Center Shell ────────────────────────────────────────────────────────────
+  'stock_total': 'Total',
+  'stock_dispensed': 'Dispensed',
+  'stock_available': 'Available',
+
+  // ── Payment Screen ──────────────────────────────────────────────────────────
+  'payment_invoice_title': 'Beneficiary Invoice',
+  'payment_medication_label': 'Medication',
+  'payment_dose_label': 'Dose',
+  'payment_date_label': 'Date',
+  'payment_ref_label': 'Reference No.',
+  'payment_subtotal': 'Subtotal',
+  'payment_govt_discount': 'Government Subsidy Discount',
+  'payment_total_due': 'Total Amount Due',
+  'payment_receipt_title': 'Payment Receipt',
+  'payment_receipt_subtitle': 'Payment Successful',
+  'payment_receipt_paid_by': 'Payment Method',
+  'payment_receipt_amount_paid': 'Amount Paid',
+  'payment_print_receipt': 'Print Receipt',
+  'payment_new_transaction': 'New Transaction',
+  'payment_wallet_label': 'Government Health Wallet',
+  'payment_card_label': 'Credit / Debit Card',
+
+  // ── Exercises ──────────────────────────────────────────────────────────────
+  'exercise_streak_title': 'Exercise Streak 🔥',
+  'exercise_streak_unit': 'consecutive days',
+  'exercise_week_activity': 'Weekly Activity',
+  'exercise_today_title': 'Today\'s Exercises',
+  'exercise_remaining': '{remaining} exercises remaining • {minutes} minutes',
+  'exercise_description': 'Description',
+  'exercise_tips': 'Exercise Tips',
+  'exercise_tip_1': 'Start slow and gradually increase intensity',
+  'exercise_tip_2': 'Stay well-hydrated before and after exercise',
+  'exercise_tip_3':
+      'Inform your physician immediately if you experience any pain',
+  'exercise_mark_done': 'Mark Exercise Complete',
+  'exercise_daily_tip_title': 'Medical Tip of the Day',
+  'exercise_daily_tip_body':
+      'Consistency is more important than intensity! 15 minutes daily outperforms 1 hour once a week.',
+  'exercise_no_results':
+      'No exercises found matching the current search criteria',
+  'exercise_week_days': 'Sat,Sun,Mon,Tue,Wed,Thu,Fri',
+
+  // ── Web Patient Shell ───────────────────────────────────────────────────────
+  'patient_shell_plan_card': 'Care Plan',
+  'patient_shell_next_session': 'Next Clinical Session',
+  'patient_shell_compliance_label': 'Compliance Index',
+  'patient_shell_weight_goal': 'Target Weight',
+
+  // ── Web Plan Overview ───────────────────────────────────────────────────────
+  'plan_overview_current_dose': 'Active Dose',
+  'plan_overview_frequency': 'Injection Interval',
+  'plan_overview_target_weight': 'Target Weight',
+  'plan_overview_assigned_center': 'Assigned Rehabilitation Center',
+  'plan_overview_sessions_progress': 'Session Progress',
+  'plan_overview_no_center': 'No center assigned yet',
+
+  // ── Register Patient ────────────────────────────────────────────────────────
+  'register_personal_info': 'Personal Information',
+  'register_medical_info': 'Medical & Clinical Data',
+  'register_id_placeholder': '784-XXXX-XXXXXXX-X',
+  // ── Inventory Management Web ───────────────────────────────────────────────────
+  'export_csv': 'Export CSV',
+  'sync_all_nodes': 'Sync All Nodes',
+  'total_distribution_centers': 'Total Distribution Centers',
+  'critical_outages_low_stocks': 'Critical Outages / Low Stocks',
+  'total_tracked_inventory_units': 'Total Tracked Inventory Units',
+  'filter_specific_nodes': 'Filter specific fulfillment nodes or regions...',
+  'all_statuses': 'All Statuses',
+  'low_stock_alerts': 'Low Stock Alerts',
+  'active_global_sync': 'Active Global Sync',
+  'last_dispensed_ago': 'Last dispensed: {time} mins ago',
+  'critical_low': 'CRITICAL LOW',
+  'dosage_label': 'Dosage',
+  'available_label': 'Available',
+  'dispensed_label': 'Dispensed',
+  'utilization_overview': 'Utilization Overview',
+  'last_updated_just_now': 'Last updated: Just Now',
+  'manage_stock_replenish': 'Manage Stock / Replenish',
+};

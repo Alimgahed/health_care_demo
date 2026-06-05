@@ -29,7 +29,7 @@ class MounjaroApp extends StatelessWidget {
       builder: (context, localeProvider, child) {
         final locale = localeProvider.locale;
         return MaterialApp(
-          title: 'MoH Mounjaro Platform',
+          title: 'Health System',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

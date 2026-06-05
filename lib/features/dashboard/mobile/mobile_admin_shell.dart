@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+
 import '../../../core/constants/demo_metrics.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../../core/theme/app_colors.dart';
@@ -8,25 +9,88 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../auth/login_screen.dart';
-import '../web/web_doctor_shell.dart';
-import '../web/web_center_shell.dart';
+import 'mobile_admin_views.dart';
+import '../admin_views/regional_analytics.dart';
+import '../admin_views/system_audit_log_view.dart';
 
-class MobileAdminShell extends StatelessWidget {
+class MobileAdminShell extends StatefulWidget {
   const MobileAdminShell({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<MobileAdminShell> createState() => _MobileAdminShellState();
+}
+
+class _MobileAdminShellState extends State<MobileAdminShell> {
+  int _selectedIndex = 0;
+  int _lastSeenLogsCount = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final dp = Provider.of<DataProvider>(context, listen: false);
+        setState(() => _lastSeenLogsCount = dp.logs.length);
+      }
+    });
+  }
+
+  Widget _buildBody(BuildContext context) {
     final t = AppLocalizations.of(context);
+    switch (_selectedIndex) {
+      case 0:
+        return MobileAdminDashboardView(t: t);
+      case 1:
+        return MobileManageDoctorsView(t: t);
+      case 2:
+        return MobileManageCentersView(t: t);
+      case 3:
+        return MobileRegionalAnalyticsView(t: t);
+      case 4:
+        return MobileInventoryView(t: t);
+      case 5:
+        return MobileFraudAuditView(t: t);
+      case 6:
+        return SystemAuditLogView(t: t);
+      default:
+        return MobileAdminDashboardView(t: t);
+    }
+  }
+
+  void _onItemTapped(int index, int totalLogs) {
+    setState(() {
+      _selectedIndex = index;
+      if (index == 6) {
+        _lastSeenLogsCount = totalLogs;
+      }
+    });
+    Navigator.pop(context); // Close the drawer
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
-    final dp = context.watch<DataProvider>();
+
+    String appBarTitle = context.tr('ministry_health');
+    switch (_selectedIndex) {
+      case 1: appBarTitle = context.tr('manage_doctors_title'); break;
+      case 2: appBarTitle = context.tr('manage_therapy_centers_title'); break;
+      case 3: appBarTitle = context.tr('nav_clinical_ops'); break;
+      case 4: appBarTitle = context.tr('nav_inventory'); break;
+      case 5: appBarTitle = context.tr('nav_fraud_log'); break;
+      case 6: appBarTitle = context.tr('system_audit_log') == 'system_audit_log' ? 'سجل النظام' : context.tr('system_audit_log'); break;
+    }
+
+    final totalLogs = Provider.of<DataProvider>(context).logs.length;
+    final unreadLogs = _lastSeenLogsCount == -1 ? 0 : (totalLogs - _lastSeenLogsCount);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(context.tr('ministry_health')),
+        title: Text(appBarTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         foregroundColor: AppColors.navy,
-        elevation: 0,
+        elevation: 1,
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.globe),
@@ -43,198 +107,134 @@ class MobileAdminShell extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              t.translate('greeting'),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${context.tr('demo_cohort')}: ${dp.totalActivePatients} ${context.tr('records')} · ${context.tr('national_registry')}: ${DemoMetrics.formatCount(DemoMetrics.nationalEnrolled)}',
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const Scaffold(
-                          body: WebDoctorShell(embeddedInAdmin: true),
+      drawer: Drawer(
+        backgroundColor: AppColors.navy,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  children: [
+                    Image.asset('assets/logo.png', width: 32, height: 32, errorBuilder: (c,e,s) => const Icon(LucideIcons.activity, color: Colors.white, size: 32)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        context.tr('app_title'),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
-                    icon: const Icon(LucideIcons.stethoscope, size: 18),
-                    label: Text(context.tr('nav_clinical_ops')),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const Scaffold(
-                          body: WebCenterShell(embeddedInAdmin: true),
-                        ),
-                      ),
-                    ),
-                    icon: const Icon(LucideIcons.pill, size: 18),
-                    label: Text(context.tr('nav_dispensing_ops')),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.2,
-              children: [
-                _buildMiniKpi(
-                  t.translate('total_active_patients'),
-                  DemoMetrics.formatCount(DemoMetrics.nationalEnrolled),
-                  LucideIcons.users,
-                  AppColors.primary,
-                ),
-                _buildMiniKpi(
-                  t.translate('govt_subsidy'),
-                  DemoMetrics.formatAed(dp.totalGovtSubsidyDisbursed),
-                  LucideIcons.wallet,
-                  AppColors.accent,
-                ),
-                _buildMiniKpi(
-                  t.translate('fraud_prevented'),
-                  '${dp.fraudIncidentsPrevented}',
-                  LucideIcons.shieldAlert,
-                  AppColors.error,
-                ),
-                _buildMiniKpi(
-                  context.tr('national_avg_bmi_cohort'),
-                  dp.averageBmi.toStringAsFixed(1),
-                  LucideIcons.activity,
-                  AppColors.success,
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Text(
-              t.translate('quick_actions'),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            _buildActionItem(context, t.translate('view_fraud_alerts'), LucideIcons.alertTriangle, Colors.red),
-            const SizedBox(height: 12),
-            _buildActionItem(context, t.translate('approve_subsidies'), LucideIcons.checkCircle, Colors.green),
-            const SizedBox(height: 12),
-            _buildActionItem(context, t.translate('generate_report'), LucideIcons.fileText, Colors.blue),
-            const SizedBox(height: 12),
-            _buildActionItem(context, t.translate('contact_centers'), LucideIcons.phoneCall, AppColors.primary),
-            const SizedBox(height: 48),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMiniKpi(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 28),
-          const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.navy,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionItem(BuildContext context, String title, IconData icon, Color color) {
-    return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr('action_executed', {'title': title})),
-            backgroundColor: AppColors.navy,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(width: 16),
+              const Divider(color: Colors.white24, height: 1),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  children: [
+                    _buildDrawerSectionTitle(context.tr('nav_section_dashboards')),
+                    _buildDrawerItem(LucideIcons.layoutDashboard, context.tr('nav_dashboard'), 0, totalLogs),
+                    _buildDrawerItem(LucideIcons.stethoscope, context.tr('manage_doctors_title'), 1, totalLogs),
+                    _buildDrawerItem(LucideIcons.building2, context.tr('manage_therapy_centers_title'), 2, totalLogs),
+                    const SizedBox(height: 16),
+                    _buildDrawerSectionTitle(context.tr('nav_section_operations')),
+                    _buildDrawerItem(LucideIcons.map, context.tr('nav_clinical_ops'), 3, totalLogs),
+                    _buildDrawerItem(LucideIcons.packageSearch, context.tr('nav_inventory'), 4, totalLogs),
+                    const SizedBox(height: 16),
+                    _buildDrawerSectionTitle(context.tr('nav_section_administration')),
+                    _buildDrawerItem(LucideIcons.shieldAlert, context.tr('nav_fraud_log'), 5, totalLogs),
+                    _buildDrawerItem(LucideIcons.activitySquare, context.tr('system_audit_log') == 'system_audit_log' ? 'سجل النظام' : context.tr('system_audit_log'), 6, totalLogs, badgeCount: unreadLogs),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.white12)),
+                ),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      backgroundColor: Colors.white12,
+                      child: Icon(LucideIcons.user, color: Colors.white),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(context.tr('ministry_executive_user'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                          Text('admin@moh.gov.ae', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: _buildBody(context),
+    );
+  }
+
+  Widget _buildDrawerSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.5),
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, int index, int totalLogs, {int badgeCount = 0}) {
+    final isSelected = _selectedIndex == index;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      child: ListTile(
+        leading: Icon(icon, color: isSelected ? Colors.white : Colors.white60, size: 20),
+        title: Row(
+          children: [
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white60,
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
             ),
-            const Icon(LucideIcons.chevronRight, color: AppColors.textSecondary),
+            if (badgeCount > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.error,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$badgeCount',
+                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
           ],
         ),
+        selected: isSelected,
+        selectedTileColor: Colors.white.withOpacity(0.1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        onTap: () => _onItemTapped(index, totalLogs),
       ),
     );
   }
