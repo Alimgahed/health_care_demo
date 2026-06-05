@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -19,9 +20,35 @@ class MobileLoginScreen extends StatefulWidget {
   State<MobileLoginScreen> createState() => _MobileLoginScreenState();
 }
 
-class _MobileLoginScreenState extends State<MobileLoginScreen> {
+class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTickerProviderStateMixin {
   UserRole? _selectedRole;
   bool _isLoading = false;
+  
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _handleLogin() {
     if (_selectedRole == null) return;
@@ -69,47 +96,65 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [AppColors.primaryDark, AppColors.primary],
+          // Background Gradient Header
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: size.height * 0.45,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.primaryDark, AppColors.primary],
+                ),
               ),
             ),
-            child: SafeArea(
-              bottom: false,
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Column(
-                    children: [
-                      // Header Logo Area
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 130,
-                              height: 130,
-                              decoration: BoxDecoration(
+          ),
+          
+          // Main Scrollable Content
+          SafeArea(
+            bottom: false,
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          // Premium Logo Presentation
+                          Container(
+                            width: 140,
+                            height: 140,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.25),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 20),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: Container(
+                              decoration: const BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(32),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 30,
-                                    offset: const Offset(0, 15),
-                                  ),
-                                ],
+                                shape: BoxShape.circle,
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(32),
+                              child: ClipOval(
                                 child: Image.asset(
                                   'assets/logo.png',
                                   fit: BoxFit.cover,
@@ -124,263 +169,255 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 24),
-                            Text(
-                              t.translate('login_title'),
-                              style: Theme.of(context).textTheme.displaySmall
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.5,
-                                  ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              t.translate('login_subtitle'),
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(
-                                    color: AppColors.accentLight,
-                                    letterSpacing: 2.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            t.translate('login_title'),
+                            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.5,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            t.translate('login_subtitle'),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white.withOpacity(0.85),
+                                  letterSpacing: 2.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Login Form Card
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 30,
+                              offset: const Offset(0, -10),
                             ),
                           ],
                         ),
-                      ),
-
-                      // Login Card
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(40),
-                              topRight: Radius.circular(40),
+                        padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              t.translate('select_role'),
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.navy,
+                                  ),
+                              textAlign: TextAlign.center,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 20,
-                                offset: Offset(0, -5),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(32, 32, 32, 32),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  t.translate('select_role'),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.navy,
-                                      ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  t.translate('choose_portal'),
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 24),
+                            const SizedBox(height: 8),
+                            Text(
+                              t.translate('choose_portal'),
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
 
-                                // Roles Grid (Flexible to prevent overflow)
+                            // Roles Grid
+                            Row(
+                              children: [
                                 Expanded(
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      return Column(
+                                  child: _buildRoleCard(
+                                    role: UserRole.admin,
+                                    title: t.translate('ministry_executive'),
+                                    icon: LucideIcons.building2,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildRoleCard(
+                                    role: UserRole.doctor,
+                                    title: t.translate('doctor_physician'),
+                                    icon: LucideIcons.stethoscope,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildRoleCard(
+                                    role: UserRole.center,
+                                    title: t.translate('dispensing_center'),
+                                    icon: LucideIcons.store,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildRoleCard(
+                                    role: UserRole.patient,
+                                    title: t.translate('patient_portal'),
+                                    icon: LucideIcons.user,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
+                            const SizedBox(height: 24),
+                            
+                            // Demo Credential Banner
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              child: _selectedRole != null
+                                  ? Container(
+                                      key: ValueKey<UserRole>(_selectedRole!),
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withOpacity(0.06),
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+                                      ),
+                                      child: Row(
                                         children: [
+                                          const Icon(LucideIcons.info, color: AppColors.primary, size: 20),
+                                          const SizedBox(width: 12),
                                           Expanded(
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: _buildRoleCard(
-                                                    role: UserRole.admin,
-                                                    title: t.translate(
-                                                      'ministry_executive',
-                                                    ),
-                                                    icon: LucideIcons.building2,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 16),
-                                                Expanded(
-                                                  child: _buildRoleCard(
-                                                    role: UserRole.doctor,
-                                                    title: t.translate(
-                                                      'doctor_physician',
-                                                    ),
-                                                    icon:
-                                                        LucideIcons.stethoscope,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Expanded(
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: _buildRoleCard(
-                                                    role: UserRole.center,
-                                                    title: t.translate(
-                                                      'dispensing_center',
-                                                    ),
-                                                    icon: LucideIcons.store,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 16),
-                                                Expanded(
-                                                  child: _buildRoleCard(
-                                                    role: UserRole.patient,
-                                                    title: t.translate(
-                                                      'patient_portal',
-                                                    ),
-                                                    icon: LucideIcons.user,
-                                                  ),
-                                                ),
-                                              ],
+                                            child: Text(
+                                              _selectedRole == UserRole.admin
+                                                  ? 'Demo: admin@moh.gov.ae'
+                                                  : (_selectedRole == UserRole.doctor
+                                                      ? 'Demo: clinical@moh.gov.ae'
+                                                      : (_selectedRole == UserRole.center
+                                                          ? 'Demo: pharmacy@moh.gov.ae'
+                                                          : 'Demo: patient@mounjaro.ae')),
+                                              style: const TextStyle(
+                                                color: AppColors.navy,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 13,
+                                              ),
                                             ),
                                           ),
                                         ],
-                                      );
-                                    },
-                                  ),
-                                ),
-                                 const SizedBox(height: 16),
-                                 if (_selectedRole != null)
-                                   Container(
-                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                     decoration: BoxDecoration(
-                                       color: AppColors.primary.withOpacity(0.06),
-                                       borderRadius: BorderRadius.circular(12),
-                                       border: Border.all(color: AppColors.primary.withOpacity(0.15)),
-                                     ),
-                                     child: Text(
-                                       _selectedRole == UserRole.admin
-                                           ? 'Demo Credential: admin@moh.gov.ae'
-                                           : (_selectedRole == UserRole.doctor
-                                               ? 'Demo Credential: clinical@moh.gov.ae'
-                                               : (_selectedRole == UserRole.center
-                                                   ? 'Demo Credential: pharmacy@moh.gov.ae'
-                                                   : 'Demo Credential: patient@mounjaro.ae')),
-                                       style: const TextStyle(
-                                         color: AppColors.navy,
-                                         fontWeight: FontWeight.bold,
-                                         fontSize: 12,
-                                       ),
-                                       textAlign: TextAlign.center,
-                                     ),
-                                   ),
-                                 const SizedBox(height: 24),
-
-                                 // Access Button
-                                 Container(
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: _selectedRole != null
-                                        ? [
-                                            BoxShadow(
-                                              color: AppColors.primary
-                                                  .withOpacity(0.3),
-                                              blurRadius: 20,
-                                              offset: const Offset(0, 10),
-                                            ),
-                                          ]
-                                        : [],
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed:
-                                        _selectedRole != null && !_isLoading
-                                        ? _handleLogin
-                                        : null,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: _selectedRole != null
-                                          ? AppColors.primary
-                                          : AppColors.border,
-                                      foregroundColor: _selectedRole != null
-                                          ? Colors.white
-                                          : AppColors.textSecondary,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
                                       ),
-                                    ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                            
+                            const Spacer(),
+                            const SizedBox(height: 32),
+
+                            // Premium Access Button
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              height: 64,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                gradient: _selectedRole != null
+                                    ? const LinearGradient(
+                                        colors: [AppColors.primary, AppColors.primaryDark],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      )
+                                    : null,
+                                color: _selectedRole == null ? AppColors.border.withOpacity(0.5) : null,
+                                boxShadow: _selectedRole != null
+                                    ? [
+                                        BoxShadow(
+                                          color: AppColors.primary.withOpacity(0.4),
+                                          blurRadius: 20,
+                                          offset: const Offset(0, 8),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: _selectedRole != null && !_isLoading ? _handleLogin : null,
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Center(
                                     child: _isLoading
                                         ? const SizedBox(
-                                            height: 24,
-                                            width: 24,
+                                            height: 28,
+                                            width: 28,
                                             child: CircularProgressIndicator(
                                               color: Colors.white,
-                                              strokeWidth: 2.5,
+                                              strokeWidth: 3,
                                             ),
                                           )
                                         : Text(
                                             t.translate('access_portal'),
                                             style: TextStyle(
                                               fontSize: 18,
-                                              fontWeight: _selectedRole != null
-                                                  ? FontWeight.w700
-                                                  : FontWeight.w600,
+                                              fontWeight: _selectedRole != null ? FontWeight.w800 : FontWeight.w600,
+                                              color: _selectedRole != null ? Colors.white : AppColors.textSecondary,
                                               letterSpacing: 0.5,
                                             ),
                                           ),
                                   ),
                                 ),
-                                // Add bottom safe area padding naturally
-                                SizedBox(
-                                  height: MediaQuery.of(context).padding.bottom,
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                            SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
 
-          // Language Switcher Toggle
+          // Language Switcher Toggle with Glassmorphism
           SafeArea(
             child: Align(
               alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: TextButton.icon(
-                  onPressed: () {
-                    localeProvider.toggleLanguage();
-                  },
-                  icon: const Icon(LucideIcons.globe, color: Colors.white),
-                  label: Text(
-                    localeProvider.locale.languageCode == 'en'
-                        ? 'العربية'
-                        : 'English',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.black.withOpacity(0.2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                    child: TextButton.icon(
+                      onPressed: () {
+                        localeProvider.toggleLanguage();
+                      },
+                      icon: const Icon(LucideIcons.globe, color: Colors.white, size: 18),
+                      label: Text(
+                        localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -405,44 +442,40 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
+        height: 140, // Fixed height to prevent overflow and ensure uniformity
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected
-                ? Colors.transparent
-                : AppColors.border.withOpacity(0.5),
+            color: isSelected ? Colors.transparent : AppColors.border.withValues(alpha: 0.5),
             width: 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.4),
-                    blurRadius: 24,
-                    offset: const Offset(0, 12),
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
                   ),
                 ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.all(12),
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white.withOpacity(0.15)
-                    : AppColors.primary.withOpacity(0.05),
+                color: isSelected ? Colors.white.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -451,17 +484,20 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                 color: isSelected ? Colors.white : AppColors.primary,
               ),
             ),
-            const SizedBox(height: 14),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: isSelected ? Colors.white : AppColors.navy,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                fontSize: 15,
-                height: 1.2,
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: isSelected ? Colors.white : AppColors.navy,
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      fontSize: 14,
+                      height: 1.2,
+                    ),
               ),
             ),
           ],

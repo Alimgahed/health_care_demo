@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import '../../core/constants/mock_data.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
@@ -134,9 +135,10 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
 }
 
 int programAlertBadgeCount(BuildContext context, DataProvider dp) {
-  return collectProgramAlerts(context, dp)
-      .where((a) => a.kind != ProgramAlertKind.allClear)
-      .length;
+  return collectProgramAlerts(
+    context,
+    dp,
+  ).where((a) => a.kind != ProgramAlertKind.allClear).length;
 }
 
 /// Pending physician authorization reviews (Authorization Reviews tab badge).
@@ -145,6 +147,10 @@ int pendingAuthorizationReviewCount(DataProvider dp) =>
 
 List<ProgramAlert> fraudProgramAlerts(BuildContext context, DataProvider dp) {
   return collectProgramAlerts(context, dp)
-      .where((a) => a.kind == ProgramAlertKind.override || a.kind == ProgramAlertKind.flagged)
+      .where(
+        (a) =>
+            a.kind == ProgramAlertKind.override ||
+            a.kind == ProgramAlertKind.flagged,
+      )
       .toList();
 }

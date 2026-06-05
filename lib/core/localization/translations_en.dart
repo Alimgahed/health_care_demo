@@ -1,7 +1,7 @@
 /// English UI strings — enterprise healthcare / UAE government style.
 const Map<String, String> translationsEn = {
   // App
-  'app_title': 'MoH Mounjaro Platform',
+  'app_title': 'MoH Health Care Platform',
   'demo_environment': 'Demonstration Environment',
   'national_registry': 'National registry',
   'demo_cohort': 'Demo cohort',
@@ -32,7 +32,7 @@ const Map<String, String> translationsEn = {
   'today': 'Today',
 
   // Login
-  'login_title': 'Mounjaro Management Platform',
+  'login_title': 'Health Care Management Platform',
   'login_subtitle': 'UNITED ARAB EMIRATES · MINISTRY OF HEALTH',
   'select_role': 'Select Access Role',
   'choose_portal': 'Choose your authorized portal to continue',
@@ -49,12 +49,12 @@ const Map<String, String> translationsEn = {
       'Demo access: Beneficiary (patient@mounjaro.ae · Ahmed Al Mansoori)',
 
   // Splash
-  'splash_platform': 'Mounjaro Management Platform',
+  'splash_platform': 'Health Care Management Platform',
   'splash_moh': 'MINISTRY OF HEALTH',
 
   // Admin navigation
   'ncc_brand': 'National Command Center',
-  'ncc_subtitle': 'Mounjaro Program Operations',
+  'ncc_subtitle': 'Health Care Program Operations',
   'nav_section_overview': 'Overview',
   'nav_section_analytics': 'Analytics',
   'nav_section_intelligence': 'Intelligence',
@@ -76,7 +76,7 @@ const Map<String, String> translationsEn = {
       'Same tools as the facility portal at {center}: dispense, stock, activity logs, eligibility, and subsidy flow.',
 
   // Guided end-to-end demo (admin)
-  'demo_workflow_title': 'MoH Mounjaro — Full Demo Cycle',
+  'demo_workflow_title': 'MoH Health Care — Full Demo Cycle',
   'demo_workflow_subtitle':
       'Present the complete journey: Ministry oversight → Physician portal → Dispensing facility → Beneficiary app → Audit.',
   'demo_role_admin': 'Ministry (Admin)',
@@ -253,7 +253,7 @@ const Map<String, String> translationsEn = {
 
   // Physician portal
   'clinical_portal': 'Physician Portal',
-  'clinical_brand': 'Mounjaro — Treating Physician',
+  'clinical_brand': 'Health Care — Treating Physician',
   'clinical_tools': 'Physician tools',
   'patients_registry': 'Beneficiary Registry',
   'clinical_assessments': 'Authorization Reviews',
@@ -289,7 +289,7 @@ const Map<String, String> translationsEn = {
   // Program eligibility review
   'clinical_assessment': 'Medical eligibility review',
   'eligibility_status': 'Program Eligibility',
-  'eligible_mounjaro': 'Eligible for Mounjaro',
+  'eligible_mounjaro': 'Eligible for Health Care',
   'requires_review': 'Requires physician approval',
   'not_eligible': 'Not eligible',
   'weight': 'Weight',
@@ -325,7 +325,7 @@ const Map<String, String> translationsEn = {
   'confirm_verify_dispense': 'Confirm verification & dispense',
   'inventory_stock_dashboard': 'Facility inventory dashboard',
   'inventory_stock_sub':
-      'Monitor Mounjaro pen stock and submit replenishment requests.',
+      'Monitor Health Care pen stock and submit replenishment requests.',
   'request_restock': 'Request inventory replenishment',
   'request_restock_sub':
       'Submit a digital replenishment request to the MoH central pharmacy depot.',
@@ -353,7 +353,7 @@ const Map<String, String> translationsEn = {
   'dispensing_review': 'Dispensing review',
   'duplicate_dispensing_title': 'Duplicate dispensing alert',
   'duplicate_dispensing_body':
-      'Beneficiary {name} received Mounjaro on {date}. Next eligible date: {next}.',
+      'Beneficiary {name} received Health Care on {date}. Next eligible date: {next}.',
   'authorize_override': 'Authorize override',
   'supervisor_authorization': 'Supervisor authorization',
   'supervisor_pin_hint':
@@ -382,9 +382,9 @@ const Map<String, String> translationsEn = {
   'credit_debit': 'Credit / debit card',
   'confirm_payment': 'Confirm payment',
   'payment_successful': 'Payment successful',
-  'dispense_success': 'Mounjaro dispensed for {name}.',
+  'dispense_success': 'Health Care dispensed for {name}.',
   'claim_ref': 'Claims reference: MOH-MNJ-{ref}',
-  'dispense_success_generic': 'Mounjaro has been dispensed successfully.',
+  'dispense_success_generic': 'Health Care has been dispensed successfully.',
   'return_dashboard': 'Return to dashboard',
 
   // Coverage simulator
@@ -483,7 +483,7 @@ const Map<String, String> translationsEn = {
   'main_nav_patient_app': 'Beneficiary app',
   'executive_dashboard': 'Executive dashboard',
   'dispensing_trends': 'Dispensing trends',
-  'national_overview': 'National Mounjaro program overview',
+  'national_overview': 'National Health Care program overview',
   'total_patients': 'Registered beneficiaries',
   'eligible': 'Program-eligible',
   'govt_subsidy': 'Government subsidy',
@@ -491,6 +491,10 @@ const Map<String, String> translationsEn = {
   'cumulative': 'cumulative',
   'financial_insights': 'Financial & demographic insights',
   'regional_analytics': 'Regional analytics',
+  'nav_overview_plan': 'Plan Overview',
+  'nav_medication': 'Medication Schedule',
+  'nav_sessions': 'Clinical Sessions',
+  'nav_exercises': 'Home Exercises',
   'nav_overview': 'Overview',
   'nav_regions': 'Regions',
   'nav_analytics': 'Analytics',
@@ -522,7 +526,7 @@ const Map<String, String> translationsEn = {
   'supply_alert': 'Supply chain alert',
   'center_greeting': 'Welcome, licensed pharmacist',
   'center_name': 'Central pharmacy depot',
-  'dispense_mounjaro': 'Dispense Mounjaro',
+  'dispense_mounjaro': 'Dispense Health Care',
   'verify_eligibility': 'Verify program eligibility',
   'restock_inventory': 'Replenish inventory',
   'stock_levels': 'Current stock levels',
@@ -534,7 +538,7 @@ const Map<String, String> translationsEn = {
   'treatment_adherence': 'Treatment adherence score',
   'dose_escalation_timeline': 'Dose adjustment timeline',
   'recent_logs': 'Recent medical actions',
-  'prescribe_dose': 'Adjust Mounjaro dose',
+  'prescribe_dose': 'Adjust Health Care dose',
   'patient_360_view': 'Beneficiary 360° view',
   'cardio': 'Cardiovascular',
   'strength': 'Strength training',
@@ -606,10 +610,10 @@ const Map<String, String> translationsEn = {
       'Replenishment approved. Added 20 units per strength to local inventory.',
   'sku_label': 'SKU: {code}',
   'medication_dispensed': 'Medication dispensed',
-  'medication_dispensed_msg': 'Mounjaro {dose} dispensed to {name}.',
+  'medication_dispensed_msg': 'Health Care {dose} dispensed to {name}.',
   'subsidy_dispensation_approved': 'Subsidy dispensation approved',
   'subsidy_dispensation_msg':
-      'Mounjaro {dose} dispensed under full UAE National subsidy for {name}.',
+      'Health Care {dose} dispensed under full UAE National subsidy for {name}.',
   'override_logged_msg': 'Dispensed under authorized medical override: {reason}',
   'override_hint_example': 'e.g. replacement for damaged pen / lost dose…',
   'select_center': 'Select facility',
@@ -640,7 +644,7 @@ const Map<String, String> translationsEn = {
   'stock_level_available': 'Stock level: {count} units available',
   'active_prescription': 'Active prescription',
   'duplicate_dispense_detail':
-      'This beneficiary already received Mounjaro on {date}. Further dispensing requires an authorized medical override.',
+      'This beneficiary already received Health Care on {date}. Further dispensing requires an authorized medical override.',
   'last_dispense_date': 'Last dispense date',
   'patient_copay_collect': 'Beneficiary co-payment due',
   'eid': 'Emirates ID',
@@ -680,10 +684,10 @@ const Map<String, String> translationsEn = {
   'good_stock': 'Adequate stock',
   'override_duplicate_warning':
       'A safety alert indicates this beneficiary may receive duplicate medication. Medical justification is required to proceed.',
-  'mounjaro_dose_2_5': 'Mounjaro 2.5 mg',
-  'mounjaro_dose_5_0': 'Mounjaro 5.0 mg',
-  'mounjaro_dose_7_5': 'Mounjaro 7.5 mg',
-  'mounjaro_dose_10_0': 'Mounjaro 10.0 mg',
+  'mounjaro_dose_2_5': 'Health Care 2.5 mg',
+  'mounjaro_dose_5_0': 'Health Care 5.0 mg',
+  'mounjaro_dose_7_5': 'Health Care 7.5 mg',
+  'mounjaro_dose_10_0': 'Health Care 10.0 mg',
 
   // Emirates & nationalities (dropdown labels)
   'emirate_abu_dhabi': 'Abu Dhabi',
@@ -758,7 +762,7 @@ const Map<String, String> translationsEn = {
   'fasting_glucose_label': 'Fasting glucose',
   'not_recorded': 'Not recorded',
   'status_program_ineligible': 'Not eligible — program medical rules',
-  'program_ineligible_title': 'Mounjaro dispensing blocked',
+  'program_ineligible_title': 'Health Care dispensing blocked',
   'program_ineligible_sub':
       'National program rules failed. Update medical data or adjust thresholds in clinical_eligibility_config.dart.',
   'rule_bmi_too_low':
@@ -811,4 +815,88 @@ const Map<String, String> translationsEn = {
   'exercises_picked_count': '{count} exercises selected',
   'prescribed_dose_badge': '{dose} dose',
   'i_took_my_medication': 'I took my medication',
+
+  // --- New Direct Medication Flow & Web Dashboard Keys ---
+  'wizard_title': 'Request Medication',
+  'wizard_checking_eligibility': 'Checking Clinical Eligibility...',
+  'wizard_eligibility_review': 'Eligibility Review',
+  'wizard_eligibility_desc': 'We review your recent medical records to ensure it is safe to dispense your next dose.',
+  'wizard_bmi_req': 'BMI Requirement',
+  'wizard_bmi_current': 'Current BMI: {bmi}',
+  'wizard_glycemic_control': 'Glycemic Control',
+  'wizard_glycemic_desc': 'HbA1c & Fasting Glucose within limits',
+  'wizard_refill_schedule': 'Refill Schedule',
+  'wizard_refill_too_early': 'Too early for next refill',
+  'wizard_refill_ready': 'Ready for next refill',
+  'wizard_eligible_success': 'You are clinically eligible for your next dose.',
+  'wizard_ineligible_error': 'Not currently eligible. Please contact your care team for clinical review.',
+  'wizard_continue': 'Continue',
+  'wizard_med_details': 'Medication Details',
+  'wizard_prescribed_med': 'Prescribed Medication',
+  'wizard_how_receive': 'How would you like to receive it?',
+  'wizard_pickup': 'Pickup',
+  'wizard_delivery': 'Delivery',
+  'wizard_avail_pharmacies': 'Available Pharmacies',
+  'wizard_in_stock': 'In Stock',
+  'wizard_deliv_address': 'Delivery Address',
+  'wizard_enter_address': 'Enter your full delivery address',
+  'wizard_continue_payment': 'Continue to Payment',
+  'wizard_order_summary': 'Order Summary',
+  'wizard_medication': 'Medication',
+  'wizard_fulfillment': 'Fulfillment',
+  'wizard_base_price': 'Base Price',
+  'wizard_govt_coverage': 'Government Coverage',
+  'wizard_total_pay': 'Total to Pay',
+  'wizard_payment_method': 'Payment Method',
+  'wizard_pay_confirm': 'Pay AED {amount} & Confirm',
+  'wizard_confirm_order': 'Confirm Order',
+  'wizard_order_confirmed': 'Order Confirmed!',
+  'wizard_pickup_msg': 'Your medication will be ready for pickup at {center}.',
+  'wizard_delivery_msg': 'Your medication will be delivered to your address.',
+  'wizard_back_dashboard': 'Back to Dashboard',
+  
+  'dashboard_weight_lost': '{amount} kg Lost',
+  'dashboard_bmi_kpi': 'BMI {bmi}',
+  'dashboard_adherence_kpi': '{pct}% Adherence',
+  'dashboard_next_dose_kpi': 'Next Dose: {days} Days',
+  'dashboard_greeting_morning_web': 'Good morning,',
+  'dashboard_greeting_afternoon_web': 'Good afternoon,',
+  'dashboard_greeting_evening_web': 'Good evening,',
+  'dashboard_request_med_now': 'Request Medication Now',
+  'dashboard_request_med_desc': 'Check eligibility and request immediate delivery or pickup.',
+  'dashboard_weight_progress_title': 'Weight Progress to Target',
+  'dashboard_completed_pct': '% Completed',
+  'dashboard_remaining_kg': '{kg} kg remaining',
+  'dashboard_weight_journey_title': 'Weight Journey',
+  'dashboard_todays_routine': 'Today\'s Routine',
+  'dashboard_upcoming_session': 'Upcoming Session',
+  'dashboard_take_injection_btn': 'Record Injection',
+  'dashboard_injection_taken_btn': 'Injection Recorded ✓',
+  'dashboard_improving': 'Improving',
+  'dashboard_weeks_est': '{weeks} weeks est.',
+  'dashboard_badges_earned': '3 Badges Earned',
+
+  // Admin section additions
+  'nav_section_administration': 'ADMINISTRATION',
+  'nav_manage_doctors': 'Manage Doctors',
+  'nav_manage_centers': 'Manage Therapy Centers',
+  
+  'manage_doctors_title': 'Manage Authorized Doctors',
+  'manage_doctors_sub': 'Add and monitor doctors authorized to prescribe care plans.',
+  'add_doctor': 'Add Doctor',
+  'doctor_name': 'Doctor Name',
+  'specialty': 'Specialty',
+  'hospital': 'Hospital / Clinic',
+
+  'manage_therapy_centers_title': 'Manage Therapy Centers',
+  'manage_therapy_centers_sub': 'Add and monitor authorized physical therapy & obesity rehab centers.',
+  'add_therapy_center': 'Add Therapy Center',
+
+  'add_stock_btn': 'Add Stock',
+  'update_inventory_title': 'Update Facility Inventory',
+  'add_units_25': 'Add 2.5 mg units',
+  'add_units_50': 'Add 5.0 mg units',
+  'add_units_75': 'Add 7.5 mg units',
+  'add_units_100': 'Add 10.0 mg units',
 };
+

@@ -189,6 +189,39 @@ class Patient {
   }
 }
 
+class Doctor {
+  final String id;
+  final String name;
+  final String nameAr;
+  final String emirate;
+  final String emirateAr;
+  final String specialty;
+  final String specialtyAr;
+  final String hospital;
+  final String hospitalAr;
+  final String email;
+
+  Doctor({
+    required this.id,
+    required this.name,
+    required this.nameAr,
+    required this.emirate,
+    required this.emirateAr,
+    required this.specialty,
+    required this.specialtyAr,
+    required this.hospital,
+    required this.hospitalAr,
+    required this.email,
+  });
+
+  bool _isAr(BuildContext context) => Provider.of<LocaleProvider>(context, listen: false).locale.languageCode == 'ar';
+
+  String getLocalizedName(BuildContext context) => _isAr(context) ? nameAr : name;
+  String getLocalizedEmirate(BuildContext context) => _isAr(context) ? emirateAr : emirate;
+  String getLocalizedSpecialty(BuildContext context) => _isAr(context) ? specialtyAr : specialty;
+  String getLocalizedHospital(BuildContext context) => _isAr(context) ? hospitalAr : hospital;
+}
+
 class DispensingCenter {
   final String id;
   final String name;
@@ -309,11 +342,53 @@ class PhysicalTherapyCenter {
 
 class MockData {
   // Legacy static lists to keep compatibility with parts of the code
+  static final List<Doctor> doctors = _generateInitialDoctors();
   static final List<Patient> patients = _generateInitialPatients();
   static final List<DispensingCenter> centers = _generateInitialCenters();
   static final List<PhysicalTherapyCenter> therapyCenters = _generateInitialTherapyCenters();
 
   static final List<TreatmentPlan> treatmentPlans = _generateInitialPlans();
+
+  static List<Doctor> _generateInitialDoctors() {
+    return [
+      Doctor(
+        id: 'D001',
+        name: 'Dr. Sarah Jenkins',
+        nameAr: 'د. سارة جينكينز',
+        emirate: 'Dubai',
+        emirateAr: 'دبي',
+        specialty: 'Endocrinology',
+        specialtyAr: 'الغدد الصماء',
+        hospital: 'Dubai Central Hospital',
+        hospitalAr: 'مستشفى دبي المركزي',
+        email: 'sarah.j@moh.gov.ae',
+      ),
+      Doctor(
+        id: 'D002',
+        name: 'Dr. Ahmed Al Mansoori',
+        nameAr: 'د. أحمد المنصوري',
+        emirate: 'Abu Dhabi',
+        emirateAr: 'أبوظبي',
+        specialty: 'Bariatric Medicine',
+        specialtyAr: 'طب السمنة',
+        hospital: 'Abu Dhabi Medical City',
+        hospitalAr: 'مدينة أبوظبي الطبية',
+        email: 'ahmed.m@moh.gov.ae',
+      ),
+      Doctor(
+        id: 'D003',
+        name: 'Dr. Priya Sharma',
+        nameAr: 'د. بريا شارما',
+        emirate: 'Sharjah',
+        emirateAr: 'الشارقة',
+        specialty: 'Internal Medicine',
+        specialtyAr: 'الطب الباطني',
+        hospital: 'Sharjah Specialty Clinic',
+        hospitalAr: 'عيادة الشارقة التخصصية',
+        email: 'priya.s@moh.gov.ae',
+      ),
+    ];
+  }
 
   static List<TreatmentPlan> _generateInitialPlans() {
     return [
@@ -1260,12 +1335,14 @@ class MockData {
 }
 
 class DataProvider extends ChangeNotifier {
+  late List<Doctor> _doctors;
   late List<Patient> _patients;
   late List<DispensingCenter> _centers;
   late List<PhysicalTherapyCenter> _therapyCenters;
   final List<ActivityLog> _logs = [];
 
   DataProvider() {
+    _doctors = List.from(MockData.doctors);
     _patients = List.from(MockData.patients);
     _centers = List.from(MockData.centers);
     _therapyCenters = List.from(MockData.therapyCenters);
@@ -1336,6 +1413,7 @@ class DataProvider extends ChangeNotifier {
     return records;
   }
 
+  List<Doctor> get doctors => _doctors;
   List<Patient> get patients => _patients;
   List<DispensingCenter> get centers => _centers;
   List<PhysicalTherapyCenter> get therapyCenters => _therapyCenters;
@@ -1740,6 +1818,24 @@ class DataProvider extends ChangeNotifier {
       );
     }
 
+    notifyListeners();
+  }
+
+  // Add new Doctor
+  void addDoctor(Doctor doctor) {
+    _doctors.add(doctor);
+    notifyListeners();
+  }
+
+  // Add new Physical Therapy Center
+  void addPhysicalTherapyCenter(PhysicalTherapyCenter center) {
+    _therapyCenters.add(center);
+    notifyListeners();
+  }
+
+  // Add new Dispensing Center
+  void addDispensingCenter(DispensingCenter center) {
+    _centers.add(center);
     notifyListeners();
   }
 

@@ -1,12 +1,15 @@
+import 'dart:math' as math;
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:mounjaro_demo/features/treatment_plan/models/treatment_plan.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
+
+import '../../core/constants/mock_data.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/constants/mock_data.dart';
-import '../../core/widgets/kpi_card.dart';
-import '../treatment_plan/mobile/patient_plan_screen.dart';
+import 'medication_order/medication_order_wizard.dart';
 
 class PatientAppScreen extends StatefulWidget {
   const PatientAppScreen({super.key});
@@ -15,221 +18,548 @@ class PatientAppScreen extends StatefulWidget {
   State<PatientAppScreen> createState() => _PatientAppScreenState();
 }
 
-class _PatientAppScreenState extends State<PatientAppScreen> {
-  int _currentIndex = 0;
+class _PatientAppScreenState extends State<PatientAppScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _fadeIn;
+  bool _injectionDone = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..forward();
+    _fadeIn = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final dataProvider = Provider.of<DataProvider>(context);
-    final patient = dataProvider.patients.first; // Ahmed Al Mansoori
+    final patient = dataProvider.patients.first;
+    final plan = dataProvider.getPlanForPatient(patient.id);
 
-    final List<Widget> tabs = [
-      _buildDashboardTab(context, patient),
-      PatientPlanScreen(patient: patient),
-    ];
+    // Computed values
+    final double weightLost = patient.weightHistory.isNotEmpty
+        ? patient.weightHistory.first - patient.weight
+        : 0;
+    final double targetWeight = plan?.targetWeight ?? 85.0;
+    final double progress =
+        (weightLost / (patient.weightHistory.first - targetWeight)).clamp(
+          0.0,
+          1.0,
+        );
+    final int daysToNextInjection = 4; // Mocked
+    final int sessionsAttended =
+        plan?.sessions.where((s) => s.isAttended).length ?? 0;
+    final int totalSessions = plan?.totalSessions ?? 0;
 
-    return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: SafeArea(
-        bottom: false,
+    return FadeTransition(
+      opacity: _fadeIn,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.white24,
-                    child: Text(
-                      patient.getLocalizedFullName(context).substring(0, 1),
-                      style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.tr('good_morning'),
-                          style: const TextStyle(color: Colors.white70, fontSize: 16),
-                        ),
-                        Text(
-                          patient.getLocalizedFullName(context).split(' ')[0],
-                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(LucideIcons.bell, color: Colors.white),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+            const SizedBox(height: 20),
+
+            // ── Greeting Header ──────────────────────────────────────────
+            _buildGreeting(context, patient),
+            const SizedBox(height: 24),
+
+            // ── Next Injection Hero Card ──────────────────────────────────
+            _buildInjectionCard(context, patient, daysToNextInjection),
+            const SizedBox(height: 20),
+
+            // ── Quick Stats Row ───────────────────────────────────────────
+            _buildQuickStats(
+              context,
+              patient,
+              weightLost,
+              sessionsAttended,
+              totalSessions,
             ),
-            
-            // Main Content Area
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32),
-                  ),
-                ),
-                child: tabs[_currentIndex],
-              ),
-            ),
+            const SizedBox(height: 24),
+
+            // ── Direct Medication Request ─────────────────────────────────
+            _buildMedicationAction(context),
+            const SizedBox(height: 24),
+
+            // ── Goal Progress ────────────────────────────────────────────
+            _buildGoalProgress(context, patient, targetWeight, progress),
+            const SizedBox(height: 24),
+
+            // ── Weight Journey Chart ─────────────────────────────────────
+            // _buildWeightChart(context, patient),
+            // const SizedBox(height: 24),
+
+            // ── Today's Routine (Quick Actions) ──────────────────────────
+            _buildTodayRoutine(context, plan),
+            const SizedBox(height: 24),
+
+            // ── Achievements ──────────────────────────────────────────────
+            _buildAchievements(context),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        items: [
-          BottomNavigationBarItem(icon: const Icon(LucideIcons.layoutDashboard), label: context.tr('dashboard')),
-          BottomNavigationBarItem(icon: const Icon(LucideIcons.clipboardList), label: context.tr('my_plan')),
-        ],
       ),
     );
   }
 
-  Widget _buildDashboardTab(BuildContext context, Patient patient) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Injection Schedule Card
-          _buildInjectionSchedule(context, patient),
-          const SizedBox(height: 24),
-          
-          // Progress Dashboard
-          Text(
-            context.tr('your_progress'),
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 16),
-          GridView.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+  // ── Greeting Header ─────────────────────────────────────────────────────────
+  Widget _buildGreeting(BuildContext context, Patient patient) {
+    final hour = DateTime.now().hour;
+    final greeting = hour < 12
+        ? '🌅 صباح الخير،'
+        : hour < 17
+        ? '☀️ مساء الخير،'
+        : '🌙 مساء الخير،';
+
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              KpiCard(
-                title: context.tr('current_weight'),
-                value: '${patient.weight.toStringAsFixed(1)} kg',
-                icon: LucideIcons.scale,
-                iconColor: AppColors.info,
-                trend: '-${(patient.weightHistory.first - patient.weight).toStringAsFixed(1)} kg',
-                isTrendPositive: true,
+              Text(
+                greeting,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              KpiCard(
-                title: context.tr('target_weight'),
-                value: '85 kg',
-                icon: LucideIcons.target,
-                iconColor: AppColors.success,
-                subtitle: context.tr('kg_to_go', {'kg': (patient.weight - 85.0).toStringAsFixed(1)}),
+              Text(
+                patient.getLocalizedFullName(context).split(' ')[0],
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  letterSpacing: -0.5,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          
-          // Real interactive fl_chart weight journey!
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.tr('weight_loss_journey'),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 180,
-                    child: LineChart(
-                      LineChartData(
-                        gridData: FlGridData(
-                          show: true,
-                          drawVerticalLine: false,
-                          getDrawingHorizontalLine: (value) => FlLine(color: AppColors.border.withValues(alpha: 0.5), strokeWidth: 1),
-                        ),
-                        titlesData: const FlTitlesData(
-                          show: true,
-                          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: patient.weightHistory.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList(),
-                            isCurved: true,
-                            color: AppColors.primary,
-                            barWidth: 4,
-                            dotData: const FlDotData(show: true),
-                            belowBarData: BarAreaData(
-                              show: true,
-                              gradient: LinearGradient(
-                                colors: [AppColors.primary.withValues(alpha: 0.2), Colors.transparent],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
+        ),
+        // Compliance Badge
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.success.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                LucideIcons.trendingUp,
+                size: 14,
+                color: AppColors.success,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                context.tr('dashboard_adherence_kpi').replaceAll('{pct}', (patient.complianceRate * 100).toStringAsFixed(0)),
+                style: const TextStyle(
+                  color: AppColors.success,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Injection Hero Card ──────────────────────────────────────────────────────
+  Widget _buildInjectionCard(BuildContext context, Patient patient, int days) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      decoration: BoxDecoration(
+        color: _injectionDone ? const Color(0xFF059669) : AppColors.primaryDark,
+        image: const DecorationImage(
+          image: AssetImage('assets/illustrations/dashboard_hero.png'),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black45, // Darken for text readability
+            BlendMode.darken,
+          ),
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: (_injectionDone ? AppColors.success : AppColors.primary)
+                .withValues(alpha: 0.3),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Decorative circles
+          Positioned(
+            top: -20,
+            right: -20,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -30,
+            left: -10,
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            LucideIcons.syringe,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            context.tr('prescribed_dose_line', {
+                              'dose': patient.currentDose,
+                            }),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
                             ),
                           ),
                         ],
                       ),
                     ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        _injectionDone ? '✓ تم التسجيل' : 'بعد $days أيام',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  _injectionDone
+                      ? 'تم تسجيل الحقنة بنجاح! 🎉'
+                      : context.tr('next_injection_reminder'),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.3,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _injectionDone
+                      ? 'استمر في الالتزام بخطة علاجك'
+                      : 'لا تنسى تسجيل حقنتك الأسبوعية لمتابعة التزامك',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    setState(() => _injectionDone = !_injectionDone);
+                    if (!_injectionDone) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(context.tr('adherence_keep_up')),
+                        backgroundColor: AppColors.success,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    );
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: _injectionDone
+                          ? Colors.white.withValues(alpha: 0.25)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _injectionDone
+                              ? LucideIcons.checkCircle
+                              : LucideIcons.check,
+                          color: _injectionDone
+                              ? Colors.white
+                              : AppColors.primary,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _injectionDone
+                              ? 'تم التسجيل'
+                              : context.tr('mark_injection_taken'),
+                          style: TextStyle(
+                            color: _injectionDone
+                                ? Colors.white
+                                : AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 24),
-          
-          // Achievements
-          Text(
-            context.tr('earned_badges'),
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildBadge(context, LucideIcons.medal, context.tr('badge_month_streak'), AppColors.accent),
-              _buildBadge(context, LucideIcons.flame, context.tr('badge_weight_reduction'), AppColors.error),
-              _buildBadge(context, LucideIcons.award, context.tr('badge_clinical_compliance'), AppColors.primary),
-            ],
-          ),
-          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-  Widget _buildInjectionSchedule(BuildContext context, Patient patient) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryLight],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  // ── Quick Stats Row ──────────────────────────────────────────────────────────
+  Widget _buildQuickStats(
+    BuildContext context,
+    Patient patient,
+    double weightLost,
+    int sessionsAttended,
+    int totalSessions,
+  ) {
+    return Row(
+      children: [
+        _buildStatBubble(
+          context,
+          icon: LucideIcons.trendingDown,
+          value: '${weightLost.toStringAsFixed(1)} kg',
+          label: 'فقدان الوزن',
+          color: AppColors.success,
+          flex: 2,
         ),
-        borderRadius: BorderRadius.circular(24),
+        const SizedBox(width: 12),
+        _buildStatBubble(
+          context,
+          icon: LucideIcons.activity,
+          value: patient.bmi.toStringAsFixed(1),
+          label: 'BMI',
+          color: patient.bmi >= 30 ? AppColors.warning : AppColors.info,
+          flex: 1,
+        ),
+        const SizedBox(width: 12),
+        _buildStatBubble(
+          context,
+          icon: LucideIcons.calendar,
+          value: '$sessionsAttended/$totalSessions',
+          label: 'الجلسات',
+          color: AppColors.primary,
+          flex: 1,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatBubble(
+    BuildContext context, {
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+    required int flex,
+  }) {
+    return Expanded(
+      flex: flex,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 16),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Direct Medication Request Action ──────────────────────────────────────────
+  Widget _buildMedicationAction(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MedicationOrderWizard(),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(LucideIcons.shoppingBag, color: Colors.white),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr('dashboard_request_med_now'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    context.tr('dashboard_request_med_desc'),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(LucideIcons.chevronLeft, color: Colors.white),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Goal Progress Card ────────────────────────────────────────────────────────
+  Widget _buildGoalProgress(
+    BuildContext context,
+    Patient patient,
+    double targetWeight,
+    double progress,
+  ) {
+    final remainingKg = patient.weight - targetWeight;
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -239,73 +569,600 @@ class _PatientAppScreenState extends State<PatientAppScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                context.tr('next_injection'),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr('dashboard_weight_progress_title'),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'الهدف: $targetWeight kg  •  الحالي: ${patient.weight.toStringAsFixed(1)} kg',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  context.tr('prescribed_dose_badge', {'dose': patient.currentDose}),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
+              _buildProgressRing(progress),
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            context.tr('next_injection_reminder'),
-            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(context.tr('dose_logged')),
-                  backgroundColor: AppColors.success,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: AppColors.primary,
-              minimumSize: const Size(double.infinity, 50),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: AppColors.border,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                progress >= 0.8 ? AppColors.success : AppColors.primary,
+              ),
             ),
-            child: Text(context.tr('mark_as_taken')),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.tr('dashboard_completed_pct'),
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              ),
+              Text(
+                context.tr('dashboard_remaining_kg').replaceAll('{kg}', remainingKg.toStringAsFixed(1)),
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBadge(BuildContext context, IconData icon, String label, Color color) {
+  Widget _buildProgressRing(double progress) {
+    return SizedBox(
+      width: 64,
+      height: 64,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: const Size(64, 64),
+            painter: _RingPainter(progress: progress),
+          ),
+          Text(
+            '${(progress * 100).toStringAsFixed(0)}%',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: progress >= 0.8 ? AppColors.success : AppColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Weight Chart ─────────────────────────────────────────────────────────────
+  Widget _buildWeightChart(BuildContext context, Patient patient) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr('weight_loss_journey'),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    context.tr('weight_journey_sub'),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  '6 أشهر',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            height: 180,
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: AppColors.border.withValues(alpha: 0.5),
+                    strokeWidth: 1,
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      getTitlesWidget: (value, meta) {
+                        int idx = value.toInt();
+                        if (idx >= 0 &&
+                            idx < patient.weightHistory.length &&
+                            idx % 2 == 0) {
+                          return Text(
+                            context.tr('check_reading', {'n': '${idx + 1}'}),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.textSecondary,
+                            ),
+                          );
+                        }
+                        return const Text('');
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 36,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.textSecondary,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: patient.weightHistory
+                        .asMap()
+                        .entries
+                        .map((e) => FlSpot(e.key.toDouble(), e.value))
+                        .toList(),
+                    isCurved: true,
+                    color: AppColors.primary,
+                    barWidth: 3,
+                    shadow: Shadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                    ),
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, bar, index) =>
+                          FlDotCirclePainter(
+                            radius: 4,
+                            color: Colors.white,
+                            strokeWidth: 2,
+                            strokeColor: AppColors.primary,
+                          ),
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary.withValues(alpha: 0.2),
+                          Colors.transparent,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Today's Routine ───────────────────────────────────────────────────────────
+  Widget _buildTodayRoutine(BuildContext context, TreatmentPlan? plan) {
+    final exercises = plan?.homeExercises ?? [];
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 70,
-          height: 70,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withValues(alpha: 0.1),
-            border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
-          ),
-          child: Icon(icon, color: color, size: 32),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              context.tr('dashboard_todays_routine'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            if (exercises.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${exercises.length} تمارين',
+                  style: const TextStyle(
+                    color: AppColors.warning,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
         ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
+        const SizedBox(height: 14),
+        if (exercises.isEmpty)
+          _buildEmptyRoutine(context)
+        else
+          ...exercises
+              .take(2)
+              .map(
+                (e) => _buildRoutineItem(
+                  context,
+                  e.name,
+                  '${e.durationMinutes} دقيقة • ${e.sets} مجموعات × ${e.reps} تكرار',
+                  LucideIcons.activity,
+                  AppColors.primary,
+                ),
+              ),
+        const SizedBox(height: 12),
+        // Upcoming session reminder
+        if (plan != null) _buildUpcomingSessionBanner(context, plan),
+      ],
+    );
+  }
+
+  Widget _buildEmptyRoutine(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+      ),
+      child: const Row(
+        children: [
+          Icon(LucideIcons.checkCircle, color: AppColors.success),
+          SizedBox(width: 12),
+          Text(
+            'لا توجد تمارين مجدولة اليوم',
+            style: TextStyle(color: AppColors.textSecondary),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoutineItem(
+    BuildContext context,
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(LucideIcons.play, color: Colors.white, size: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingSessionBanner(BuildContext context, TreatmentPlan plan) {
+    final upcoming = plan.sessions.firstWhere(
+      (s) => !s.isAttended,
+      orElse: () => plan.sessions.last,
+    );
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.navy.withValues(alpha: 0.9), AppColors.navy],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              LucideIcons.calendar,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${context.tr('dashboard_upcoming_session')}: ${upcoming.sessionNumber}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  '${upcoming.scheduledDate.day}/${upcoming.scheduledDate.month}/${upcoming.scheduledDate.year}',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(LucideIcons.chevronRight, color: Colors.white54, size: 18),
+        ],
+      ),
+    );
+  }
+
+  // ── Achievements ──────────────────────────────────────────────────────────────
+  Widget _buildAchievements(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.tr('earned_badges_title'),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            _buildBadgeCard(
+              context,
+              LucideIcons.medal,
+              context.tr('badge_month_streak'),
+              context.tr('badge_month_streak_sub'),
+              AppColors.accent,
+            ),
+            const SizedBox(width: 12),
+            _buildBadgeCard(
+              context,
+              LucideIcons.flame,
+              context.tr('badge_weight_reduction'),
+              context.tr('badge_weight_reduction_sub'),
+              AppColors.error,
+            ),
+            const SizedBox(width: 12),
+            _buildBadgeCard(
+              context,
+              LucideIcons.award,
+              context.tr('badge_clinical_compliance'),
+              context.tr('badge_clinical_compliance_sub'),
+              AppColors.primary,
+            ),
+          ],
         ),
       ],
     );
   }
+
+  Widget _buildBadgeCard(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color,
+  ) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Custom painter for the circular progress ring
+class _RingPainter extends CustomPainter {
+  final double progress;
+
+  _RingPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width / 2) - 6;
+    const strokeWidth = 6.0;
+
+    // Background ring
+    final bgPaint = Paint()
+      ..color = AppColors.border
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(center, radius, bgPaint);
+
+    // Progress arc
+    final fgPaint = Paint()
+      ..color = progress >= 0.8 ? AppColors.success : AppColors.primary
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      2 * math.pi * progress,
+      false,
+      fgPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }

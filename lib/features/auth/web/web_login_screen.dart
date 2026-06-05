@@ -81,65 +81,45 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
             flex: 1,
             child: Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.primaryDark, AppColors.primary],
+                image: DecorationImage(
+                  image: AssetImage('assets/illustrations/login_hero.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(40),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 40,
-                            offset: const Offset(0, 20),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Image.asset(
-                          'assets/logo.png',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Center(
-                                child: Icon(
-                                  Icons.health_and_safety,
-                                  size: 80,
-                                  color: AppColors.primary,
-                                ),
-                              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      AppColors.navy.withOpacity(0.8),
+                    ],
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(48.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.translate('login_title'),
+                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 48),
-                    Text(
-                      t.translate('login_title'),
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -1.0,
+                      const SizedBox(height: 8),
+                      Text(
+                        t.translate('login_subtitle'),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white.withOpacity(0.9),
+                          letterSpacing: 2.0,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      t.translate('login_subtitle'),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppColors.accentLight,
-                        letterSpacing: 4.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -367,13 +347,13 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
             border: Border.all(
               color: isSelected
                   ? Colors.transparent
-                  : (isHovered ? AppColors.primary.withOpacity(0.5) : AppColors.border.withOpacity(0.5)),
+                  : (isHovered ? AppColors.primary.withValues(alpha: 0.5) : AppColors.border.withValues(alpha: 0.5)),
               width: 1.5,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.4),
+                      color: AppColors.primary.withValues(alpha: 0.4),
                       blurRadius: 24,
                       offset: const Offset(0, 12),
                     ),
@@ -381,14 +361,14 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                 : (isHovered
                     ? [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           blurRadius: 16,
                           offset: const Offset(0, 8),
                         )
                       ]
                     : [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -402,8 +382,8 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Colors.white.withOpacity(0.15)
-                      : AppColors.primary.withOpacity(0.05),
+                      ? Colors.white.withValues(alpha: 0.15)
+                      : AppColors.primary.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

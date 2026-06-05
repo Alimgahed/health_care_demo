@@ -1,6 +1,6 @@
 {
-    "name": "mounjaro_demo",
-    "short_name": "mounjaro_demo",
+    "name": "Health Care",
+    "short_name": "Health Care",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -97,7 +97,7 @@ class _WebAdminShellState extends State<WebAdminShell> {
       case 2:
         return _PatientsView(t: t);
       case 3:
-        return _InventoryView(t: t);
+        return InventoryView();
       case 4:
         return _AiAlertsFullView(t: t);
       case 5:
@@ -108,6 +108,10 @@ class _WebAdminShellState extends State<WebAdminShell> {
         return const WebDoctorShell(embeddedInAdmin: true);
       case 8:
         return const WebCenterShell(embeddedInAdmin: true);
+      case 9:
+        return _ManageDoctorsView(t: t);
+      case 10:
+        return _ManageCentersView(t: t);
       default:
         return _OverviewDashboard(t: t);
     }
@@ -248,6 +252,17 @@ class _Sidebar extends StatelessWidget {
                     badge: readyDispenseCount > 0
                         ? '$readyDispenseCount'
                         : null,
+                  ),
+                  _navSection(context.tr('nav_section_administration')),
+                  _navItem(
+                    LucideIcons.stethoscope,
+                    context.tr('nav_manage_doctors'),
+                    9,
+                  ),
+                  _navItem(
+                    LucideIcons.building,
+                    context.tr('nav_manage_centers'),
+                    10,
                   ),
                 ],
               ),
@@ -2076,115 +2091,487 @@ class _StatusChip extends StatelessWidget {
 //  INVENTORY VIEW  (new full page)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _InventoryView extends StatelessWidget {
-  final AppLocalizations t;
-  const _InventoryView({required this.t});
+
+// Placeholder for localization context extensions if used
+
+
+class InventoryView extends StatelessWidget {
+  const InventoryView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final dp = context.watch<DataProvider>();
-    return Padding(
-      padding: const EdgeInsets.all(28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.tr('inventory_management'),
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: AppColors.navy,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            context.tr('inventory_management_sub'),
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.6,
-              ),
-              itemCount: dp.centers.length,
-              itemBuilder: (context, i) {
-                final c = dp.centers[i];
-                final anyLow = c.inventory2_5mg <= 10 || c.inventory5mg <= 10;
-                return Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: anyLow
-                          ? AppColors.error.withOpacity(0.4)
-                          : AppColors.border,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 10,
+    
+    // Calculate global KPIs for enterprise feel
+    final totalCenters = dp.centers.length;
+    int criticalStockCenters = 0;
+    int totalItems2_5 = 0;
+    int totalItems5 = 0;
+
+    for (var c in dp.centers) {
+      if (c.inventory2_5mg <= 10 || c.inventory5mg <= 10) {
+        criticalStockCenters++;
+      }
+      totalItems2_5 += c.inventory2_5mg;
+      totalItems5 += c.inventory5mg;
+    }
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('Inventory Management'),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.navy,
+                        letterSpacing: -0.5,
                       ),
-                    ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      context.tr('Monitor, filter, and replenish medical stock distributions globally.'),
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                // Web Top Bar Action Controls
+                Row(
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.download_rounded, size: 18),
+                      label: const Text('Export CSV'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.textPrimary,
+                        side: const BorderSide(color: AppColors.border),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text('Sync All Nodes'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+            const SizedBox(height: 32),
+
+            // Enterprise KPI Cards Summary Strip
+            _buildKPIRibbon(totalCenters, criticalStockCenters, totalItems2_5 + totalItems5),
+            const SizedBox(height: 32),
+
+            // Active Search & Table controls section
+            _buildFilterUtilityRow(),
+            const SizedBox(height: 20),
+
+            // Responsive ListView for detailed data cards
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: dp.centers.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 24),
+              itemBuilder: (context, i) {
+                final center = dp.centers[i];
+                return _InventoryCard(center: center, dataProvider: dp);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildKPIRibbon(int total, int critical, int totalUnits) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final isMobileStack = constraints.maxWidth < 750;
+      return Flex(
+        direction: isMobileStack ? Axis.vertical : Axis.horizontal,
+        children: [
+          Expanded(flex: isMobileStack ? 0 : 1, child: _KPICard(title: 'Total Distribution Centers', value: '$total', icon: Icons.maps_home_work_rounded, iconColor: AppColors.primary)),
+          if (!isMobileStack) const SizedBox(width: 16),
+          Expanded(flex: isMobileStack ? 0 : 1, child: _KPICard(title: 'Critical Outages / Low Stocks', value: '$critical', icon: Icons.warning_amber_rounded, iconColor: AppColors.error, isCritical: critical > 0)),
+          if (!isMobileStack) const SizedBox(width: 16),
+          Expanded(flex: isMobileStack ? 0 : 1, child: _KPICard(title: 'Total Tracked Inventory Units', value: '$totalUnits items', icon: Icons.inventory_2_rounded, iconColor: AppColors.accent)),
+        ],
+      );
+    });
+  }
+
+  Widget _buildFilterUtilityRow() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Filter specific fulfillment nodes or regions...',
+                prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border)),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          DropdownButton<String>(
+            value: 'All Statuses',
+            underline: const SizedBox(),
+            items: const [
+              DropdownMenuItem(value: 'All Statuses', child: Text('All Statuses')),
+              DropdownMenuItem(value: 'Low Stock', child: Text('Low Stock Alerts')),
+            ],
+            onChanged: (val) {},
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Reusable micro-animated Web Card for distribution centers
+class _InventoryCard extends StatefulWidget {
+  final DispensingCenter center;
+  final DataProvider dataProvider;
+
+  const _InventoryCard({required this.center, required this.dataProvider});
+
+  @override
+  State<_InventoryCard> createState() => _InventoryCardState();
+}
+
+class _InventoryCardState extends State<_InventoryCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.center;
+    final anyLow = c.inventory2_5mg <= 10 || c.inventory5mg <= 10 || c.inventory7_5mg <= 10 || c.inventory10mg <= 10;
+    
+    // Pseudo-random last dispensed time based on ID length/hash
+    final mockMinsAgo = (c.id.hashCode % 59) + 1;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: anyLow 
+                ? AppColors.error.withOpacity(0.7) 
+                : (_isHovered ? AppColors.primary.withOpacity(0.5) : AppColors.border),
+            width: anyLow || _isHovered ? 1.5 : 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(_isHovered ? 0.06 : 0.02),
+              blurRadius: _isHovered ? 16 : 8,
+              offset: Offset(0, _isHovered ? 6 : 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // HEADER
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  child: const Icon(LucideIcons.store, color: AppColors.primary),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Expanded(
-                            child: Text(
-                              c.getLocalizedName(context),
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.navy,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          Text(
+                            c.getLocalizedName(context),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.navy,
                             ),
                           ),
+                          const SizedBox(width: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: anyLow
-                                  ? AppColors.error.withOpacity(0.1)
-                                  : AppColors.success.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
+                              color: AppColors.border,
+                              borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              anyLow
-                                  ? context.tr('low_stock')
-                                  : context.tr('stable'),
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: anyLow
-                                    ? AppColors.error
-                                    : AppColors.success,
-                              ),
+                              c.getLocalizedRegion(context),
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
                             ),
                           ),
                         ],
                       ),
-                      const Spacer(),
-                      _StockRow('2.5 mg', c.inventory2_5mg, 50),
-                      const SizedBox(height: 8),
-                      _StockRow('5 mg', c.inventory5mg, 50),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(LucideIcons.activity, size: 14, color: AppColors.success),
+                          const SizedBox(width: 6),
+                          const Text(
+                            'Active Global Sync',
+                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                          const SizedBox(width: 16),
+                          const Icon(LucideIcons.clock, size: 14, color: AppColors.textSecondary),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Last dispensed: $mockMinsAgo mins ago',
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                );
-              },
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: anyLow ? AppColors.error.withOpacity(0.08) : AppColors.success.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: anyLow ? AppColors.error.withOpacity(0.3) : AppColors.success.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(anyLow ? LucideIcons.alertTriangle : LucideIcons.checkCircle2, size: 14, color: anyLow ? AppColors.error : AppColors.success),
+                      const SizedBox(width: 6),
+                      Text(
+                        anyLow ? context.tr('CRITICAL LOW') : context.tr('STABLE'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: anyLow ? AppColors.error : AppColors.success,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            
+            // SUMMARY KPI ROW
+            Row(
+              children: [
+                Expanded(child: _buildMiniKpi(context, 'Total Available', '${c.totalAvailable}', LucideIcons.packageCheck, AppColors.success)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildMiniKpi(context, 'Total Dispensed', '${c.totalDispensed}', LucideIcons.logOut, AppColors.info)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildMiniKpi(context, 'Total Handled', '${c.totalAllocated}', LucideIcons.boxes, AppColors.primary)),
+              ],
+            ),
+            const SizedBox(height: 24),
+            
+            // DOSAGE BREAKDOWN TABLE
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.border),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
+                      border: const Border(bottom: BorderSide(color: AppColors.border)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Expanded(flex: 2, child: Text('Dosage', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary))),
+                        const Expanded(flex: 2, child: Text('Available', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary))),
+                        const Expanded(flex: 2, child: Text('Dispensed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary))),
+                        const Expanded(flex: 4, child: Text('Utilization Overview', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary))),
+                      ],
+                    ),
+                  ),
+                  _buildDosageRow('2.5 mg', c.inventory2_5mg, c.dispensed2_5mg),
+                  const Divider(height: 1, color: AppColors.border),
+                  _buildDosageRow('5.0 mg', c.inventory5mg, c.dispensed5mg),
+                  const Divider(height: 1, color: AppColors.border),
+                  _buildDosageRow('7.5 mg', c.inventory7_5mg, c.dispensed7_5mg),
+                  const Divider(height: 1, color: AppColors.border),
+                  _buildDosageRow('10.0 mg', c.inventory10mg, c.dispensed10mg, isLast: true),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            // FOOTER
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Last updated: Just Now', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                ElevatedButton.icon(
+                  onPressed: () => _showProfessionalReplenishDialog(context, widget.dataProvider, c),
+                  icon: const Icon(LucideIcons.packagePlus, size: 16),
+                  label: const Text('Manage Stock / Replenish'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniKpi(BuildContext context, String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: color.withOpacity(0.15),
+            radius: 18,
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 2),
+              Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: color)),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDosageRow(String label, int available, int dispensed, {bool isLast = false}) {
+    final total = available + dispensed;
+    final dispensedPct = total == 0 ? 0.0 : (dispensed / total);
+    final availablePct = total == 0 ? 0.0 : (available / total);
+    
+    final lowStock = available <= 10;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                Container(
+                  width: 8, height: 8,
+                  decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(4)),
+                ),
+                const SizedBox(width: 8),
+                Text(label, style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.navy)),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                Text('$available', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: lowStock ? AppColors.error : AppColors.navy)),
+                if (lowStock) ...[
+                  const SizedBox(width: 6),
+                  const Icon(LucideIcons.alertCircle, size: 14, color: AppColors.error),
+                ]
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text('$dispensed', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.info)),
+          ),
+          Expanded(
+            flex: 4,
+            child: Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Row(
+                      children: [
+                        if (total > 0) ...[
+                          Expanded(
+                            flex: (dispensedPct * 100).toInt(),
+                            child: Container(height: 8, color: AppColors.info),
+                          ),
+                          Expanded(
+                            flex: (availablePct * 100).toInt(),
+                            child: Container(height: 8, color: lowStock ? AppColors.error : AppColors.success),
+                          ),
+                        ] else
+                          Expanded(child: Container(height: 8, color: AppColors.border)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 40,
+                  child: Text(
+                    '${(dispensedPct * 100).toStringAsFixed(0)}%',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -2193,56 +2580,171 @@ class _InventoryView extends StatelessWidget {
   }
 }
 
-class _StockRow extends StatelessWidget {
-  final String label;
-  final int current;
-  final int max;
-  const _StockRow(this.label, this.current, this.max);
+// Enterprise KPI Stats Widget
+class _KPICard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color iconColor;
+  final bool isCritical;
+
+  const _KPICard({required this.title, required this.value, required this.icon, required this.iconColor, this.isCritical = false});
 
   @override
   Widget build(BuildContext context) {
-    final pct = (current / max).clamp(0.0, 1.0);
-    final color = current <= 10
-        ? AppColors.error
-        : current <= 20
-        ? AppColors.warning
-        : AppColors.success;
-    return Row(
-      children: [
-        SizedBox(
-          width: 44,
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.textSecondary,
-            ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isCritical ? const Color(0xFFFFF1F2) : AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isCritical ? AppColors.error.withOpacity(0.3) : AppColors.border),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: iconColor.withOpacity(0.1),
+            radius: 24,
+            child: Icon(icon, color: iconColor, size: 24),
           ),
-        ),
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: pct,
-              backgroundColor: AppColors.border,
-              valueColor: AlwaysStoppedAnimation(color),
-              minHeight: 7,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          '$current',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: color,
-          ),
-        ),
-      ],
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              const SizedBox(height: 4),
+              Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy)),
+            ],
+          )
+        ],
+      ),
     );
   }
 }
+
+// Professional Variable Input Multi-Dose Replenishment Dialog
+void _showProfessionalReplenishDialog(BuildContext context, DataProvider dp, DispensingCenter center) {
+  final formKey = GlobalKey<FormState>();
+  int input2_5 = 0;
+  int input5_0 = 0;
+  int input7_5 = 0;
+  int input10_0 = 0;
+
+  showDialog(
+    context: context,
+    builder: (ctx) {
+      return AlertDialog(
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: AppColors.navy,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+          ),
+          child: Row(
+            children: [
+              const Icon(LucideIcons.packagePlus, color: AppColors.accent, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Replenish Node Stock: ${center.getLocalizedName(context)}',
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+        content: SizedBox(
+          width: 500,
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Specify standard batches allocation quantities to supply to this center. Enter units for each dosage.',
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                ),
+                const SizedBox(height: 20),
+                
+                _buildDoseInputRow('2.5 mg', (val) => input2_5 = int.tryParse(val ?? '0') ?? 0),
+                const SizedBox(height: 12),
+                _buildDoseInputRow('5.0 mg', (val) => input5_0 = int.tryParse(val ?? '0') ?? 0),
+                const SizedBox(height: 12),
+                _buildDoseInputRow('7.5 mg', (val) => input7_5 = int.tryParse(val ?? '0') ?? 0),
+                const SizedBox(height: 12),
+                _buildDoseInputRow('10.0 mg', (val) => input10_0 = int.tryParse(val ?? '0') ?? 0),
+              ],
+            ),
+          ),
+        ),
+        actionsPadding: const EdgeInsets.all(24),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel Operation', style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              formKey.currentState?.save();
+              dp.updateInventory(
+                center.id,
+                d2_5: input2_5,
+                d5: input5_0,
+                d7_5: input7_5,
+                d10: input10_0,
+              );
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  behavior: SnackBarBehavior.floating,
+                  width: 400,
+                  backgroundColor: AppColors.success,
+                  content: Text('Successfully authorized batch supply drops to ${center.getLocalizedName(context)}!'),
+                ),
+              );
+            },
+            child: const Text('Authorize Replenishment'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Widget _buildDoseInputRow(String label, void Function(String?) onSaved) {
+  return Row(
+    children: [
+      Expanded(
+        flex: 2, 
+        child: Text('Dosage $label Stock Up:', style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy)),
+      ),
+      Expanded(
+        flex: 3,
+        child: TextFormField(
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)), 
+            hintText: '0 units', 
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          ),
+          onSaved: onSaved,
+        ),
+      ),
+    ],
+  );
+}
+
+// Mock definitions allowing instant isolated IDE compilation
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  AI ALERTS FULL VIEW
@@ -2498,6 +3000,540 @@ class _Legend extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MANAGE DOCTORS
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ManageDoctorsView extends StatelessWidget {
+  final AppLocalizations t;
+  const _ManageDoctorsView({required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<DataProvider>(
+      builder: (context, dp, _) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('manage_doctors_title'),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.navy,
+                          ),
+                        ),
+                        Text(
+                          context.tr('manage_doctors_sub'),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      _showAddDoctorDialog(context, dp);
+                    },
+                    icon: const Icon(LucideIcons.plus, size: 16),
+                    label: Text(context.tr('add_doctor')),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: dp.doctors.length,
+                  separatorBuilder: (_, __) =>
+                      const Divider(height: 1, color: AppColors.border),
+                  itemBuilder: (context, i) {
+                    final doc = dp.doctors[i];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        child: const Icon(
+                          LucideIcons.stethoscope,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      title: Text(
+                        doc.getLocalizedName(context),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.navy,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${doc.getLocalizedSpecialty(context)} • ${doc.getLocalizedHospital(context)}',
+                      ),
+                      trailing: Text(
+                        doc.getLocalizedEmirate(context),
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddDoctorDialog(BuildContext context, DataProvider dp) {
+    final nameController = TextEditingController();
+    final nameArController = TextEditingController();
+    final specialtyController = TextEditingController();
+    final specialtyArController = TextEditingController();
+    final hospitalController = TextEditingController();
+    final hospitalArController = TextEditingController();
+    final emirateController = TextEditingController();
+    final emirateArController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(context.tr('add_doctor')),
+          content: SizedBox(
+            width: 600,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Name (EN)',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextField(
+                          controller: nameArController,
+                          decoration: const InputDecoration(
+                            labelText: 'Name (AR)',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: specialtyController,
+                          decoration: const InputDecoration(
+                            labelText: 'Specialty (EN)',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextField(
+                          controller: specialtyArController,
+                          decoration: const InputDecoration(
+                            labelText: 'Specialty (AR)',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: hospitalController,
+                          decoration: const InputDecoration(
+                            labelText: 'Hospital (EN)',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextField(
+                          controller: hospitalArController,
+                          decoration: const InputDecoration(
+                            labelText: 'Hospital (AR)',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: emirateController,
+                          decoration: const InputDecoration(
+                            labelText: 'Emirate (EN)',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextField(
+                          controller: emirateArController,
+                          decoration: const InputDecoration(
+                            labelText: 'Emirate (AR)',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(context.tr('cancel')),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newDoc = Doctor(
+                  id: 'D${DateTime.now().millisecondsSinceEpoch}',
+                  name: nameController.text.isEmpty
+                      ? 'New Doctor'
+                      : nameController.text,
+                  nameAr: nameArController.text.isEmpty
+                      ? 'دكتور جديد'
+                      : nameArController.text,
+                  emirate: emirateController.text.isEmpty
+                      ? 'Dubai'
+                      : emirateController.text,
+                  emirateAr: emirateArController.text.isEmpty
+                      ? 'دبي'
+                      : emirateArController.text,
+                  specialty: specialtyController.text.isEmpty
+                      ? 'General'
+                      : specialtyController.text,
+                  specialtyAr: specialtyArController.text.isEmpty
+                      ? 'عام'
+                      : specialtyArController.text,
+                  hospital: hospitalController.text.isEmpty
+                      ? 'General Hospital'
+                      : hospitalController.text,
+                  hospitalAr: hospitalArController.text.isEmpty
+                      ? 'مستشفى عام'
+                      : hospitalArController.text,
+                  email: 'doctor@moh.gov.ae',
+                );
+                dp.addDoctor(newDoc);
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Doctor added successfully")),
+                );
+              },
+              child: Text(context.tr('add_doctor')),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MANAGE CENTERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ManageCentersView extends StatelessWidget {
+  final AppLocalizations t;
+  const _ManageCentersView({required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<DataProvider>(
+      builder: (context, dp, _) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('manage_therapy_centers_title'),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.navy,
+                          ),
+                        ),
+                        Text(
+                          context.tr('manage_therapy_centers_sub'),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      _showAddCenterDialog(context, dp);
+                    },
+                    icon: const Icon(LucideIcons.plus, size: 16),
+                    label: Text(context.tr('add_therapy_center')),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: dp.therapyCenters.length,
+                  separatorBuilder: (_, __) =>
+                      const Divider(height: 1, color: AppColors.border),
+                  itemBuilder: (context, i) {
+                    final center = dp.therapyCenters[i];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundColor: AppColors.accent.withOpacity(0.1),
+                        child: const Icon(
+                          LucideIcons.building,
+                          color: AppColors.navy,
+                        ),
+                      ),
+                      title: Text(
+                        center.getLocalizedName(context),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.navy,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${center.getLocalizedEmirate(context)} • ${context.tr('chief_therapist')}: ${center.name}',
+                      ),
+                      trailing: Text(
+                        '${center.activePatients} ${context.tr('active_patients_legend')}',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddCenterDialog(BuildContext context, DataProvider dp) {
+    final nameController = TextEditingController();
+    final nameArController = TextEditingController();
+    final emirateController = TextEditingController();
+    final emirateArController = TextEditingController();
+    final therapistController = TextEditingController();
+    final therapistArController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(context.tr('add_therapy_center')),
+          content: SizedBox(
+            width: 600,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Center Name (EN)',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextField(
+                          controller: nameArController,
+                          decoration: const InputDecoration(
+                            labelText: 'Center Name (AR)',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: emirateController,
+                          decoration: const InputDecoration(
+                            labelText: 'Emirate (EN)',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextField(
+                          controller: emirateArController,
+                          decoration: const InputDecoration(
+                            labelText: 'Emirate (AR)',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: therapistController,
+                          decoration: const InputDecoration(
+                            labelText: 'Chief Therapist (EN)',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextField(
+                          controller: therapistArController,
+                          decoration: const InputDecoration(
+                            labelText: 'Chief Therapist (AR)',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(context.tr('cancel')),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newCenter = PhysicalTherapyCenter(
+                  id: 'T${DateTime.now().millisecondsSinceEpoch}',
+                  name: nameController.text.isEmpty
+                      ? 'New Center'
+                      : nameController.text,
+                  nameAr: nameArController.text.isEmpty
+                      ? 'مركز جديد'
+                      : nameArController.text,
+                  emirate: emirateController.text.isEmpty
+                      ? 'Dubai'
+                      : emirateController.text,
+                  emirateAr: emirateArController.text.isEmpty
+                      ? 'دبي'
+                      : emirateArController.text,
+                  chiefTherapist: therapistController.text.isEmpty
+                      ? 'Dr. Default'
+                      : therapistController.text,
+                  chiefTherapistAr: therapistArController.text.isEmpty
+                      ? 'د. افتراضي'
+                      : therapistArController.text,
+                  latitude: 25.2,
+                  longitude: 55.2,
+                  phone: '+971 00 000 0000',
+                  activePatients: 0,
+                  services: ['General Therapy'],
+                  servicesAr: ['علاج عام'],
+                  workingHours: '08:00 AM - 08:00 PM',
+                );
+                dp.addPhysicalTherapyCenter(newCenter);
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Therapy Center added successfully"),
+                  ),
+                );
+              },
+              child: Text(context.tr('add_therapy_center')),
+            ),
+          ],
+        );
+      },
     );
   }
 }
