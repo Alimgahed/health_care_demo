@@ -36,7 +36,7 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
       return Center(
         child: Text(
           context.tr('no_treatment_plan_mobile'),
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
         ),
       );
     }
@@ -126,15 +126,15 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
               ),
-              child: const Icon(LucideIcons.dumbbell, color: AppColors.primary, size: 28),
+              child: Icon(LucideIcons.dumbbell, color: AppColors.primary, size: 28),
             ),
             const SizedBox(width: 18),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'لوحة التمارين العلاجية الذكية',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.navy, letterSpacing: -0.5),
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.textPrimary, letterSpacing: -0.5),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -188,9 +188,9 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
+                  Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 6),
-                  Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                  Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                 ],
               ),
             )
@@ -220,13 +220,13 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
+                Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
                     onChanged: (val) => setState(() => _searchQuery = val),
                     style: TextStyle(fontSize: 14, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'البحث السريع عن التمارين المسندة في الخطة...',
                       hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                       border: InputBorder.none,
@@ -375,7 +375,7 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
                   children: [
                     Row(
                       children: [
-                        const Icon(LucideIcons.video, size: 14, color: AppColors.textSecondary),
+                        Icon(LucideIcons.video, size: 14, color: AppColors.textSecondary),
                         const SizedBox(width: 6),
                         Text('فيديو توضيحي متوفر', style: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.8), fontSize: 12)),
                       ],
@@ -408,7 +408,7 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
       decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(8)),
       child: Text(
         _categoryLabel(category),
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
       ),
     );
   }
@@ -441,15 +441,15 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+              gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), shape: BoxShape.circle),
-                  child: const Icon(LucideIcons.flame, color: AppColors.accent, size: 24),
+                  decoration: BoxDecoration(color: AppColors.surface.withValues(alpha: 0.15), shape: BoxShape.circle),
+                  child: Icon(LucideIcons.flame, color: AppColors.accent, size: 24),
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -474,8 +474,8 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('معدل إنجاز خطة اليوم', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isDark ? AppColors.darkTextPrimary : AppColors.navy)),
-              Text('${(progress * 100).toInt()}%', style: const TextStyle(color: AppColors.primaryLight, fontSize: 14, fontWeight: FontWeight.bold)),
+              Text('معدل إنجاز خطة اليوم', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+              Text('${(progress * 100).toInt()}%', style: TextStyle(color: AppColors.primaryLight, fontSize: 14, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 12),
@@ -507,8 +507,8 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('النشاط الإجمالي الأسبوعي', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isDark ? AppColors.darkTextPrimary : AppColors.navy)),
-              Text('${_activeDays.length}/7 أيام نشطة', style: const TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text('النشاط الإجمالي الأسبوعي', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)),
+              Text('${_activeDays.length}/7 أيام نشطة', style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 20),
@@ -529,7 +529,7 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
                     ),
                     child: Center(
                       child: isActive
-                          ? const Icon(Icons.check, color: AppColors.accent, size: 14)
+                          ? Icon(Icons.check, color: AppColors.accent, size: 14)
                           : Text(_weekDays[i], style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isToday ? AppColors.accent : AppColors.textSecondary)),
                     ),
                   ),
@@ -556,10 +556,10 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(color: AppColors.accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-            child: const Icon(LucideIcons.lightbulb, color: AppColors.accent, size: 18),
+            child: Icon(LucideIcons.lightbulb, color: AppColors.accent, size: 18),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -586,7 +586,7 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Icon(LucideIcons.searchX, size: 44, color: AppColors.textSecondary),
           SizedBox(height: 16),

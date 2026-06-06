@@ -38,7 +38,7 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.tr('reports_center_title'), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.navy)),
+              Text(context.tr('reports_center_title'), style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
               
               // Search Box
               Container(
@@ -46,13 +46,13 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   children: [
-                    const Icon(LucideIcons.search, size: 20, color: AppColors.textSecondary),
+                    Icon(LucideIcons.search, size: 20, color: AppColors.textSecondary),
                     const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
@@ -60,7 +60,7 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           hintText: context.tr('search'),
-                          hintStyle: const TextStyle(color: AppColors.textSecondary),
+                          hintStyle: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
                     ),
@@ -89,7 +89,7 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
                         color: isSelected ? AppColors.primary : Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
-                        boxShadow: isSelected ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))] : [],
+                        boxShadow: isSelected ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 10, offset: Offset(0, 4))] : [],
                       ),
                       child: Text(
                         _getTabLabel(context, index),
@@ -165,14 +165,14 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
               final avgBMI = patientsByEmirate[emirate]!.map((p) => p.bmi).reduce((a, b) => a + b) / count;
               
               return _buildTableRow([
-                Text(localizedEmirate, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
-                Text('$count', style: const TextStyle(fontSize: 16, color: AppColors.textPrimary)),
-                Text('${count * 4}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                Text(localizedEmirate, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text('$count', style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+                Text('${count * 4}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
                 Row(
                   children: [
-                    Text(avgBMI.toStringAsFixed(1), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                    Text(avgBMI.toStringAsFixed(1), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                     const SizedBox(width: 8),
-                    const Icon(LucideIcons.trendingDown, size: 16, color: AppColors.success),
+                    Icon(LucideIcons.trendingDown, size: 16, color: AppColors.success),
                   ],
                 ),
                 Row(
@@ -183,13 +183,13 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
                         child: LinearProgressIndicator(
                           value: 0.7 + (index * 0.05),
                           backgroundColor: AppColors.border,
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent),
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.accent),
                           minHeight: 8,
                         ),
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Text('${(70 + (index * 5))}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                    Text('${(70 + (index * 5))}%', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
                   ],
                 ),
               ]);
@@ -226,15 +226,15 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                      child: const Icon(LucideIcons.building2, color: AppColors.primary, size: 16),
+                      child: Icon(LucideIcons.building2, color: AppColors.primary, size: 16),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(child: Text(center.getLocalizedName(context), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy))),
+                    Expanded(child: Text(center.getLocalizedName(context), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
                   ],
                 ),
-                Text(center.getLocalizedRegion(context), style: const TextStyle(fontSize: 16, color: AppColors.textPrimary)),
-                Text('${(index + 1) * 125}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
-                Text('${(index + 1) * 25}', style: const TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+                Text(center.getLocalizedRegion(context), style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+                Text('${(index + 1) * 125}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                Text('${(index + 1) * 25}', style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -283,12 +283,12 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
                       child: Text(doc.name[0], style: const TextStyle(color: Colors.white, fontSize: 12)),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(child: Text(doc.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy))),
+                    Expanded(child: Text(doc.name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
                   ],
                 ),
-                Text(doc.specialty, style: const TextStyle(fontSize: 16, color: AppColors.textPrimary)),
-                Text('${50 - (index * 5)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                Text('${120 - (index * 10)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                Text(doc.specialty, style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+                Text('${50 - (index * 5)}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text('${120 - (index * 10)}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
                 Row(
                   children: [
                     Expanded(
@@ -341,15 +341,15 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
               return _buildTableRow([
                 Row(
                   children: [
-                    Icon(isCitizen ? LucideIcons.badgeCheck : LucideIcons.users, color: AppColors.navy, size: 20),
+                    Icon(isCitizen ? LucideIcons.badgeCheck : LucideIcons.users, color: AppColors.textPrimary, size: 20),
                     const SizedBox(width: 12),
-                    Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                    Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                   ],
                 ),
-                Text('$count', style: const TextStyle(fontSize: 16, color: AppColors.textPrimary)),
-                Text(DemoMetrics.formatAed(totalCost.toDouble()), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
-                Text(DemoMetrics.formatAed(subsidy.toDouble()), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.success)),
-                Text(DemoMetrics.formatAed(copay.toDouble()), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.warning)),
+                Text('$count', style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+                Text(DemoMetrics.formatAed(totalCost.toDouble()), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text(DemoMetrics.formatAed(subsidy.toDouble()), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.success)),
+                Text(DemoMetrics.formatAed(copay.toDouble()), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.warning)),
               ]);
             },
           ),
@@ -363,7 +363,7 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
   Widget _buildTableHeader(BuildContext context, List<String> headerKeys) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.navy,
         borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
       ),
@@ -378,14 +378,14 @@ class _RegionalAnalyticsState extends State<RegionalAnalytics> {
   Widget _buildTableBody({required int itemCount, required Widget Function(BuildContext, int) itemBuilder}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
         border: Border.all(color: AppColors.border),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))],
       ),
       child: ListView.separated(
         itemCount: itemCount,
-        separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.border),
+        separatorBuilder: (context, index) => Divider(height: 1, color: AppColors.border),
         itemBuilder: itemBuilder,
       ),
     );

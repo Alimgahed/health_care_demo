@@ -63,11 +63,11 @@ class _DispensingScreenState extends State<DispensingScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(LucideIcons.scanLine, size: 80, color: AppColors.primary),
+              Icon(LucideIcons.scanLine, size: 80, color: AppColors.primary),
               const SizedBox(height: 24),
               Text(context.tr('scanning_qr'), style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 24),
-              const CircularProgressIndicator(color: AppColors.primary),
+              CircularProgressIndicator(color: AppColors.primary),
             ],
           ),
         ),
@@ -147,7 +147,7 @@ class _DispensingScreenState extends State<DispensingScreen> {
                 hintText: context.tr('search_eid_hint'),
                 prefixIcon: const Icon(LucideIcons.search),
                 suffixIcon: IconButton(
-                  icon: const Icon(LucideIcons.arrowLeft, color: AppColors.primary),
+                  icon: Icon(LucideIcons.arrowLeft, color: AppColors.primary),
                   onPressed: _searchPatient,
                 ),
               ),

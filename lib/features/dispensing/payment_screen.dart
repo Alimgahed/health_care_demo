@@ -56,7 +56,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
           child: Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
@@ -69,7 +69,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 60,
                   height: 60,
                   child: CircularProgressIndicator(
@@ -79,7 +79,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'جاري معالجة الدفع...',
+                  context.tr('processing_payment'),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: AppColors.navy,
                     fontWeight: FontWeight.bold,
@@ -87,7 +87,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'يرجى الانتظار، لا تقم بإغلاق هذه الشاشة.',
+                  context.tr('please_wait_dont_close'),
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                 ),
               ],
@@ -127,7 +127,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(context.tr('patient_copayment'), style: const TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: true,
       ),
@@ -150,7 +150,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 flex: 5,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.02),
@@ -166,10 +166,10 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                       children: [
                         Text(
                           context.tr('select_payment_method'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.navy,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -204,11 +204,11 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                             ),
                             child: Row(
                               children: [
-                                const Icon(LucideIcons.checkCircle, color: AppColors.success, size: 28),
+                                Icon(LucideIcons.checkCircle, color: AppColors.success, size: 28),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Text(
-                                    context.tr('payment_successful') == 'payment_successful' ? 'مغطى بالكامل - لا يوجد مبلغ مستحق' : 'Fully Covered - No Payment Required',
+                                    context.tr('payment_successful'),
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -244,7 +244,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                               elevation: 0,
                             ),
                             child: Text(
-                              widget.amountToPay == 0.0 ? (context.tr('confirm_payment') == 'confirm_payment' ? 'تأكيد الصرف' : 'Confirm Dispense') : context.tr('confirm_payment'),
+                              context.tr('confirm_payment'),
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -268,19 +268,19 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'ملخص الدفع',
+         Text(
+          context.tr('payment_summary'),
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: AppColors.navy,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: AppColors.border),
             boxShadow: [
@@ -303,31 +303,31 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(LucideIcons.receipt, color: AppColors.primary, size: 28),
+                    child: Icon(LucideIcons.receipt, color: AppColors.primary, size: 28),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('فاتورة مساهمة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
-                        Text('وزارة الصحة ووقاية المجتمع', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                        Text(context.tr('copayment_invoice'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                        Text(context.tr('ministry_health'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
                 ],
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
                 child: Divider(color: AppColors.border),
               ),
               // Patient Info
-              _buildInvoiceRow('اسم المستفيد', widget.patient.getLocalizedFullName(context)),
+              _buildInvoiceRow(context.tr('patient_name'), widget.patient.getLocalizedFullName(context)),
               const SizedBox(height: 12),
-              _buildInvoiceRow('رقم الملف', widget.patient.id),
+              _buildInvoiceRow(context.tr('file_number'), widget.patient.id),
               const SizedBox(height: 12),
-              _buildInvoiceRow('التاريخ', DateTime.now().toString().split(' ')[0]),
-              const Padding(
+              _buildInvoiceRow(context.tr('date'), DateTime.now().toString().split(' ')[0]),
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
                 child: Divider(color: AppColors.border),
               ),
@@ -340,14 +340,14 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('مونجارو (تيرزيباتيد)', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy, fontSize: 16)),
+                        Text(context.tr('mounjaro_terzepatide'), style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 16)),
                         const SizedBox(height: 4),
-                        Text('جرعة ${widget.patient.currentDose}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                        Text('${context.tr('dose')} ${widget.patient.currentDose}', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                       ],
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text('1000.00 AED', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
+                  Text('1000.00 AED', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                 ],
               ),
               const SizedBox(height: 16),
@@ -356,10 +356,10 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(context.tr('payment_govt_discount') == 'payment_govt_discount' ? 'دعم حكومي' : context.tr('payment_govt_discount'), style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.success, fontSize: 14)),
+                    child: Text(context.tr('payment_govt_discount'), style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.success, fontSize: 14)),
                   ),
                   const SizedBox(width: 8),
-                  Text('-${(1000.0 - widget.amountToPay).toStringAsFixed(2)} AED', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.success)),
+                  Text('-${(1000.0 - widget.amountToPay).toStringAsFixed(2)} AED', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.success)),
                 ],
               ),
               const SizedBox(height: 24),
@@ -373,13 +373,13 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(
-                      child: Text('الإجمالي المستحق', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                    Expanded(
+                      child: Text(context.tr('total_due'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       '${widget.amountToPay.toStringAsFixed(2)} AED',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.primary),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.primary),
                     ),
                   ],
                 ),
@@ -395,8 +395,8 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy)),
+        Text(label, style: TextStyle(color: AppColors.textSecondary)),
+        Text(value, style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
       ],
     );
   }
@@ -450,7 +450,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
               ),
             ),
             if (isSelected)
-              const Icon(LucideIcons.checkCircle2, color: AppColors.primary),
+              Icon(LucideIcons.checkCircle2, color: AppColors.primary),
             if (!isSelected)
               Icon(LucideIcons.circle, color: AppColors.border),
           ],
@@ -472,11 +472,11 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('بيانات البطاقة', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
+            Text(context.tr('card_details'), style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
             const SizedBox(height: 16),
             _buildTextField(
               controller: _cardNumberCtrl,
-              label: 'رقم البطاقة',
+              label: context.tr('card_number'),
               icon: LucideIcons.creditCard,
               hint: '0000 0000 0000 0000',
             ),
@@ -486,7 +486,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 Expanded(
                   child: _buildTextField(
                     controller: _expiryCtrl,
-                    label: 'تاريخ الانتهاء',
+                    label: context.tr('expiry_date'),
                     icon: LucideIcons.calendar,
                     hint: 'MM/YY',
                   ),
@@ -495,7 +495,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 Expanded(
                   child: _buildTextField(
                     controller: _cvvCtrl,
-                    label: 'رمز التحقق (CVV)',
+                    label: context.tr('cvv'),
                     icon: LucideIcons.lock,
                     hint: '123',
                     isPassword: true,
@@ -506,9 +506,9 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             const SizedBox(height: 16),
             _buildTextField(
               controller: _nameCtrl,
-              label: 'الاسم على البطاقة',
+              label: context.tr('name_on_card'),
               icon: LucideIcons.user,
-              hint: 'الاسم الكامل',
+              hint: context.tr('full_name'),
             ),
           ],
         ),
@@ -526,7 +526,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+        Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -538,7 +538,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             fillColor: Colors.white,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.border)),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.border)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.primary)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
         ),
@@ -570,7 +570,7 @@ class PaymentSuccessScreen extends StatelessWidget {
               Container(
                 width: 400,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
@@ -595,7 +595,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: AppColors.surface.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(LucideIcons.check, size: 48, color: Colors.white),
@@ -618,16 +618,16 @@ class PaymentSuccessScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(32),
                       child: Column(
                         children: [
-                          _buildReceiptRow('رقم المرجع', '#$ref'),
+                          _buildReceiptRow(context.tr('reference_number'), '#$ref'),
                           const SizedBox(height: 16),
-                          _buildReceiptRow('التاريخ والوقت', dateStr),
+                          _buildReceiptRow(context.tr('date_and_time'), dateStr),
                           if (patient != null) ...[
                             const SizedBox(height: 16),
-                            _buildReceiptRow('المستفيد', patient!.getLocalizedFullName(context)),
+                            _buildReceiptRow(context.tr('patient'), patient!.getLocalizedFullName(context)),
                             const SizedBox(height: 16),
-                            _buildReceiptRow('الوصف', 'مونجارو - جرعة ${patient!.currentDose}'),
+                            _buildReceiptRow(context.tr('description'), context.tr('mounjaro_terzepatide') + ' - ' + context.tr('dose') + ' ${patient!.currentDose}'),
                           ],
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(vertical: 24),
                             child: Divider(color: AppColors.border), 
                           ),
@@ -639,7 +639,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                               color: AppColors.surface,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Text(
                                 '||| | || ||| || || | ||| ||',
                                 style: TextStyle(fontSize: 32, letterSpacing: 2, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
@@ -660,12 +660,12 @@ class PaymentSuccessScreen extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: () {},
                     icon: const Icon(LucideIcons.printer),
-                    label: const Text('طباعة الإيصال'),
+                    label: Text(context.tr('print_receipt')),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      foregroundColor: AppColors.navy,
-                      side: const BorderSide(color: AppColors.border),
+                      foregroundColor: AppColors.textPrimary,
+                      side: BorderSide(color: AppColors.border),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -692,8 +692,8 @@ class PaymentSuccessScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy, fontSize: 14)),
+        Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        Text(value, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 14)),
       ],
     );
   }

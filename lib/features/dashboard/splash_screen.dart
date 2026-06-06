@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration:  BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -91,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         width: 150,
                         height: 150,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(40),
                           boxShadow: [
                             BoxShadow(
@@ -106,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           child: Image.asset(
                             'assets/logo.png',
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => const Center(
+                            errorBuilder: (context, error, stackTrace) => Center(
                               child: Icon(Icons.health_and_safety, size: 70, color: AppColors.primary),
                             ),
                           ),
@@ -116,7 +116,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       Text(
                         context.tr('splash_platform'),
                         style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: Colors.white,
+                          color: AppColors.surface,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
                         ),

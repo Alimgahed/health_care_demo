@@ -58,7 +58,7 @@ class _SessionCheckinScreenState extends State<SessionCheckinScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.mapPin, color: AppColors.primary, size: 32),
+                  Icon(LucideIcons.mapPin, color: AppColors.primary, size: 32),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(

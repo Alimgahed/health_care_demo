@@ -105,8 +105,8 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
                   children: [
                     Text(
                       context.tr('nearest_centers'),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: AppColors.surface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -263,7 +263,7 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
         ),
         Container(
           padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(top: BorderSide(color: AppColors.border)),
           ),
           child: Row(

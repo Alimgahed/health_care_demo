@@ -74,7 +74,7 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
                   },
                   secondary: CircleAvatar(
                     backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                    child: const Icon(LucideIcons.activity, color: AppColors.primary),
+                    child: Icon(LucideIcons.activity, color: AppColors.primary),
                   ),
                   title: Text(isAr ? ex.nameAr : ex.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(
@@ -95,7 +95,7 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
         ),
         Container(
           padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(top: BorderSide(color: AppColors.border)),
           ),
           child: Row(

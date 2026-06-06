@@ -45,9 +45,9 @@ class PatientProfileScreen extends StatelessWidget {
           backgroundColor: AppColors.primary,
           child: Text(
             patient.getLocalizedFullName(context).substring(0, 2).toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
-              color: Colors.white,
+              color: AppColors.surface,
               fontWeight: FontWeight.bold,
             ),
           ),

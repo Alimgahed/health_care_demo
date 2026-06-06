@@ -124,7 +124,7 @@ class _CustomToastState extends State<CustomToast>
           width: 380,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: widget.color.withOpacity(0.2)),
             boxShadow: [
@@ -154,16 +154,16 @@ class _CustomToastState extends State<CustomToast>
                   children: [
                     Text(
                       widget.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: AppColors.navy,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       widget.message,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
                         height: 1.4,
@@ -176,7 +176,7 @@ class _CustomToastState extends State<CustomToast>
               IconButton(
                 constraints: const BoxConstraints(),
                 padding: EdgeInsets.zero,
-                icon: const Icon(Icons.close, size: 16, color: AppColors.textSecondary),
+                icon: Icon(Icons.close, size: 16, color: AppColors.textSecondary),
                 onPressed: () {
                   _controller.reverse().then((_) => widget.onDismiss());
                 },

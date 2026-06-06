@@ -986,9 +986,12 @@ class MockData {
       'Saeed Al Maktoum', 'Omar Al Suwaidi', 'Tariq Al Jaber', 'Hamdan Al Kaabi',
       'Yousef Al Shehhi', 'Adnan Al Mazrouei', 'Saif Al Hameli', 'Majid Al Ghurair',
       'Ali Al Naboodah', 'Marwan Al Tayer', 'Salem Al Sayegh', 'Waleed Al Gurg',
-      'Michael Smith', 'David Jones', 'James Wilson', 'Jean Martin', 'Omar Farooq',
-      'Priya Kumar', 'Wong Wei', 'Vikram Patel', 'Siddharth Sharma', 'Amir Khan',
-      'Robert Miller', 'James Taylor', 'William Davis', 'Alexander Brown', 'Thomas Wilson'
+      'Hassan Ibrahim', 'Mahmoud Ali', 'Yasser Saeed', 'Kareem Abdelrahman', 'Tariq Hussein',
+      'Ziad Khoury', 'Marwan Haddad', 'Wael Nasser', 'Fares Mansour', 'Ramy Abboud',
+      'Assi El Zein', 'Melhem Karam', 'Saber Rebai', 'George Saliba', 'Kazem Al Ali',
+      'Majid Al Mohandis', 'Rashed Al Majed', 'Abdul Majeed', 'Hussein Al Jasmi', 'Fahad Al Kubaisi',
+      'Nabeel Shuail', 'Abdullah Al Ruwaished', 'Mohammed Abdu', 'Talal Maddah', 'Ayman Zidan',
+      'Bassam Kousa', 'Jamal Suliman', 'Tim Hassan', 'Samer Al Masri', 'Qusai Khouli'
     ];
     final List<String> maleNamesAr = [
       'أحمد المنصوري', 'خالد الهاشمي', 'زايد آل نهيان', 'سلطان القاسمي',
@@ -996,41 +999,50 @@ class MockData {
       'سعيد آل مكتوم', 'عمر السويدي', 'طارق الجابر', 'حمدان الكعبي',
       'يوسف الشحي', 'عدنان المزروعي', 'سيف الهاملي', 'ماجد الغرير',
       'علي النابودة', 'مروان الطاير', 'سالم الصايغ', 'وليد القرق',
-      'مايكل سميث', 'ديفيد جونز', 'جون دو', 'جان دوبونت', 'عمر فاروق',
-      'بريا كومار', 'ونغ وي', 'فيكرام باتيل', 'سيدهارث شارما', 'أمير خان',
-      'روبرت ميلر', 'جيمس تايلور', 'ويليام ديفيس', 'ألكسندر براون', 'توماس ويلسون'
+      'حسن إبراهيم', 'محمود علي', 'ياسر سعيد', 'كريم عبدالرحمن', 'طارق حسين',
+      'زياد خوري', 'مروان حداد', 'وائل ناصر', 'فارس منصور', 'رامي عبود',
+      'عاصي الزين', 'ملحم كرم', 'صابر الرباعي', 'جورج صليبا', 'كاظم العلي',
+      'ماجد المهندس', 'راشد الماجد', 'عبدالمجيد', 'حسين الجسمي', 'فهد الكبيسي',
+      'نبيل شعيل', 'عبدالله الرويشد', 'محمد عبده', 'طلال مداح', 'أيمن زيدان',
+      'بسام كوسا', 'جمال سليمان', 'تيم حسن', 'سامر المصري', 'قصي خولي'
     ];
 
     final List<String> femaleNames = [
-      'Sarah Johnson', 'Fatima Al Qasimi', 'Mariam Al Kaabi', 'Shamma Al Maktoum',
+      'Sarah Yousef', 'Fatima Al Qasimi', 'Mariam Al Kaabi', 'Shamma Al Maktoum',
       'Amna Al Shehhi', 'Reem Al Hashimi', 'Maitha Al Falasi', 'Latifa Al Maktoum',
       'Muna Al Shamsi', 'Hessa Al Suwaidi', 'Aisha Al Jaber', 'Noora Al Mansoori',
       'Salama Al Ketbi', 'Hind Al Mazrouei', 'Jawahir Al Qasimi', 'Rawda Al Hameli',
       'Shaikha Al Tayer', 'Moza Al Naboodah', 'Alia Al Sayegh', 'Budoor Al Gurg',
-      'Emily Carter', 'Emma Watson', 'Elena Petrova', 'Sophia Müller', 'Fatima Rahman',
-      'Deepika Sharma', 'Mei Ling', 'Aisha Farooq', 'Yasmin Zayed', 'Layla Kanaan',
-      'Olivia Martinez', 'Isabella Anderson', 'Mia Thomas', 'Charlotte White', 'Amelia Taylor'
+      'Laila Ali', 'Mona Zaki', 'Hend Rostom', 'Faten Hamama', 'Soad Hosny',
+      'Nadia Lutfi', 'Shadia', 'Sabah', 'Fayrouz', 'Umm Kulthum',
+      'Nancy Ajram', 'Elissa', 'Haifa Wehbe', 'Najwa Karam', 'Nawal El Zoghbi',
+      'Diana Haddad', 'Carole Samaha', 'Myriam Fares', 'Yara', 'Maya Diab',
+      'Assala Nasri', 'Sherine Abdel Wahab', 'Angham', 'Samira Said', 'Latifa',
+      'Ahlam', 'Nawal Al Kuwaitia', 'Balqees', 'Dalia', 'Youssra'
     ];
     final List<String> femaleNamesAr = [
-      'سارة جونسون', 'فاطمة القاسمي', 'مريم الكعبي', 'شمة آل مكتوم',
+      'سارة يوسف', 'فاطمة القاسمي', 'مريم الكعبي', 'شمة آل مكتوم',
       'آمنة الشحي', 'ريم الهاشمي', 'ميثاء الفلاسي', 'لطيفة آل مكتوم',
       'منى الشامسي', 'حصة السويدي', 'عائشة الجابر', 'نورة المنصوري',
       'سلامة الكتبي', 'هند المزروعي', 'جواهر القاسمي', 'روضة الهاملي',
       'شيخة الطاير', 'موزة النابودة', 'عليا الصايغ', 'بدور القرق',
-      'سارة كونور', 'إيما واتسون', 'إيلينا بتروفا', 'صوفيا مولر', 'فاطمة رحمن',
-      'ديبيكا شارما', 'مي لينغ', 'عائشة فاروق', 'ياسمين زايد', 'ليلى كنعان',
-      'أوليفيا مارتينيز', 'إيزابيلا أندرسون', 'ميا توماس', 'شارلوت وايت', 'أميليا تايلور'
+      'ليلى علي', 'منى زكي', 'هند رستم', 'فاتن حمامة', 'سعاد حسني',
+      'نادية لطفي', 'شادية', 'صباح', 'فيروز', 'أم كلثوم',
+      'نانسي عجرم', 'إليسا', 'هيفاء وهبي', 'نجوى كرم', 'نوال الزغبي',
+      'ديانا حداد', 'كارول سماحة', 'ميريام فارس', 'يارا', 'مايا دياب',
+      'أصالة نصري', 'شيرين عبدالوهاب', 'أنغام', 'سميرة سعيد', 'لطيفة',
+      'أحلام', 'نوال الكويتية', 'بلقيس', 'داليا', 'يسرا'
     ];
 
     final List<String> nationalities = [
-      'United Arab Emirates', 'United Kingdom', 'United States', 'India', 'Pakistan',
-      'Egypt', 'Saudi Arabia', 'Jordan', 'Lebanon', 'Canada', 'France', 'Germany',
-      'China', 'Philippines', 'South Africa'
+      'United Arab Emirates', 'Egypt', 'Saudi Arabia', 'Jordan', 'Lebanon',
+      'Syria', 'Palestine', 'Oman', 'Kuwait', 'Bahrain', 'Qatar',
+      'Morocco', 'Algeria', 'Tunisia', 'Sudan'
     ];
     final List<String> nationalitiesAr = [
-      'الإمارات العربية المتحدة', 'المملكة المتحدة', 'الولايات المتحدة', 'الهند', 'باكستان',
-      'مصر', 'المملكة العربية السعودية', 'الأردن', 'لبنان', 'كندا', 'فرنسا', 'ألمانيا',
-      'الصين', 'الفلبين', 'جنوب أفريقيا'
+      'الإمارات العربية المتحدة', 'مصر', 'المملكة العربية السعودية', 'الأردن', 'لبنان',
+      'سوريا', 'فلسطين', 'عمان', 'الكويت', 'البحرين', 'قطر',
+      'المغرب', 'الجزائر', 'تونس', 'السودان'
     ];
 
     final List<String> conditions = [
@@ -1092,10 +1104,10 @@ class MockData {
       Patient(
         id: 'P002',
         emiratesId: '784-1992-7654321-2',
-        fullName: 'Sarah Johnson',
-        fullNameAr: 'سارة جونسون',
-        nationality: 'United Kingdom',
-        nationalityAr: 'المملكة المتحدة',
+        fullName: 'Sarah Yousef',
+        fullNameAr: 'سارة يوسف',
+        nationality: 'Egypt',
+        nationalityAr: 'مصر',
         residencyStatus: ResidencyStatus.resident,
         age: 34,
         gender: 'Female',
@@ -1124,11 +1136,11 @@ class MockData {
       Patient(
         id: 'P003',
         emiratesId: '784-1985-9876543-3',
-        fullName: 'Michael Smith',
-        fullNameAr: 'مايكل سميث',
-        nationality: 'United States',
-        nationalityAr: 'الولايات المتحدة',
-        residencyStatus: ResidencyStatus.visitor,
+        fullName: 'Mahmoud Ibrahim',
+        fullNameAr: 'محمود إبراهيم',
+        nationality: 'Jordan',
+        nationalityAr: 'الأردن',
+        residencyStatus: ResidencyStatus.resident,
         age: 41,
         gender: 'Male',
         genderAr: 'ذكر',
@@ -1210,18 +1222,25 @@ class MockData {
       ),
     );
 
+    int maleIndex = 0;
+    int femaleIndex = 0;
+
     for (int i = 6; i <= 50; i++) {
       final gender = rand.nextBool() ? 'Male' : 'Female';
-      final namePool = gender == 'Male' ? maleNames : femaleNames;
-      final namePoolAr = gender == 'Male' ? maleNamesAr : femaleNamesAr;
-      final nameIdx = rand.nextInt(namePool.length);
-      final name = namePool[nameIdx];
-      final nameAr = namePoolAr[nameIdx];
+      String name, nameAr;
       
-      final suffixAscii = 65 + rand.nextInt(26);
-      final suffixAr = String.fromCharCode(1575 + rand.nextInt(28)); // Random Arabic letter
-      final uniqueName = '$name ${String.fromCharCode(suffixAscii)}.';
-      final uniqueNameAr = '$nameAr ($suffixAr)';
+      if (gender == 'Male') {
+        name = maleNames[maleIndex % maleNames.length];
+        nameAr = maleNamesAr[maleIndex % maleNamesAr.length];
+        maleIndex++;
+      } else {
+        name = femaleNames[femaleIndex % femaleNames.length];
+        nameAr = femaleNamesAr[femaleIndex % femaleNamesAr.length];
+        femaleIndex++;
+      }
+      
+      final uniqueName = name;
+      final uniqueNameAr = nameAr;
       
       final natIdx = rand.nextInt(10) < 6 ? 0 : rand.nextInt(nationalities.length);
       final nationality = nationalities[natIdx];

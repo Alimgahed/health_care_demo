@@ -78,7 +78,7 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
       case 3: appBarTitle = context.tr('nav_clinical_ops'); break;
       case 4: appBarTitle = context.tr('nav_inventory'); break;
       case 5: appBarTitle = context.tr('nav_fraud_log'); break;
-      case 6: appBarTitle = context.tr('system_audit_log') == 'system_audit_log' ? 'سجل النظام' : context.tr('system_audit_log'); break;
+      case 6: appBarTitle = context.tr('system_audit_log'); break;
     }
 
     final totalLogs = Provider.of<DataProvider>(context).logs.length;
@@ -88,8 +88,8 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(appBarTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.navy,
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.textPrimary,
         elevation: 1,
         actions: [
           IconButton(
@@ -122,7 +122,7 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                     Expanded(
                       child: Text(
                         context.tr('app_title'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -132,7 +132,7 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                   ],
                 ),
               ),
-              const Divider(color: Colors.white24, height: 1),
+              Divider(color: AppColors.surface24, height: 1),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -148,14 +148,14 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                     const SizedBox(height: 16),
                     _buildDrawerSectionTitle(context.tr('nav_section_administration')),
                     _buildDrawerItem(LucideIcons.shieldAlert, context.tr('nav_fraud_log'), 5, totalLogs),
-                    _buildDrawerItem(LucideIcons.activitySquare, context.tr('system_audit_log') == 'system_audit_log' ? 'سجل النظام' : context.tr('system_audit_log'), 6, totalLogs, badgeCount: unreadLogs),
+                    _buildDrawerItem(LucideIcons.activitySquare, context.tr('system_audit_log'), 6, totalLogs, badgeCount: unreadLogs),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.white12)),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: AppColors.surface12)),
                 ),
                 child: Row(
                   children: [

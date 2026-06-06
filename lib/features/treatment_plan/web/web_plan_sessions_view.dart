@@ -51,10 +51,10 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
             Container(
               width: 80, height: 80,
               decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: const Icon(LucideIcons.calendarX2, size: 36, color: AppColors.primary),
+              child: Icon(LucideIcons.calendarX2, size: 36, color: AppColors.primary),
             ),
             const SizedBox(height: 16),
-            Text(context.tr('no_treatment_plan_mobile') ?? 'No Plan', style: const TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+            Text(context.tr('no_treatment_plan_mobile') ?? 'No Plan', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
           ],
         ),
       );
@@ -140,14 +140,14 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(LucideIcons.calendarDays, color: AppColors.primary, size: 24),
+              child: Icon(LucideIcons.calendarDays, color: AppColors.primary, size: 24),
             ),
             const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(context.tr('nav_sessions') ?? 'Sessions', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-                const Text('Track your therapy journey', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                Text('Track your therapy journey', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
               ],
             ),
             const Spacer(),
@@ -156,9 +156,9 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
               decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(20)),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.checkCircle2, color: AppColors.primary, size: 18),
+                  Icon(LucideIcons.checkCircle2, color: AppColors.primary, size: 18),
                   const SizedBox(width: 8),
-                  Text('$attended of ${plan.totalSessions} Sessions', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                  Text('$attended of ${plan.totalSessions} Sessions', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
                 ],
               ),
             ),
@@ -170,7 +170,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: AppColors.border,
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
             minHeight: 8,
           ),
         ),
@@ -223,7 +223,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
             ],
           ),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          Text(label, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -234,13 +234,13 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 24, offset: const Offset(0, 10))],
+        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 24, offset: Offset(0, 10))],
       ),
       child: Stack(
         children: [
-          Positioned(right: -30, top: -30, child: Container(width: 140, height: 140, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.08)))),
+          Positioned(right: -30, top: -30, child: Container(width: 140, height: 140, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.surface.withValues(alpha: 0.08)))),
           Padding(
             padding: const EdgeInsets.all(28),
             child: Column(
@@ -250,7 +250,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(14)),
+                      decoration: BoxDecoration(color: AppColors.surface.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(14)),
                       child: const Icon(LucideIcons.calendarCheck, color: Colors.white, size: 24),
                     ),
                     const SizedBox(width: 16),
@@ -269,7 +269,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
                 const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
+                  decoration: BoxDecoration(color: AppColors.surface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
                   child: Column(
                     children: [
                       _buildHeroInfoRow(LucideIcons.calendar, 'Date', '${upcomingSession.scheduledDate.day}/${upcomingSession.scheduledDate.month}/${upcomingSession.scheduledDate.year}'),
@@ -294,7 +294,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
                     icon: Icon(isCompleted ? LucideIcons.checkCircle : LucideIcons.logIn, size: 18),
                     label: Text(isCompleted ? 'Completed' : (context.tr('session_checkin') ?? 'Check-in'), style: const TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.background,
                       foregroundColor: AppColors.primary,
                       disabledBackgroundColor: Colors.white24,
                       disabledForegroundColor: Colors.white54,
@@ -336,7 +336,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
         children: [
           Container(
             width: 64, height: 64,
-            decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppColors.accent, AppColors.accentLight]), borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [AppColors.accent, AppColors.accentLight]), borderRadius: BorderRadius.circular(16)),
             child: const Icon(LucideIcons.flame, color: Colors.white, size: 30),
           ),
           const SizedBox(width: 20),
@@ -344,7 +344,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Current Streak', style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+                Text('Current Streak', style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
                 const SizedBox(height: 4),
                 Text('$attended Sessions in a row', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
               ],
@@ -422,7 +422,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
                       children: [
                         Text('Session ${session.sessionNumber}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
                         const SizedBox(height: 4),
-                        Text('${session.scheduledDate.day}/${session.scheduledDate.month}/${session.scheduledDate.year}', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                        Text('${session.scheduledDate.day}/${session.scheduledDate.month}/${session.scheduledDate.year}', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -430,15 +430,15 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                      child: Text('${session.weightAfter} kg', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13)),
+                      child: Text('${session.weightAfter} kg', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13)),
                     ),
                 ],
               ),
               const Spacer(),
               if (isAttended)
-                const Text('Tap to view details →', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.bold))
+                Text('Tap to view details →', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.bold))
               else
-                const Text('Upcoming appointment', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text('Upcoming appointment', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
             ],
           ),
         ),
@@ -466,13 +466,13 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
               const SizedBox(height: 24),
               Row(
                 children: [
-                  Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.15), shape: BoxShape.circle), child: const Icon(LucideIcons.checkCircle2, color: AppColors.success, size: 28)),
+                  Container(padding: EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.15), shape: BoxShape.circle), child: Icon(LucideIcons.checkCircle2, color: AppColors.success, size: 28)),
                   const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Session ${session.sessionNumber} Details', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                      Text('${session.scheduledDate.day}/${session.scheduledDate.month}/${session.scheduledDate.year}', style: const TextStyle(color: AppColors.textSecondary)),
+                      Text('${session.scheduledDate.day}/${session.scheduledDate.month}/${session.scheduledDate.year}', style: TextStyle(color: AppColors.textSecondary)),
                     ],
                   ),
                 ],
@@ -497,7 +497,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, padding: EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                   child: const Text('Close Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
               ),
@@ -519,8 +519,8 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-              Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
+              Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
             ],
           ),
         ],

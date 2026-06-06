@@ -1,11 +1,11 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
-import '../../patient_app/medication_order/medication_order_wizard.dart' as mounjaro_demo;
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/localization/l10n_extension.dart';
+
 import '../../../../core/constants/mock_data.dart';
+import '../../../../core/localization/l10n_extension.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../patient_app/medication_order/medication_order_wizard.dart' as mounjaro_demo;
 
 class WebPlanMedicationView extends StatefulWidget {
   final Patient patient;
@@ -41,7 +41,7 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
     final plan = dataProvider.getPlanForPatient(widget.patient.id);
 
     if (plan == null) {
-      return const Center(child: Text('No Medication Plan', style: TextStyle(color: AppColors.textSecondary, fontSize: 18)));
+      return Center(child: Text('No Medication Plan', style: TextStyle(color: AppColors.textSecondary, fontSize: 18)));
     }
 
     return SingleChildScrollView(
@@ -107,14 +107,14 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(LucideIcons.syringe, color: AppColors.primary, size: 24),
+              child: Icon(LucideIcons.syringe, color: AppColors.primary, size: 24),
             ),
             const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.tr('nav_medication') ?? 'Medication', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-                const Text('Mounjaro (Tirzepatide) — Weekly Injection', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                Text(context.tr('nav_medication'), style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                Text('Mounjaro (Tirzepatide) — Weekly Injection', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
               ],
             ),
           ],
@@ -124,9 +124,9 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
           decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.primary.withValues(alpha: 0.2))),
           child: Row(
             children: [
-              const Icon(LucideIcons.pill, size: 16, color: AppColors.primary),
+              Icon(LucideIcons.pill, size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
-              Text(plan.medicationDose ?? '5 mg', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
+              Text(plan.medicationDose ?? '5 mg', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
             ],
           ),
         ),
@@ -137,13 +137,13 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
   Widget _buildNextDoseHeroCard(BuildContext context, dynamic plan) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 24, offset: const Offset(0, 10))],
+        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 24, offset: Offset(0, 10))],
       ),
       child: Stack(
         children: [
-          Positioned(right: -20, top: -20, child: Container(width: 130, height: 130, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.06)))),
+          Positioned(right: -20, top: -20, child: Container(width: 130, height: 130, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.surface.withValues(alpha: 0.06)))),
           Positioned(left: -10, bottom: -30, child: Container(width: 100, height: 100, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.accent.withValues(alpha: 0.12)))),
           Padding(
             padding: const EdgeInsets.all(32),
@@ -158,7 +158,7 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
                         return Stack(
                           alignment: Alignment.center,
                           children: [
-                            Container(width: 70 + (_pulseAnimation.value * 12), height: 70 + (_pulseAnimation.value * 12), decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.06 * (1 - _pulseAnimation.value)))),
+                            Container(width: 70 + (_pulseAnimation.value * 12), height: 70 + (_pulseAnimation.value * 12), decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.surface.withValues(alpha: 0.06 * (1 - _pulseAnimation.value)))),
                             Container(width: 64, height: 64, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.15)), child: const Icon(LucideIcons.syringe, color: Colors.white, size: 28)),
                           ],
                         );
@@ -176,7 +176,7 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(color: AppColors.accent.withValues(alpha: 0.25), borderRadius: BorderRadius.circular(10)),
-                            child: const Text('Thursday, Jun 12', style: TextStyle(color: AppColors.accentLight, fontSize: 12, fontWeight: FontWeight.bold)),
+                            child: Text('Thursday, Jun 12', style: TextStyle(color: AppColors.accentLight, fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
@@ -197,7 +197,7 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
                             Container(
                               height: 6,
                               decoration: BoxDecoration(
-                                color: isPast ? Colors.white.withValues(alpha: 0.9) : (isToday ? AppColors.accent : (isNext ? AppColors.accent.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.2))),
+                                color: isPast ? AppColors.surface.withValues(alpha: 0.9) : (isToday ? AppColors.accent : (isNext ? AppColors.accent.withValues(alpha: 0.5) : AppColors.surface.withValues(alpha: 0.2))),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),
@@ -271,7 +271,7 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                child: const Text('Excellent', style: TextStyle(fontSize: 12, color: AppColors.success, fontWeight: FontWeight.bold)),
+                child: Text('Excellent', style: TextStyle(fontSize: 12, color: AppColors.success, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -296,10 +296,10 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
                       Container(
                         height: 40,
                         decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.success.withValues(alpha: 0.3))),
-                        child: const Center(child: Icon(LucideIcons.check, size: 16, color: AppColors.success)),
+                        child: Center(child: Icon(LucideIcons.check, size: 16, color: AppColors.success)),
                       ),
                       const SizedBox(height: 6),
-                      Text('Wk ${week + 1}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                      Text('Wk ${week + 1}', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -317,7 +317,7 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
         Icon(icon, size: 20, color: color),
         const SizedBox(height: 8),
         Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, letterSpacing: -0.5)),
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
+        Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
       ],
     );
   }
@@ -334,7 +334,7 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(color: AppColors.accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
-                child: const Icon(LucideIcons.info, size: 20, color: AppColors.accent),
+                child: Icon(LucideIcons.info, size: 20, color: AppColors.accent),
               ),
               const SizedBox(width: 12),
               Text('Dosage Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
@@ -349,22 +349,23 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
           const Divider(height: 24),
           _buildInfoRow(LucideIcons.mapPin, 'Injection Site', 'Abdomen / Thigh / Arm', color: AppColors.success),
           const Divider(height: 24),
-          _buildInfoRow(LucideIcons.thermometer, 'Storage', '2°C – 8°C (Refrigerated)', color: AppColors.navy),
+          _buildInfoRow(LucideIcons.thermometer, 'Storage', '2°C – 8°C (Refrigerated)', color: AppColors.textPrimary),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, {Color color = AppColors.primary}) {
+  Widget _buildInfoRow(IconData icon, String label, String value, {Color? color}) {
+    final colorValue = color ?? AppColors.primary;
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-          child: Icon(icon, size: 16, color: color),
+          decoration: BoxDecoration(color: colorValue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, size: 16, color: colorValue),
         ),
         const SizedBox(width: 14),
-        Expanded(child: Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14))),
+        Expanded(child: Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14))),
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
       ],
     );
@@ -413,13 +414,13 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-        child: const Text('Schedule list goes here', style: TextStyle(color: AppColors.textSecondary)),
+        child: Text('Schedule list goes here', style: TextStyle(color: AppColors.textSecondary)),
       );
     } else {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-        child: const Text('Side effects guide goes here', style: TextStyle(color: AppColors.textSecondary)),
+        child: Text('Side effects guide goes here', style: TextStyle(color: AppColors.textSecondary)),
       );
     }
   }
@@ -430,7 +431,7 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
         Container(
           width: 40, height: 40,
           decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.15), shape: BoxShape.circle),
-          child: const Icon(LucideIcons.check, color: AppColors.success, size: 20),
+          child: Icon(LucideIcons.check, color: AppColors.success, size: 20),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -438,15 +439,15 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(week, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              Text(date, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              Text(date, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
             ],
           ),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(dose, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 14)),
-            Text(site, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+            Text(dose, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 14)),
+            Text(site, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
           ],
         ),
       ],
@@ -466,10 +467,10 @@ class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with Tick
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(14)),
-                child: const Icon(LucideIcons.package, color: AppColors.warning, size: 24),
+                child: Icon(LucideIcons.package, color: AppColors.warning, size: 24),
               ),
               const SizedBox(width: 16),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Medication Refill Status', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),

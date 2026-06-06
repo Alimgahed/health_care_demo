@@ -137,7 +137,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
             children: [
               Text(
                 greeting,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
@@ -192,7 +192,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       decoration: BoxDecoration(
-        color: _injectionDone ? const Color(0xFF059669) : AppColors.primaryDark,
+        color: _injectionDone ? Color(0xFF059669) : AppColors.primaryDark,
         image: const DecorationImage(
           image: AssetImage('assets/illustrations/dashboard_hero.png'),
           fit: BoxFit.cover,
@@ -222,7 +222,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.surface.withValues(alpha: 0.05),
               ),
             ),
           ),
@@ -234,7 +234,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.surface.withValues(alpha: 0.05),
               ),
             ),
           ),
@@ -253,24 +253,24 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: AppColors.surface.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             LucideIcons.syringe,
                             size: 14,
-                            color: Colors.white,
+                            color: AppColors.surface,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             context.tr('prescribed_dose_line', {
                               'dose': patient.currentDose,
                             }),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: AppColors.surface,
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                             ),
@@ -284,13 +284,13 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: AppColors.surface.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         _injectionDone ? context.tr('app_injection_done_label') : context.tr('app_injection_days_left').replaceAll('{days}', '$days'),
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: AppColors.surface,
                           fontWeight: FontWeight.w600,
                           fontSize: 12,
                         ),
@@ -303,8 +303,8 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                   _injectionDone
                       ? context.tr('app_injection_success_msg')
                       : context.tr('next_injection_reminder'),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: AppColors.surface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.3,
@@ -316,7 +316,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                       ? context.tr('app_injection_keep_up')
                       : context.tr('app_injection_reminder'),
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
+                    color: AppColors.surface.withValues(alpha: 0.8),
                     fontSize: 13,
                   ),
                 ),
@@ -341,7 +341,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
                       color: _injectionDone
-                          ? Colors.white.withValues(alpha: 0.25)
+                          ? AppColors.surface.withValues(alpha: 0.25)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -469,7 +469,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
             const SizedBox(height: 2),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 color: AppColors.textSecondary,
                 fontWeight: FontWeight.w500,
@@ -510,7 +510,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: AppColors.surface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Icon(LucideIcons.shoppingBag, color: Colors.white),
@@ -522,8 +522,8 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                 children: [
                   Text(
                     context.tr('dashboard_request_med_now'),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: AppColors.surface,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -532,7 +532,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                   Text(
                     context.tr('dashboard_request_med_desc'),
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: AppColors.surface.withValues(alpha: 0.8),
                       fontSize: 13,
                     ),
                   ),
@@ -587,7 +587,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                   const SizedBox(height: 4),
                   Text(
                     context.tr('app_goal_label').replaceAll('{target}', targetWeight.toStringAsFixed(1)).replaceAll('{current}', patient.weight.toStringAsFixed(1)),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                     ),
@@ -615,11 +615,11 @@ class _PatientAppScreenState extends State<PatientAppScreen>
             children: [
               Text(
                 context.tr('dashboard_completed_pct'),
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
               ),
               Text(
                 context.tr('dashboard_remaining_kg').replaceAll('{kg}', remainingKg.toStringAsFixed(1)),
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
               ),
             ],
           ),
@@ -687,7 +687,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                   const SizedBox(height: 4),
                   Text(
                     context.tr('weight_journey_sub'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                     ),
@@ -703,7 +703,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
+                child: Text(
                   '6 أشهر',
                   style: TextStyle(
                     color: AppColors.primary,
@@ -746,7 +746,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                             idx % 2 == 0) {
                           return Text(
                             context.tr('check_reading', {'n': '${idx + 1}'}),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
                               color: AppColors.textSecondary,
                             ),
@@ -763,7 +763,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
                             color: AppColors.textSecondary,
                           ),
@@ -792,7 +792,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                       getDotPainter: (spot, percent, bar, index) =>
                           FlDotCirclePainter(
                             radius: 4,
-                            color: Colors.white,
+                            color: AppColors.surface,
                             strokeWidth: 2,
                             strokeColor: AppColors.primary,
                           ),
@@ -888,11 +888,11 @@ class _PatientAppScreenState extends State<PatientAppScreen>
       ),
       child: Row(
         children: [
-          const Icon(LucideIcons.checkCircle, color: AppColors.success),
+          Icon(LucideIcons.checkCircle, color: AppColors.success),
           const SizedBox(width: 12),
           Text(
             context.tr('app_no_exercises_today'),
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -946,7 +946,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                 const SizedBox(height: 3),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -987,12 +987,12 @@ class _PatientAppScreenState extends State<PatientAppScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: AppColors.surface.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               LucideIcons.calendar,
-              color: Colors.white,
+              color: AppColors.surface,
               size: 18,
             ),
           ),
@@ -1003,8 +1003,8 @@ class _PatientAppScreenState extends State<PatientAppScreen>
               children: [
                 Text(
                   '${context.tr('dashboard_upcoming_session')}: ${upcoming.sessionNumber}',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: AppColors.surface,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
@@ -1012,7 +1012,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                 Text(
                   '${upcoming.scheduledDate.day}/${upcoming.scheduledDate.month}/${upcoming.scheduledDate.year}',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: AppColors.surface.withValues(alpha: 0.7),
                     fontSize: 12,
                   ),
                 ),
@@ -1116,7 +1116,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 11,
               ),
@@ -1132,7 +1132,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border),
         boxShadow: [
@@ -1154,14 +1154,14 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                   color: Colors.black.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(LucideIcons.watch, color: Colors.black, size: 28),
+                child: Icon(LucideIcons.watch, color: AppColors.textPrimary, size: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Apple Watch متصلة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy)),
+                    Text('Apple Watch متصلة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary)),
                     const SizedBox(height: 4),
                     Row(
                       children: [
@@ -1174,7 +1174,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Text('${context.tr('watch_live_sync')} ${context.tr('watch_synced_ago')}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                        Text('${context.tr('watch_live_sync')} ${context.tr('watch_synced_ago')}', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                       ],
                     ),
                   ],
@@ -1182,11 +1182,11 @@ class _PatientAppScreenState extends State<PatientAppScreen>
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(LucideIcons.refreshCw, size: 20, color: AppColors.primary),
+                icon: Icon(LucideIcons.refreshCw, size: 20, color: AppColors.primary),
               ),
             ],
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Divider(color: AppColors.border),
           ),
@@ -1232,12 +1232,12 @@ class _PatientAppScreenState extends State<PatientAppScreen>
             ),
             child: Row(
               children: [
-                const Icon(LucideIcons.info, color: AppColors.primary, size: 16),
+                Icon(LucideIcons.info, color: AppColors.primary, size: 16),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     context.tr('watch_activity_tip'),
-                    style: const TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -1258,13 +1258,13 @@ class _PatientAppScreenState extends State<PatientAppScreen>
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.navy)),
+            Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.textPrimary)),
             const SizedBox(width: 2),
-            Text(unit, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+            Text(unit, style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
           ],
         ),
         const SizedBox(height: 2),
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+        Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
       ],
     );
   }

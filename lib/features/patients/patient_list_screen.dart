@@ -93,7 +93,7 @@ class _PatientListScreenState extends State<PatientListScreen> {
                             backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                             child: Text(
                               patient.getLocalizedFullName(context).substring(0, 1).toUpperCase(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.bold,
                               ),

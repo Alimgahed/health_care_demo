@@ -1,3 +1,7 @@
+import '../admin_views/alert_os_dashboard.dart';
+import 'dart:async';
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -9,7 +13,9 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_provider.dart';
 import '../../auth/login_screen.dart';
+import '../admin_views/activity_feed_ticker.dart';
 import '../admin_views/regional_analytics.dart';
 import '../admin_views/system_audit_log_view.dart';
 import '../program_alerts.dart';
@@ -48,10 +54,22 @@ class _WebAdminShellState extends State<WebAdminShell> {
     if (_selectedIndex == index) return;
     setState(() {
       _selectedIndex = index;
-      if (index == 11) {
+      if (index == 13) {
         _lastSeenLogsCount = totalLogs;
       }
     });
+  }
+
+  void _navigateAlertSection(AlertOSSection section, int totalLogs) {
+    _navigate(alertOSSectionNavIndex(section), totalLogs);
+  }
+
+  Widget _buildAlertOSView(int totalLogs) {
+    final section = alertOSSectionFromNavIndex(_selectedIndex) ?? AlertOSSection.overview;
+    return AlertOSDashboard(
+      section: section,
+      onSectionNavigate: (s) => _navigateAlertSection(s, totalLogs),
+    );
   }
 
   @override
@@ -102,7 +120,14 @@ class _WebAdminShellState extends State<WebAdminShell> {
                         MaterialPageRoute(builder: (_) => const LoginScreen()),
                       ),
                     ),
-                    Expanded(child: _buildBody(t)),
+                    Expanded(
+                      child: Consumer<DataProvider>(
+                        builder: (context, dp, _) {
+                          final totalLogs = dp.logs.length;
+                          return _buildBody(t, totalLogs);
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -113,7 +138,7 @@ class _WebAdminShellState extends State<WebAdminShell> {
     );
   }
 
-  Widget _buildBody(AppLocalizations t) {
+  Widget _buildBody(AppLocalizations t, int totalLogs) {
     switch (_selectedIndex) {
       case 0:
         return _OverviewDashboard(t: t);
@@ -124,20 +149,22 @@ class _WebAdminShellState extends State<WebAdminShell> {
       case 3:
         return InventoryView();
       case 4:
-        return _AiAlertsFullView(t: t);
       case 5:
-        return _FraudAuditView(t: t);
       case 6:
-        return const RegionalAnalytics();
+        return _buildAlertOSView(totalLogs);
       case 7:
-        return const WebDoctorShell(embeddedInAdmin: true);
+        return _FraudAuditView(t: t);
       case 8:
-        return const WebCenterShell(embeddedInAdmin: true);
+        return const RegionalAnalytics();
       case 9:
-        return _ManageDoctorsView(t: t);
+        return const WebDoctorShell(embeddedInAdmin: true);
       case 10:
-        return _ManageCentersView(t: t);
+        return const WebCenterShell(embeddedInAdmin: true);
       case 11:
+        return _ManageDoctorsView(t: t);
+      case 12:
+        return _ManageCentersView(t: t);
+      case 13:
         return SystemAuditLogView(t: t);
       default:
         return _OverviewDashboard(t: t);
@@ -194,14 +221,14 @@ class _Sidebar extends StatelessWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryLight],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.health_and_safety,
                     color: Colors.white,
                     size: 22,
@@ -214,7 +241,7 @@ class _Sidebar extends StatelessWidget {
                     children: [
                       Text(
                         context.tr('ncc_brand'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -257,27 +284,40 @@ class _Sidebar extends StatelessWidget {
                   _navItem(
                     LucideIcons.bot,
                     context.tr('nav_ai_alerts'),
-                    4,
+                    kAlertOSNavOverview,
                     badge: alertBadgeCount > 0 ? '$alertBadgeCount' : null,
                     badgeDanger: alertBadgeCount > 0,
+                  ),
+                  _navSubSection(context.tr('alert_os_tools')),
+                  _navItem(
+                    LucideIcons.radio,
+                    context.tr('live_activity_feed'),
+                    kAlertOSNavLiveFeed,
+                    indent: true,
+                  ),
+                  _navItem(
+                    LucideIcons.bot,
+                    context.tr('ai_assistant_title'),
+                    kAlertOSNavAiChat,
+                    indent: true,
                   ),
                   _navItem(
                     LucideIcons.shieldAlert,
                     context.tr('nav_fraud_log'),
-                    5,
+                    kAlertOSNavFraudLog,
                   ),
-                  _navItem(LucideIcons.fileText, context.tr('nav_reports'), 6),
+                  _navItem(LucideIcons.fileText, context.tr('nav_reports'), kAlertOSNavReports),
                   _navSection(context.tr('nav_section_operations')),
                   _navItem(
                     LucideIcons.stethoscope,
                     context.tr('nav_clinical_ops'),
-                    7,
+                    9,
                     badge: pendingAuthCount > 0 ? '$pendingAuthCount' : null,
                   ),
                   _navItem(
                     LucideIcons.pill,
                     context.tr('nav_dispensing_ops'),
-                    8,
+                    10,
                     badge: readyDispenseCount > 0
                         ? '$readyDispenseCount'
                         : null,
@@ -286,17 +326,17 @@ class _Sidebar extends StatelessWidget {
                   _navItem(
                     LucideIcons.stethoscope,
                     context.tr('nav_manage_doctors'),
-                    9,
+                    11,
                   ),
                   _navItem(
                     LucideIcons.building,
                     context.tr('nav_manage_centers'),
-                    10,
+                    12,
                   ),
                   _navItem(
                     LucideIcons.activitySquare,
-                    t.translate('system_audit_log') ?? 'سجل النظام',
-                    11,
+                    t.translate('system_audit_log'),
+                    13,
                     badge: unreadAuditLogsCount > 0
                         ? '$unreadAuditLogsCount'
                         : null,
@@ -327,7 +367,7 @@ class _Sidebar extends StatelessWidget {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'ME',
                       style: TextStyle(
@@ -345,7 +385,7 @@ class _Sidebar extends StatelessWidget {
                     children: [
                       Text(
                         context.tr('ministry_executive_user'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -386,12 +426,27 @@ class _Sidebar extends StatelessWidget {
     );
   }
 
+  Widget _navSubSection(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 8, 4),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.28),
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   Widget _navItem(
     IconData icon,
     String label,
     int index, {
     String? badge,
     bool badgeDanger = false,
+    bool indent = false,
   }) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
@@ -399,7 +454,7 @@ class _Sidebar extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         margin: const EdgeInsets.only(bottom: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: EdgeInsets.fromLTRB(indent ? 22 : 12, 10, 12, 10),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
@@ -409,7 +464,9 @@ class _Sidebar extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : Colors.white.withOpacity(0.55),
+              color: isSelected
+                  ? Colors.white
+                  : Colors.white.withOpacity(0.55),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -469,15 +526,15 @@ class _Topbar extends StatelessWidget {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 28),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: Row(
         children: [
           if (showMenuButton)
             IconButton(
-              icon: const Icon(Icons.menu, color: AppColors.navy),
+              icon: Icon(Icons.menu, color: AppColors.textPrimary),
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           if (showMenuButton) const SizedBox(width: 16),
@@ -487,18 +544,15 @@ class _Topbar extends StatelessWidget {
             children: [
               Text(
                 context.tr('national_command_center'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.navy,
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(
                 '${context.tr('last_synced')}: ${context.tr('today')}, ${_syncTime()} GST',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -510,6 +564,16 @@ class _Topbar extends StatelessWidget {
                 ? context.tr('arabic')
                 : context.tr('english'),
             onTap: localeProvider.toggleLanguage,
+          ),
+          const SizedBox(width: 8),
+          // Theme Toggle
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return _iconBtn(
+                themeProvider.isDarkMode ? LucideIcons.sun : LucideIcons.moon,
+                onTap: themeProvider.toggleTheme,
+              );
+            },
           ),
           const SizedBox(width: 8),
           // Notifications
@@ -536,17 +600,17 @@ class _Topbar extends StatelessWidget {
   }) {
     return OutlinedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 14, color: AppColors.navy),
+      icon: Icon(icon, size: 14, color: AppColors.textPrimary),
       label: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
-          color: AppColors.navy,
+          color: AppColors.textPrimary,
           fontWeight: FontWeight.w600,
         ),
       ),
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.border),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -565,7 +629,7 @@ class _Topbar extends StatelessWidget {
           icon: Icon(icon, size: 18, color: AppColors.textSecondary),
           onPressed: onTap,
           style: IconButton.styleFrom(
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: AppColors.border),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -581,7 +645,7 @@ class _Topbar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.error,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 1.5),
+                border: Border.all(color: AppColors.surface, width: 1.5),
               ),
             ),
           ),
@@ -604,7 +668,7 @@ class _Topbar extends StatelessWidget {
       icon: Icon(icon, size: 14, color: Colors.white),
       label: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           color: Colors.white,
           fontWeight: FontWeight.w700,
@@ -752,6 +816,10 @@ class _OverviewDashboard extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
+              // ── Activity Log (AI Ticker) ──────────────────────────────────
+              const ActivityFeedTicker(),
+              const SizedBox(height: 24),
+
               // ── Main Charts Row ──────────────────────────────────────────────
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -879,7 +947,7 @@ class _OverviewDashboard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    const Text(
+                    Text(
                       '45.2',
                       style: TextStyle(
                         color: Colors.white,
@@ -947,7 +1015,9 @@ class _OverviewDashboard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.1),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -973,7 +1043,9 @@ class _OverviewDashboard extends StatelessWidget {
                   width: 150,
                   child: LinearProgressIndicator(
                     value: 0.22,
-                    backgroundColor: Colors.white.withValues(alpha: 0.1),
+                    backgroundColor: AppColors.background.withValues(
+                      alpha: 0.1,
+                    ),
                     color: AppColors.success,
                     minHeight: 6,
                     borderRadius: BorderRadius.circular(4),
@@ -1046,7 +1118,7 @@ class _KpiCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
@@ -1072,18 +1144,23 @@ class _KpiCard extends StatelessWidget {
                 ),
                 child: Icon(icon, color: accentColor, size: 20),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                decoration: BoxDecoration(
-                  color: trendBg,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  trend,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: trendFg,
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: trendBg,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    trend,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: trendFg,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -1092,17 +1169,17 @@ class _KpiCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: AppColors.navy,
+              color: AppColors.textPrimary,
               letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 3),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
@@ -1137,7 +1214,7 @@ class _ChartCard extends StatelessWidget {
       height: height,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
@@ -1159,17 +1236,17 @@ class _ChartCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.navy,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     if (subtitle != null) ...[
                       const SizedBox(height: 2),
                       Text(
                         subtitle!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
                         ),
@@ -1263,7 +1340,7 @@ class _ObesityLineChart extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(
                         months[i],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
                         ),
@@ -1341,7 +1418,7 @@ class _ObesityLineChart extends StatelessWidget {
 
 Widget _leftTitle(double v, TitleMeta _) => Text(
   v.toStringAsFixed(0),
-  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
 );
 
 class _ConsumptionBarChart extends StatelessWidget {
@@ -1375,7 +1452,7 @@ class _ConsumptionBarChart extends StatelessWidget {
                     getTooltipItem: (group, groupIndex, rod, rodIndex) =>
                         BarTooltipItem(
                           rod.toY.toInt().toString(),
-                          const TextStyle(
+                          TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1400,7 +1477,7 @@ class _ConsumptionBarChart extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 6),
                             child: Text(
                               labels[i],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 color: AppColors.textSecondary,
                               ),
@@ -1502,7 +1579,7 @@ class _DemographicsPieChart extends StatelessWidget {
                     value: cPct,
                     title: '${cPct.toStringAsFixed(0)}%',
                     radius: 44,
-                    titleStyle: const TextStyle(
+                    titleStyle: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: 12,
@@ -1513,7 +1590,7 @@ class _DemographicsPieChart extends StatelessWidget {
                     value: rPct,
                     title: '${rPct.toStringAsFixed(0)}%',
                     radius: 44,
-                    titleStyle: const TextStyle(
+                    titleStyle: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: 12,
@@ -1565,7 +1642,7 @@ class _AdherenceBarChart extends StatelessWidget {
               getTooltipItem: (group, groupIndex, rod, rodIndex) =>
                   BarTooltipItem(
                     '${rod.toY.toStringAsFixed(0)}%',
-                    const TextStyle(
+                    TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1579,7 +1656,7 @@ class _AdherenceBarChart extends StatelessWidget {
                 reservedSize: 36,
                 getTitlesWidget: (v, _) => Text(
                   '${v.toInt()}%',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     color: AppColors.textSecondary,
                   ),
@@ -1597,7 +1674,7 @@ class _AdherenceBarChart extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(
                         labels[i],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
                         ),
@@ -1740,7 +1817,7 @@ class _CenterInventoryTable extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
     child: Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w700,
         color: AppColors.textSecondary,
@@ -1805,7 +1882,7 @@ class _AiAlertsPanel extends StatelessWidget {
               Expanded(
                 child: Text(
                   t.translate('ai_alerts_title'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -1866,7 +1943,7 @@ class _AlertTile extends StatelessWidget {
               children: [
                 Text(
                   data.message,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                     height: 1.45,
@@ -1985,19 +2062,16 @@ class _PatientsViewState extends State<_PatientsView> {
         children: [
           Text(
             context.tr('patient_registry'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: AppColors.navy,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             context.tr('patient_registry_sub'),
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 20),
           // Search + filters
@@ -2011,7 +2085,7 @@ class _PatientsViewState extends State<_PatientsView> {
                   }),
                   decoration: InputDecoration(
                     hintText: context.tr('search_name_or_id'),
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                     ),
@@ -2022,11 +2096,11 @@ class _PatientsViewState extends State<_PatientsView> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     filled: true,
                     fillColor: Colors.white,
@@ -2048,7 +2122,7 @@ class _PatientsViewState extends State<_PatientsView> {
                     selected: _filter == f,
                     selectedColor: AppColors.primary,
                     labelStyle: TextStyle(
-                      color: _filter == f ? Colors.white : AppColors.navy,
+                      color: _filter == f  ? Colors.white : AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -2069,10 +2143,7 @@ class _PatientsViewState extends State<_PatientsView> {
                   'page': '${effectivePage + 1}',
                   'total': '$totalPages',
                 }),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
               const Spacer(),
               IconButton(
@@ -2093,7 +2164,7 @@ class _PatientsViewState extends State<_PatientsView> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.border),
               ),
@@ -2120,12 +2191,12 @@ class _PatientsViewState extends State<_PatientsView> {
                         ],
                       ),
                     ),
-                    const Divider(height: 1, color: AppColors.border),
+                    Divider(height: 1, color: AppColors.border),
                     Expanded(
                       child: ListView.separated(
                         itemCount: pageItems.length,
                         separatorBuilder: (_, __) =>
-                            const Divider(height: 1, color: AppColors.border),
+                            Divider(height: 1, color: AppColors.border),
                         itemBuilder: (context, i) {
                           final p = pageItems[i];
                           final isFlagged = dp.logs.any(
@@ -2146,17 +2217,17 @@ class _PatientsViewState extends State<_PatientsView> {
                                   flex: 2,
                                   child: Text(
                                     p.getLocalizedFullName(context),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 13,
-                                      color: AppColors.navy,
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                 ),
                                 Expanded(
                                   child: Text(
                                     p.id,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondary,
                                     ),
@@ -2165,18 +2236,18 @@ class _PatientsViewState extends State<_PatientsView> {
                                 Expanded(
                                   child: Text(
                                     p.currentDose,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.navy,
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                 ),
                                 Expanded(
                                   child: Text(
                                     p.bmi.toStringAsFixed(1),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.navy,
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -2205,7 +2276,7 @@ class _PatientsViewState extends State<_PatientsView> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(
+                                  icon: Icon(
                                     LucideIcons.fileText,
                                     size: 18,
                                     color: AppColors.textSecondary,
@@ -2255,7 +2326,7 @@ class _PatientsViewState extends State<_PatientsView> {
                           backgroundColor: AppColors.primary.withValues(
                             alpha: 0.1,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             LucideIcons.user,
                             size: 32,
                             color: AppColors.primary,
@@ -2267,18 +2338,16 @@ class _PatientsViewState extends State<_PatientsView> {
                           children: [
                             Text(
                               p.getLocalizedFullName(context),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.navy,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '${p.id} • ${p.age} سنة • ${p.getLocalizedGender(context)}',
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
-                              ),
+                              style: TextStyle(color: AppColors.textSecondary),
                             ),
                           ],
                         ),
@@ -2303,46 +2372,46 @@ class _PatientsViewState extends State<_PatientsView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _sectionTitle(
-                                'الخطة العلاجية الحالية',
+                                context.tr('current_treatment_plan'),
                                 LucideIcons.fileText,
                               ),
-                              _infoRow('الجرعة الحالية:', p.currentDose),
+                              _infoRow(context.tr('current_treatment_plan'), p.currentDose),
                               _infoRow(
-                                'تاريخ آخر صرف:',
+                                context.tr('last_dispense_date') + ':',
                                 p.lastDispensingDate ?? 'غير متوفر',
                               ),
                               _infoRow(
-                                'تاريخ الاستحقاق القادم:',
+                                context.tr('next_eligible_date') + ':',
                                 p.nextEligibleDate ?? 'غير متوفر',
                               ),
                               _infoRow(
-                                'معدل الالتزام:',
+                                context.tr('compliance_rate') + ':',
                                 '${(p.complianceRate * 100).toInt()}%',
                               ),
                               const SizedBox(height: 24),
                               _sectionTitle(
-                                'المقاييس الحيوية',
+                                context.tr('vital_metrics'),
                                 LucideIcons.activity,
                               ),
                               Row(
                                 children: [
                                   Expanded(
                                     child: _metricBox(
-                                      'الوزن',
+                                      context.tr('weight'),
                                       '${p.weight} kg',
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: _metricBox(
-                                      'الطول',
+                                      context.tr('height'),
                                       '${p.height} cm',
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: _metricBox(
-                                      'مؤشر الكتلة',
+                                      context.tr('bmi'),
                                       p.bmi.toStringAsFixed(1),
                                     ),
                                   ),
@@ -2350,7 +2419,7 @@ class _PatientsViewState extends State<_PatientsView> {
                               ),
                               const SizedBox(height: 24),
                               _sectionTitle(
-                                'تاريخ الجرعات',
+                                context.tr('dosing_history'),
                                 LucideIcons.history,
                               ),
                               Wrap(
@@ -2360,7 +2429,7 @@ class _PatientsViewState extends State<_PatientsView> {
                                       (d) => Chip(
                                         label: Text(d),
                                         backgroundColor: AppColors.surface,
-                                        side: const BorderSide(
+                                        side: BorderSide(
                                           color: AppColors.border,
                                         ),
                                       ),
@@ -2387,25 +2456,25 @@ class _PatientsViewState extends State<_PatientsView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _sectionTitle(
-                                  'البيانات الشخصية',
+                                  context.tr('personal_data'),
                                   LucideIcons.userCheck,
                                 ),
                                 _infoRow('رقم الهوية:', p.emiratesId),
                                 _infoRow(
-                                  'الجنسية:',
+                                  context.tr('nationality') + ':',
                                   p.getLocalizedNationality(context),
                                 ),
                                 _infoRow(
-                                  'الإقامة:',
+                                  context.tr('residency_status') + ':',
                                   p.getLocalizedResidency(context),
                                 ),
                                 _infoRow(
-                                  'الإمارة:',
+                                  context.tr('emirate') + ':',
                                   p.getLocalizedEmirate(context),
                                 ),
                                 const SizedBox(height: 24),
                                 _sectionTitle(
-                                  'الحالة الصحية المسبقة',
+                                  context.tr('pre_existing_conditions'),
                                   LucideIcons.stethoscope,
                                 ),
                                 ...p
@@ -2417,7 +2486,7 @@ class _PatientsViewState extends State<_PatientsView> {
                                         ),
                                         child: Row(
                                           children: [
-                                            const Icon(
+                                            Icon(
                                               LucideIcons.checkCircle2,
                                               size: 16,
                                               color: AppColors.primary,
@@ -2436,8 +2505,8 @@ class _PatientsViewState extends State<_PatientsView> {
                                       ),
                                     ),
                                 if (p.medicalConditions.isEmpty)
-                                  const Text(
-                                    'لا يوجد أمراض مزمنة',
+                                  Text(
+                                    context.tr('no_chronic_diseases'),
                                     style: TextStyle(
                                       color: AppColors.textSecondary,
                                       fontSize: 13,
@@ -2464,14 +2533,14 @@ class _PatientsViewState extends State<_PatientsView> {
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.navy),
+          Icon(icon, size: 20, color: AppColors.textPrimary),
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.navy,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -2489,7 +2558,7 @@ class _PatientsViewState extends State<_PatientsView> {
             width: 130,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontWeight: FontWeight.bold,
               ),
@@ -2498,8 +2567,8 @@ class _PatientsViewState extends State<_PatientsView> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                color: AppColors.navy,
+              style: TextStyle(
+                color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -2522,7 +2591,7 @@ class _PatientsViewState extends State<_PatientsView> {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: AppColors.primary,
               fontWeight: FontWeight.bold,
@@ -2531,7 +2600,7 @@ class _PatientsViewState extends State<_PatientsView> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
@@ -2554,7 +2623,7 @@ class _PatCol extends StatelessWidget {
       flex: flex,
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
           color: AppColors.textSecondary,
@@ -2653,17 +2722,17 @@ class InventoryView extends StatelessWidget {
                   children: [
                     Text(
                       context.tr('inventory_management'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.navy,
+                        color: AppColors.textPrimary,
                         letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       context.tr('inventory_management_sub'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
@@ -2679,7 +2748,7 @@ class InventoryView extends StatelessWidget {
                       label: Text(context.tr('export_csv')),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.textPrimary,
-                        side: const BorderSide(color: AppColors.border),
+                        side: BorderSide(color: AppColors.border),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 16,
@@ -2798,7 +2867,7 @@ class InventoryView extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: context.tr('filter_specific_nodes'),
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.search,
                   size: 20,
                   color: AppColors.textSecondary,
@@ -2810,11 +2879,11 @@ class InventoryView extends StatelessWidget {
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: AppColors.border),
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: AppColors.border),
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
               ),
             ),
@@ -2905,10 +2974,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    LucideIcons.store,
-                    color: AppColors.primary,
-                  ),
+                  child: Icon(LucideIcons.store, color: AppColors.primary),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -2919,10 +2985,10 @@ class _InventoryCardState extends State<_InventoryCard> {
                         children: [
                           Text(
                             c.getLocalizedName(context),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.navy,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -2937,7 +3003,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                             ),
                             child: Text(
                               c.getLocalizedRegion(context),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textSecondary,
@@ -2957,13 +3023,13 @@ class _InventoryCardState extends State<_InventoryCard> {
                           const SizedBox(width: 6),
                           Text(
                             context.tr('active_global_sync'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(width: 16),
-                          const Icon(
+                          Icon(
                             LucideIcons.clock,
                             size: 14,
                             color: AppColors.textSecondary,
@@ -2973,7 +3039,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                             context
                                 .tr('last_dispensed_ago')
                                 .replaceAll('{time}', '$mockMinsAgo'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
@@ -3082,7 +3148,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(11),
                       ),
-                      border: const Border(
+                      border: Border(
                         bottom: BorderSide(color: AppColors.border),
                       ),
                     ),
@@ -3092,7 +3158,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                           flex: 2,
                           child: Text(
                             context.tr('dosage_label'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -3103,7 +3169,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                           flex: 2,
                           child: Text(
                             context.tr('available_label'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -3114,7 +3180,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                           flex: 2,
                           child: Text(
                             context.tr('dispensed_label'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -3125,7 +3191,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                           flex: 4,
                           child: Text(
                             context.tr('utilization_overview'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -3136,11 +3202,11 @@ class _InventoryCardState extends State<_InventoryCard> {
                     ),
                   ),
                   _buildDosageRow('2.5 mg', c.inventory2_5mg, c.dispensed2_5mg),
-                  const Divider(height: 1, color: AppColors.border),
+                  Divider(height: 1, color: AppColors.border),
                   _buildDosageRow('5.0 mg', c.inventory5mg, c.dispensed5mg),
-                  const Divider(height: 1, color: AppColors.border),
+                  Divider(height: 1, color: AppColors.border),
                   _buildDosageRow('7.5 mg', c.inventory7_5mg, c.dispensed7_5mg),
-                  const Divider(height: 1, color: AppColors.border),
+                  Divider(height: 1, color: AppColors.border),
                   _buildDosageRow(
                     '10.0 mg',
                     c.inventory10mg,
@@ -3158,7 +3224,7 @@ class _InventoryCardState extends State<_InventoryCard> {
               children: [
                 Text(
                   context.tr('last_updated_just_now'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -3218,7 +3284,7 @@ class _InventoryCardState extends State<_InventoryCard> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.bold,
@@ -3271,9 +3337,9 @@ class _InventoryCardState extends State<_InventoryCard> {
                 const SizedBox(width: 8),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: AppColors.navy,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],
@@ -3352,7 +3418,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                   width: 40,
                   child: Text(
                     '${(dispensedPct * 100).toStringAsFixed(0)}%',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textSecondary,
@@ -3391,7 +3457,7 @@ class _KPICard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isCritical ? const Color(0xFFFFF1F2) : AppColors.surface,
+        color: isCritical ? Color(0xFFFFF1F2) : AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isCritical
@@ -3412,18 +3478,15 @@ class _KPICard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
               ),
               const SizedBox(height: 4),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.navy,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
@@ -3454,7 +3517,7 @@ void _showProfessionalReplenishDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Container(
           padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.navy,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16),
@@ -3472,7 +3535,7 @@ void _showProfessionalReplenishDialog(
               Expanded(
                 child: Text(
                   'Replenish Node Stock: ${center.getLocalizedName(context)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -3490,7 +3553,7 @@ void _showProfessionalReplenishDialog(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Specify standard batches allocation quantities to supply to this center. Enter units for each dosage.',
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -3526,7 +3589,7 @@ void _showProfessionalReplenishDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(
+            child: Text(
               'Cancel Operation',
               style: TextStyle(color: AppColors.textSecondary),
             ),
@@ -3576,10 +3639,7 @@ Widget _buildDoseInputRow(String label, void Function(String?) onSaved) {
         flex: 2,
         child: Text(
           'Dosage $label Stock Up:',
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            color: AppColors.navy,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
         ),
       ),
       Expanded(
@@ -3624,25 +3684,22 @@ class _FraudAuditView extends StatelessWidget {
         children: [
           Text(
             context.tr('fraud_prevention_log'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: AppColors.navy,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             context.tr('ai_alerts_sub'),
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 24),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.border),
               ),
@@ -3651,7 +3708,7 @@ class _FraudAuditView extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             LucideIcons.checkSquare,
                             size: 56,
                             color: AppColors.textSecondary,
@@ -3659,7 +3716,7 @@ class _FraudAuditView extends StatelessWidget {
                           const SizedBox(height: 12),
                           Text(
                             context.tr('no_flagged_alerts'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
@@ -3672,7 +3729,7 @@ class _FraudAuditView extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       itemCount: alerts.length,
                       separatorBuilder: (_, __) =>
-                          const Divider(color: AppColors.border, height: 1),
+                          Divider(color: AppColors.border, height: 1),
                       itemBuilder: (context, i) {
                         final alert = alerts[i];
                         return ListTile(
@@ -3691,15 +3748,15 @@ class _FraudAuditView extends StatelessWidget {
                           ),
                           title: Text(
                             alert.message,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.navy,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           trailing: Text(
                             alert.time,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
                             ),
@@ -3715,530 +3772,7 @@ class _FraudAuditView extends StatelessWidget {
   }
 }
 
-class _AiAlertsFullView extends StatelessWidget {
-  final AppLocalizations t;
-  final String titleKey;
-  const _AiAlertsFullView({
-    required this.t,
-    this.titleKey = 'ai_alerts_command_center',
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    final dp = context.watch<DataProvider>();
-    final alerts = collectProgramAlerts(context, dp);
-    final actionable = alerts
-        .where((a) => a.kind != ProgramAlertKind.allClear)
-        .toList();
-
-    final fraudCount = actionable
-        .where(
-          (a) =>
-              a.kind == ProgramAlertKind.fraudAttempt ||
-              a.kind == ProgramAlertKind.override,
-        )
-        .length;
-    final clinicalCount = actionable
-        .where(
-          (a) =>
-              a.kind == ProgramAlertKind.clinicalIneffective ||
-              a.kind == ProgramAlertKind.nonCompliance ||
-              a.kind == ProgramAlertKind.clinicalPending,
-        )
-        .length;
-    final supplyCount = actionable
-        .where(
-          (a) =>
-              a.kind == ProgramAlertKind.criticalShortage ||
-              a.kind == ProgramAlertKind.inventory ||
-              a.kind == ProgramAlertKind.readyDispense,
-        )
-        .length;
-
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(LucideIcons.bot, color: AppColors.primary, size: 28),
-              const SizedBox(width: 12),
-              Text(
-                context.tr(titleKey) == titleKey
-                    ? 'غرفة عمليات التنبيهات الذكية (AI Command Center)'
-                    : context.tr(titleKey),
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.navy,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.tr('ai_alerts_command_desc') == 'ai_alerts_command_desc'
-                ? 'نظام مراقبة ذكي يعتمد على الذكاء الاصطناعي لاكتشاف التجاوزات، التنبؤ بنقص المخزون، وتحليل استجابة المرضى.'
-                : context.tr('ai_alerts_command_desc'),
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricCard(
-                  context,
-                  context.tr('metrics_fraud') == 'metrics_fraud'
-                      ? 'أمن واحتيال'
-                      : context.tr('metrics_fraud'),
-                  fraudCount,
-                  AppColors.error,
-                  LucideIcons.shieldAlert,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildMetricCard(
-                  context,
-                  context.tr('metrics_clinical') == 'metrics_clinical'
-                      ? 'متابعة سريرية'
-                      : context.tr('metrics_clinical'),
-                  clinicalCount,
-                  AppColors.accent,
-                  LucideIcons.activity,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildMetricCard(
-                  context,
-                  context.tr('metrics_supply') == 'metrics_supply'
-                      ? 'أزمات الإمداد'
-                      : context.tr('metrics_supply'),
-                  supplyCount,
-                  AppColors.warning,
-                  LucideIcons.packageX,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          Expanded(
-            child: actionable.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          LucideIcons.checkCircle,
-                          size: 64,
-                          color: AppColors.success,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          context.tr('no_flagged_alerts'),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 400,
-                          mainAxisExtent: 220,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                    itemCount: actionable.length,
-                    itemBuilder: (context, i) {
-                      final alert = actionable[i];
-                      return _buildAlertCard(context, alert);
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMetricCard(
-    BuildContext context,
-    String title,
-    int count,
-    Color color,
-    IconData icon,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            color.withValues(alpha: 0.08),
-            color.withValues(alpha: 0.02),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.04),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            right: -10,
-            top: -10,
-            child: Icon(icon, size: 80, color: color.withValues(alpha: 0.08)),
-          ),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$count',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w900,
-                      color: color,
-                      height: 1.1,
-                      letterSpacing: -1,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlertCard(BuildContext context, ProgramAlert alert) {
-    String actionLabel = '';
-    IconData actionIcon = LucideIcons.arrowRight;
-    Color actionColor = alert.color;
-
-    switch (alert.kind) {
-      case ProgramAlertKind.fraudAttempt:
-        actionLabel =
-            context.tr('action_freeze_account') == 'action_freeze_account'
-            ? 'تجميد الحساب'
-            : context.tr('action_freeze_account');
-        actionIcon = LucideIcons.lock;
-        break;
-      case ProgramAlertKind.clinicalIneffective:
-        actionLabel = context.tr('action_review_plan') == 'action_review_plan'
-            ? 'مراجعة الخطة'
-            : context.tr('action_review_plan');
-        actionIcon = LucideIcons.fileSearch;
-        break;
-      case ProgramAlertKind.criticalShortage:
-      case ProgramAlertKind.inventory:
-        actionLabel =
-            context.tr('action_emergency_restock') == 'action_emergency_restock'
-            ? 'إرسال إمداد طارئ'
-            : context.tr('action_emergency_restock');
-        actionIcon = LucideIcons.truck;
-        break;
-      case ProgramAlertKind.nonCompliance:
-        actionLabel =
-            context.tr('action_contact_patient') == 'action_contact_patient'
-            ? 'التواصل مع المريض'
-            : context.tr('action_contact_patient');
-        actionIcon = LucideIcons.phoneCall;
-        break;
-      default:
-        actionLabel = context.tr('view_details');
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
-        boxShadow: [
-          BoxShadow(
-            color: alert.color.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(right: BorderSide(color: alert.color, width: 4)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: alert.color.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(alert.icon, color: alert.color, size: 22),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            alert.message,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.navy,
-                              height: 1.4,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(
-                                LucideIcons.clock,
-                                size: 12,
-                                color: AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                alert.time,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.background.withValues(alpha: 0.5),
-                  border: Border(
-                    top: BorderSide(
-                      color: AppColors.border.withValues(alpha: 0.5),
-                    ),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () => _showAlertDialog(context, alert),
-                      icon: Icon(actionIcon, size: 16, color: actionColor),
-                      label: Text(
-                        actionLabel,
-                        style: TextStyle(
-                          color: actionColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        backgroundColor: actionColor.withValues(alpha: 0.08),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showAlertDialog(BuildContext context, ProgramAlert alert) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: alert.color.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(alert.icon, color: alert.color),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'تفاصيل التنبيه (Alert Details)',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.navy,
-                ),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: 400,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  alert.message,
-                  style: const TextStyle(fontSize: 16, height: 1.5),
-                ),
-                const SizedBox(height: 20),
-                if (alert.metadata.isNotEmpty) ...[
-                  const Text(
-                    'البيانات المرتبطة:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: alert.metadata.entries
-                          .map(
-                            (e) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${e.key}: ',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.navy,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      '${e.value}',
-                                      style: const TextStyle(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text(
-                'إغلاق',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('تم تنفيذ الإجراء بنجاح'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: alert.color,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('تنفيذ الإجراء'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SHARED UTILITY
@@ -4265,9 +3799,9 @@ class _Legend extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: AppColors.navy,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -4301,15 +3835,15 @@ class _ManageDoctorsView extends StatelessWidget {
                       children: [
                         Text(
                           context.tr('manage_doctors_title'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.navy,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
                           context.tr('manage_doctors_sub'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textSecondary,
                           ),
@@ -4340,7 +3874,7 @@ class _ManageDoctorsView extends StatelessWidget {
               const SizedBox(height: 24),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -4349,7 +3883,7 @@ class _ManageDoctorsView extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: dp.doctors.length,
                   separatorBuilder: (_, __) =>
-                      const Divider(height: 1, color: AppColors.border),
+                      Divider(height: 1, color: AppColors.border),
                   itemBuilder: (context, i) {
                     final doc = dp.doctors[i];
                     return ListTile(
@@ -4359,16 +3893,16 @@ class _ManageDoctorsView extends StatelessWidget {
                       ),
                       leading: CircleAvatar(
                         backgroundColor: AppColors.primary.withOpacity(0.1),
-                        child: const Icon(
+                        child: Icon(
                           LucideIcons.stethoscope,
                           color: AppColors.primary,
                         ),
                       ),
                       title: Text(
                         doc.getLocalizedName(context),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.navy,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       subtitle: Text(
@@ -4376,7 +3910,7 @@ class _ManageDoctorsView extends StatelessWidget {
                       ),
                       trailing: Text(
                         doc.getLocalizedEmirate(context),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13,
                         ),
@@ -4581,15 +4115,15 @@ class _ManageCentersView extends StatelessWidget {
                       children: [
                         Text(
                           context.tr('manage_therapy_centers_title'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.navy,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
                           context.tr('manage_therapy_centers_sub'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textSecondary,
                           ),
@@ -4620,7 +4154,7 @@ class _ManageCentersView extends StatelessWidget {
               const SizedBox(height: 24),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -4629,7 +4163,7 @@ class _ManageCentersView extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: dp.therapyCenters.length,
                   separatorBuilder: (_, __) =>
-                      const Divider(height: 1, color: AppColors.border),
+                      Divider(height: 1, color: AppColors.border),
                   itemBuilder: (context, i) {
                     final center = dp.therapyCenters[i];
                     return ListTile(
@@ -4639,16 +4173,16 @@ class _ManageCentersView extends StatelessWidget {
                       ),
                       leading: CircleAvatar(
                         backgroundColor: AppColors.accent.withOpacity(0.1),
-                        child: const Icon(
+                        child: Icon(
                           LucideIcons.building,
-                          color: AppColors.navy,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       title: Text(
                         center.getLocalizedName(context),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.navy,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       subtitle: Text(
@@ -4656,7 +4190,7 @@ class _ManageCentersView extends StatelessWidget {
                       ),
                       trailing: Text(
                         '${center.activePatients} ${context.tr('active_patients_legend')}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13,
                         ),

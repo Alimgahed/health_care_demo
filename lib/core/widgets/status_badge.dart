@@ -37,13 +37,13 @@ class StatusBadge extends StatelessWidget {
   Color _getTextColor(bool isDark) {
     switch (status) {
       case BadgeStatus.success:
-        return isDark ? const Color(0xFF34D399) : AppColors.success;
+        return isDark ? Color(0xFF34D399) : AppColors.success;
       case BadgeStatus.warning:
-        return isDark ? const Color(0xFFFBBF24) : AppColors.warning;
+        return isDark ? Color(0xFFFBBF24) : AppColors.warning;
       case BadgeStatus.error:
-        return isDark ? const Color(0xFFF87171) : AppColors.error;
+        return isDark ? Color(0xFFF87171) : AppColors.error;
       case BadgeStatus.info:
-        return isDark ? const Color(0xFF60A5FA) : AppColors.info;
+        return isDark ? Color(0xFF60A5FA) : AppColors.info;
       case BadgeStatus.neutral:
         return isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
     }

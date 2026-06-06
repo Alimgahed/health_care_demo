@@ -225,7 +225,7 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
       children: [
         Container(
           padding: const EdgeInsets.fromLTRB(24, 20, 16, 20),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.navy,
             borderRadius: BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
           ),
@@ -449,7 +449,7 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             ),
             child: Text(
               context.tr('calculated_bmi', {'bmi': bmi.toStringAsFixed(1)}),
-              style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy),
+              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
           ),
         ],
@@ -487,11 +487,11 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             }).toList(),
           ),
         ] else
-          Text(context.tr('no_chronic_note'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(context.tr('no_chronic_note'), style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
         const SizedBox(height: 24),
         Text(context.tr('lab_values_section'), style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        Text(context.tr('lab_values_hint'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+        Text(context.tr('lab_values_hint'), style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -526,7 +526,7 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.tr('upload_lab_hint'), style: const TextStyle(color: AppColors.textSecondary)),
+        Text(context.tr('upload_lab_hint'), style: TextStyle(color: AppColors.textSecondary)),
         const SizedBox(height: 16),
         OutlinedButton.icon(
           onPressed: _pickFiles,
@@ -547,9 +547,9 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             ),
             child: Column(
               children: [
-                const Icon(LucideIcons.fileUp, size: 40, color: AppColors.textSecondary),
+                Icon(LucideIcons.fileUp, size: 40, color: AppColors.textSecondary),
                 const SizedBox(height: 8),
-                Text(context.tr('no_files_yet'), style: const TextStyle(color: AppColors.textSecondary)),
+                Text(context.tr('no_files_yet'), style: TextStyle(color: AppColors.textSecondary)),
               ],
             ),
           )
@@ -565,7 +565,7 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
                 title: Text(doc.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
                 subtitle: Text(context.tr('document_uploaded_at', {'date': doc.uploadedAt.toString().split('.').first})),
                 trailing: IconButton(
-                  icon: const Icon(LucideIcons.trash2, color: AppColors.error),
+                  icon: Icon(LucideIcons.trash2, color: AppColors.error),
                   onPressed: () => setState(() => _attachments.remove(doc)),
                 ),
               ),

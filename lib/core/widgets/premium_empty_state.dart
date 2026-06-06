@@ -28,7 +28,7 @@ class PremiumEmptyState extends StatelessWidget {
               child: Image.asset(
                 imageAsset,
                 fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => const Icon(
+                errorBuilder: (context, error, stackTrace) => Icon(
                   Icons.inbox,
                   size: 120,
                   color: AppColors.border,
@@ -49,7 +49,7 @@ class PremiumEmptyState extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 500),
               child: Text(
                 message,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondary,
                   height: 1.5,

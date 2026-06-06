@@ -92,7 +92,7 @@ class ClinicalAssessmentCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     LucideIcons.stethoscope,
                     color: AppColors.primary,
                   ),

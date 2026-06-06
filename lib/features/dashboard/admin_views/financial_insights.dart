@@ -13,8 +13,8 @@ class FinancialInsights extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(context.tr('financial_insights')),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.navy,
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -36,7 +36,7 @@ class FinancialInsights extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -59,7 +59,7 @@ class FinancialInsights extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             context.tr('subsidy_distribution_sub'),
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -88,7 +88,7 @@ class FinancialInsights extends StatelessWidget {
                     value: 10,
                     title: '10%',
                     radius: 40,
-                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy),
+                    titleStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                   ),
                 ],
               ),
@@ -113,7 +113,7 @@ class FinancialInsights extends StatelessWidget {
       children: [
         Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 8),
-        Text(text, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text(text, style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -140,10 +140,10 @@ class FinancialInsights extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: AppColors.surface.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(LucideIcons.calculator, color: AppColors.accent, size: 28),
+                child: Icon(LucideIcons.calculator, color: AppColors.accent, size: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -153,7 +153,7 @@ class FinancialInsights extends StatelessWidget {
                     Text(
                       context.tr('ai_budget_predictor'),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
+                        color: AppColors.surface,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -185,9 +185,9 @@ class FinancialInsights extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: AppColors.surface.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: AppColors.surface.withOpacity(0.1)),
             ),
             child: Row(
               children: [

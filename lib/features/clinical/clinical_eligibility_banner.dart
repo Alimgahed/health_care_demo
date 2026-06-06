@@ -45,7 +45,7 @@ class ClinicalEligibilityBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(LucideIcons.accessibility, color: AppColors.error, size: 24),
+              Icon(LucideIcons.accessibility, color: AppColors.error, size: 24),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -62,7 +62,7 @@ class ClinicalEligibilityBanner extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             context.tr('program_ineligible_sub'),
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
           ),
           const SizedBox(height: 12),
           ...result.violations.map(
@@ -71,11 +71,11 @@ class ClinicalEligibilityBanner extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('• ', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+                  Text('• ', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
                   Expanded(
                     child: Text(
                       violationText(context, v),
-                      style: const TextStyle(color: AppColors.error, fontSize: 13, height: 1.35),
+                      style: TextStyle(color: AppColors.error, fontSize: 13, height: 1.35),
                     ),
                   ),
                 ],

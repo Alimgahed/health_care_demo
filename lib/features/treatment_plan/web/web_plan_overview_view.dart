@@ -56,9 +56,9 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(LucideIcons.clipboardList, size: 64, color: AppColors.border),
+            Icon(LucideIcons.clipboardList, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
-            Text(context.tr('no_treatment_plan_mobile') ?? 'No treatment plan', style: const TextStyle(fontSize: 18, color: AppColors.textSecondary)),
+            Text(context.tr('no_treatment_plan_mobile') ?? 'No treatment plan', style: TextStyle(fontSize: 18, color: AppColors.textSecondary)),
           ],
         ),
       );
@@ -89,7 +89,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(LucideIcons.clipboardList, color: AppColors.primary, size: 22),
+                  child: Icon(LucideIcons.clipboardList, color: AppColors.primary, size: 22),
                 ),
                 const SizedBox(width: 14),
                 Column(
@@ -97,7 +97,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                   children: [
                     Text(context.tr('nav_overview_plan') ?? 'Plan Overview',
                         style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, letterSpacing: -0.5)),
-                    Text('خطتك العلاجية الشاملة', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                    Text('خطتك العلاجية الشاملة', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
                   ],
                 ),
                 const Spacer(),
@@ -150,11 +150,11 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 24, offset: const Offset(0, 10))],
+                      boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 24, offset: Offset(0, 10))],
                     ),
                     child: Stack(
                       children: [
-                        Positioned(right: -30, top: -30, child: Container(width: 150, height: 150, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.06)))),
+                        Positioned(right: -30, top: -30, child: Container(width: 150, height: 150, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.surface.withValues(alpha: 0.06)))),
                         Row(
                           children: [
                             // Animated Circular Progress Ring
@@ -209,8 +209,8 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                                       borderRadius: BorderRadius.circular(6),
                                       child: LinearProgressIndicator(
                                         value: progress * _progressAnimation.value,
-                                        backgroundColor: Colors.white.withValues(alpha: 0.2),
-                                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent),
+                                        backgroundColor: AppColors.background.withValues(alpha: 0.2),
+                                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.accent),
                                         minHeight: 8,
                                       ),
                                     ),
@@ -220,7 +220,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       const Text('Journey Progress', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                      Text('Lost ${weightLost.toStringAsFixed(1)} kg', style: const TextStyle(color: AppColors.accent, fontSize: 12, fontWeight: FontWeight.bold)),
+                                      Text('Lost ${weightLost.toStringAsFixed(1)} kg', style: TextStyle(color: AppColors.accent, fontSize: 12, fontWeight: FontWeight.bold)),
                                     ],
                                   ),
                                 ],
@@ -334,7 +334,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                              child: const Icon(LucideIcons.clipboardList, size: 18, color: AppColors.primary),
+                              child: Icon(LucideIcons.clipboardList, size: 18, color: AppColors.primary),
                             ),
                             const SizedBox(width: 12),
                             Text('تفاصيل الخطة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
@@ -347,7 +347,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                         const Divider(height: 28),
                         _detailRow(context, LucideIcons.target, 'مدة الخطة', '${plan.totalSessions} جلسات'),
                         const Divider(height: 28),
-                        _detailRow(context, LucideIcons.stethoscope, 'نوع العلاج', 'علاج تغذوي', valueColor: AppColors.navy),
+                        _detailRow(context, LucideIcons.stethoscope, 'نوع العلاج', 'علاج تغذوي', valueColor: AppColors.textPrimary),
                       ],
                     ),
                   ),
@@ -393,7 +393,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                               ),
                             ),
                             const SizedBox(height: 12),
-                            Text('$attendedSessions من ${plan.totalSessions} مكتملة', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold)),
+                            Text('$attendedSessions من ${plan.totalSessions} مكتملة', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -402,15 +402,15 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [AppColors.navy, AppColors.primaryDark]),
+                          gradient: LinearGradient(colors: [AppColors.navy, AppColors.primaryDark]),
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [BoxShadow(color: AppColors.navy.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
+                          boxShadow: [BoxShadow(color: AppColors.navy.withValues(alpha: 0.3), blurRadius: 12, offset: Offset(0, 4))],
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+                              decoration: BoxDecoration(color: AppColors.surface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
                               child: const Icon(LucideIcons.target, color: Colors.white, size: 24),
                             ),
                             const SizedBox(width: 16),
@@ -429,7 +429,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
-                                  CircularProgressIndicator(value: 0.6, strokeWidth: 4, backgroundColor: Colors.white24, valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent)),
+                                  CircularProgressIndicator(value: 0.6, strokeWidth: 4, backgroundColor: Colors.white24, valueColor: AlwaysStoppedAnimation<Color>(AppColors.accent)),
                                   const Text('60%', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                                 ],
                               ),
@@ -481,7 +481,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                Text(label, style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 4),
                 Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, letterSpacing: -0.3)),
               ],
@@ -497,7 +497,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
       children: [
         Icon(icon, size: 18, color: AppColors.textSecondary),
         const SizedBox(width: 12),
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
         const Spacer(),
         Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: valueColor ?? AppColors.primary)),
       ],
@@ -509,11 +509,11 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
       children: [
         Container(
           width: 16, height: 16,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 6)]),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: AppColors.surface, width: 3), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 6)]),
         ),
         const SizedBox(height: 8),
         Text('${weight.toStringAsFixed(0)}kg', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color)),
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
       ],
     );
   }
@@ -531,7 +531,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
-                Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ),

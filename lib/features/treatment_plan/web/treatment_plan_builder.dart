@@ -129,7 +129,7 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
       children: [
         Container(
           padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.navy,
             borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
           ),
@@ -156,12 +156,12 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
             color: AppColors.warning.withValues(alpha: 0.12),
             child: Row(
               children: [
-                const Icon(LucideIcons.clock, color: AppColors.warning),
+                Icon(LucideIcons.clock, color: AppColors.warning),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     context.tr('plan_pending_review_banner', {'date': livePatient.lastDispensingDate ?? ''}),
-                    style: const TextStyle(color: AppColors.warning, fontWeight: FontWeight.w600, fontSize: 13),
+                    style: TextStyle(color: AppColors.warning, fontWeight: FontWeight.w600, fontSize: 13),
                   ),
                 ),
               ],
@@ -296,7 +296,7 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
             ),
             child: Row(
               children: [
-                const Icon(LucideIcons.checkCircle, color: AppColors.success),
+                Icon(LucideIcons.checkCircle, color: AppColors.success),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
@@ -382,7 +382,7 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
               'reps': '${e.reps}',
             })),
             trailing: IconButton(
-              icon: const Icon(LucideIcons.trash2, color: AppColors.error),
+              icon: Icon(LucideIcons.trash2, color: AppColors.error),
               onPressed: () => setState(() => _selectedExercises.remove(e)),
             ),
           );

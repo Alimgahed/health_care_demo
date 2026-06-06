@@ -125,7 +125,7 @@ class PatientDispensingDetails extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(LucideIcons.clock, color: AppColors.warning),
+                    Icon(LucideIcons.clock, color: AppColors.warning),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(

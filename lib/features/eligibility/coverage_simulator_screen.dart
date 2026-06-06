@@ -141,7 +141,7 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                     Text(
                       context.tr('eligibility_status'),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
+                        color: AppColors.surface,
                       ),
                     ),
                     Text(

@@ -29,12 +29,12 @@ class AdminDemoWorkflowView extends StatelessWidget {
         children: [
           Text(
             context.tr('demo_workflow_title'),
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
             context.tr('demo_workflow_subtitle'),
-            style: const TextStyle(fontSize: 16, color: AppColors.textSecondary, height: 1.45),
+            style: TextStyle(fontSize: 16, color: AppColors.textSecondary, height: 1.45),
           ),
           const SizedBox(height: 24),
           _FlowDiagram(completed: flow.completedSteps),
@@ -53,7 +53,7 @@ class AdminDemoWorkflowView extends StatelessWidget {
             children: [
               Text(
                 context.tr('demo_steps_heading'),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
               const Spacer(),
               TextButton.icon(
@@ -237,7 +237,7 @@ class _FlowNode extends StatelessWidget {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.navy),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
         ),
       ],
     );
@@ -268,7 +268,7 @@ class _ScenarioPicker extends StatelessWidget {
       children: [
         Text(
           context.tr('demo_scenarios_heading'),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -315,7 +315,7 @@ class _FocusPatientBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(LucideIcons.userCheck, color: AppColors.navy),
+          Icon(LucideIcons.userCheck, color: AppColors.textPrimary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -323,7 +323,7 @@ class _FocusPatientBanner extends StatelessWidget {
                 'name': patient.getLocalizedFullName(context),
                 'id': patient.id,
               }),
-              style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy),
+              style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
             ),
           ),
         ],
@@ -348,7 +348,7 @@ class _StepCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (IconData icon, Color color, String roleLabel) = switch (step.role) {
-      DemoPortalRole.admin => (LucideIcons.landmark, AppColors.navy, context.tr('demo_role_admin')),
+      DemoPortalRole.admin => (LucideIcons.landmark, AppColors.textPrimary, context.tr('demo_role_admin')),
       DemoPortalRole.doctor => (LucideIcons.stethoscope, AppColors.primary, context.tr('demo_role_doctor')),
       DemoPortalRole.center => (LucideIcons.building2, const Color(0xFF1565C0), context.tr('demo_role_center')),
       DemoPortalRole.patient => (LucideIcons.smartphone, AppColors.accent, context.tr('demo_role_patient')),
@@ -402,12 +402,12 @@ class _StepCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     context.tr(step.titleKey),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     context.tr(step.bodyKey),
-                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
                   ),
                   const SizedBox(height: 8),
                   Container(
@@ -420,12 +420,12 @@ class _StepCard extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(LucideIcons.lightbulb, size: 16, color: AppColors.warning),
+                        Icon(LucideIcons.lightbulb, size: 16, color: AppColors.warning),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             context.tr(step.tipKey),
-                            style: const TextStyle(fontSize: 13, color: AppColors.navy, height: 1.35),
+                            style: TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.35),
                           ),
                         ),
                       ],

@@ -83,7 +83,7 @@ class MobileInventoryTab extends StatelessWidget {
           children: [
             Card(
               child: ListTile(
-                leading: const Icon(LucideIcons.building, color: AppColors.primary),
+                leading: Icon(LucideIcons.building, color: AppColors.primary),
                 title: Text(center.getLocalizedName(context), style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text(context.tr('region_row', {'region': center.getLocalizedRegion(context)})),
               ),
@@ -115,7 +115,7 @@ class MobileInventoryTab extends StatelessWidget {
         side: BorderSide(color: lowStock ? AppColors.error.withValues(alpha: 0.3) : Colors.transparent),
       ),
       elevation: 0,
-      color: Colors.white,
+      color: AppColors.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -128,11 +128,11 @@ class MobileInventoryTab extends StatelessWidget {
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(LucideIcons.package, color: AppColors.primary, size: 20),
+                  child: Icon(LucideIcons.package, color: AppColors.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy)),
+                  child: Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary)),
                 ),
                 if (lowStock)
                   Container(
@@ -143,9 +143,9 @@ class MobileInventoryTab extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(LucideIcons.alertTriangle, size: 12, color: AppColors.error),
+                        Icon(LucideIcons.alertTriangle, size: 12, color: AppColors.error),
                         const SizedBox(width: 4),
-                        Text(context.tr('replenishment_critical'), style: const TextStyle(color: AppColors.error, fontSize: 10, fontWeight: FontWeight.bold)),
+                        Text(context.tr('replenishment_critical'), style: TextStyle(color: AppColors.error, fontSize: 10, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -177,7 +177,7 @@ class MobileInventoryTab extends StatelessWidget {
         children: [
           Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+          Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
         ],
       ),
     );

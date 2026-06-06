@@ -113,14 +113,14 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
               color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(LucideIcons.calendarX2,
+            child: Icon(LucideIcons.calendarX2,
                 size: 36, color: AppColors.primary),
           ),
           const SizedBox(height: 16),
           Text(
             context.tr('no_treatment_plan_mobile'),
             style:
-                const TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                TextStyle(color: AppColors.textSecondary, fontSize: 16),
           ),
         ],
       ),
@@ -167,7 +167,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppColors.primary.withOpacity(0.2)),
           ),
-          child: const Icon(LucideIcons.calendarDays,
+          child: Icon(LucideIcons.calendarDays,
               size: 20, color: AppColors.primary),
         ),
       ],
@@ -212,7 +212,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
               ),
               Text(
                 '$attended of ${plan.totalSessions} sessions',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500),
@@ -227,7 +227,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
               backgroundColor:
                   isDark ? AppColors.darkBorder : AppColors.border,
               valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 10,
             ),
           ),
@@ -237,14 +237,14 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             children: [
               Text(
                 '${(progress * 100).toStringAsFixed(0)}% complete',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
                     color: AppColors.primary,
                     fontWeight: FontWeight.w700),
               ),
               Text(
                 '${plan.totalSessions - attended} remaining',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500),
@@ -262,7 +262,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.primaryLight],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -286,7 +286,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
               height: 140,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.06),
+                color: AppColors.surface.withOpacity(0.06),
               ),
             ),
           ),
@@ -312,21 +312,21 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
+                        color: AppColors.surface.withOpacity(0.18),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(LucideIcons.calendarCheck,
-                          color: Colors.white, size: 24),
+                      child: Icon(LucideIcons.calendarCheck,
+                          color: AppColors.surface, size: 24),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Next Session',
                             style: TextStyle(
-                                color: Colors.white70,
+                                color: AppColors.surface70,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0.5),
@@ -337,8 +337,8 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                               'n': '${upcomingSession.sessionNumber}',
                               'total': '${plan.totalSessions}'
                             }),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: AppColors.surface,
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
                             ),
@@ -378,7 +378,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: AppColors.surface.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Column(
@@ -428,7 +428,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.background,
                       foregroundColor: AppColors.primary,
                       disabledBackgroundColor: Colors.white24,
                       disabledForegroundColor: Colors.white54,
@@ -456,8 +456,8 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             style: const TextStyle(color: Colors.white60, fontSize: 12)),
         const Spacer(),
         Text(value,
-            style: const TextStyle(
-                color: Colors.white,
+            style: TextStyle(
+                color: AppColors.surface,
                 fontSize: 12,
                 fontWeight: FontWeight.w700)),
       ],
@@ -647,7 +647,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                   fontSize: 10, color: color, fontWeight: FontWeight.w600)),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 10, color: AppColors.textSecondary)),
         ],
       ),
@@ -817,24 +817,24 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      const Icon(LucideIcons.calendar,
+                      Icon(LucideIcons.calendar,
                           size: 12, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         '${session.scheduledDate.day}/${session.scheduledDate.month}/${session.scheduledDate.year}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.w500),
                       ),
                       if (isAttended && session.weightAfter != null) ...[
                         const SizedBox(width: 12),
-                        const Icon(LucideIcons.scale,
+                        Icon(LucideIcons.scale,
                             size: 12, color: AppColors.textSecondary),
                         const SizedBox(width: 4),
                         Text(
                           '${session.weightAfter} kg',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
                               fontWeight: FontWeight.w500),
@@ -847,7 +847,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             ),
             if (isAttended) ...[
               const SizedBox(width: 8),
-              const Icon(LucideIcons.chevronRight,
+              Icon(LucideIcons.chevronRight,
                   size: 18, color: AppColors.textSecondary),
             ],
           ],
@@ -1029,7 +1029,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
         const SizedBox(width: 12),
         Expanded(
           child: Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w500)),

@@ -105,7 +105,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               LucideIcons.pill,
               size: 36,
               color: AppColors.primary,
@@ -114,7 +114,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
           const SizedBox(height: 16),
           Text(
             context.tr('no_treatment_plan_mobile'),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 16,
             ),
@@ -144,7 +144,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Mounjaro (Tirzepatide) — Weekly Injection',
                 style: TextStyle(
                   color: AppColors.textSecondary,
@@ -162,7 +162,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.primary.withOpacity(0.25)),
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(LucideIcons.pill, size: 14, color: AppColors.primary),
@@ -189,7 +189,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
   ) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColors.primary, AppColors.primaryLight],
@@ -213,7 +213,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.06),
+                color: AppColors.surface.withOpacity(0.06),
               ),
             ),
           ),
@@ -246,7 +246,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               height: 70 + (_pulseAnimation.value * 12),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white.withOpacity(
+                                color: AppColors.surface.withOpacity(
                                   0.06 * (1 - _pulseAnimation.value),
                                 ),
                               ),
@@ -256,11 +256,11 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               height: 64,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white.withOpacity(0.15),
+                                color: AppColors.surface.withOpacity(0.15),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 LucideIcons.syringe,
-                                color: Colors.white,
+                                color: AppColors.surface,
                                 size: 28,
                               ),
                             ),
@@ -273,20 +273,20 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Next Mounjaro Dose',
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: AppColors.surface70,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.5,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
+                          Text(
                             'In 5 Days',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.surface,
                               fontSize: 28,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.5,
@@ -334,12 +334,12 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               height: 6,
                               decoration: BoxDecoration(
                                 color: isPast
-                                    ? Colors.white.withOpacity(0.9)
+                                    ? AppColors.surface.withOpacity(0.9)
                                     : isToday
                                     ? AppColors.accent
                                     : isNext
                                     ? AppColors.accent.withOpacity(0.5)
-                                    : Colors.white.withOpacity(0.2),
+                                    : AppColors.surface.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),
@@ -486,7 +486,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                       const SizedBox(height: 4),
                       Text(
                         'Wk ${week + 1}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,
@@ -533,7 +533,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         ),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             color: AppColors.textSecondary,
             fontWeight: FontWeight.w500,
@@ -686,7 +686,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -841,7 +841,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               ),
               Text(
                 '${history.length} doses',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
@@ -907,10 +907,10 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                         : null,
                   ),
                   child: isCompleted
-                      ? const Icon(
+                      ? Icon(
                           LucideIcons.check,
                           size: 14,
-                          color: Colors.white,
+                          color: AppColors.surface,
                         )
                       : null,
                 ),
@@ -989,7 +989,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           LucideIcons.clock,
                           size: 12,
                           color: AppColors.textSecondary,
@@ -997,14 +997,14 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                         const SizedBox(width: 4),
                         Text(
                           date,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Icon(
+                        Icon(
                           LucideIcons.mapPin,
                           size: 12,
                           color: AppColors.textSecondary,
@@ -1012,7 +1012,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                         const SizedBox(width: 4),
                         Text(
                           site,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -1094,7 +1094,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Mounjaro dose escalation every 4 weeks',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
@@ -1160,7 +1160,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                         const SizedBox(height: 2),
                         Text(
                           item['date'] as String,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
                           ),
@@ -1307,7 +1307,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Row(
+                  child:  Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
@@ -1331,7 +1331,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Common side effects during dose escalation',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
@@ -1373,7 +1373,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                         ),
                         Text(
                           effect['frequency'] as String,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,
                           ),
@@ -1412,7 +1412,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColors.navy, AppColors.primaryDark],
@@ -1445,19 +1445,19 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Mounjaro Pen Refill',
                   style: TextStyle(
-                    color: Colors.white60,
+                    color: AppColors.surface60,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   '2 auto-injector pens left',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1467,7 +1467,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: 0.4,
-                    backgroundColor: Colors.white.withOpacity(0.15),
+                    backgroundColor: AppColors.background.withOpacity(0.15),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       AppColors.accent,
                     ),
@@ -1493,10 +1493,10 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 color: AppColors.accent,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
+              child: Text(
                 'Request',
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: AppColors.textPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                 ),

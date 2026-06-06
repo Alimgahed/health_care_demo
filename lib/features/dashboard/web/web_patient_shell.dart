@@ -109,15 +109,15 @@ class _WebPatientShellState extends State<WebPatientShell>
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 28),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: Row(
         children: [
           Builder(
             builder: (ctx) => IconButton(
-              icon: const Icon(Icons.menu, color: AppColors.navy),
+              icon: Icon(Icons.menu, color: AppColors.textPrimary),
               onPressed: () {
                 Scaffold.of(ctx).openDrawer();
               },
@@ -130,10 +130,10 @@ class _WebPatientShellState extends State<WebPatientShell>
             children: [
               Text(
                 context.tr('patient_portal_title') ?? 'Patient Portal',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.navy,
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(
@@ -143,7 +143,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                           .split(' ')[0],
                     }) ??
                     'Welcome back, ${patient.getLocalizedFullName(context).split(' ')[0]}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   color: AppColors.textSecondary,
                 ),
@@ -153,23 +153,23 @@ class _WebPatientShellState extends State<WebPatientShell>
           const Spacer(),
           OutlinedButton.icon(
             onPressed: localeProvider.toggleLanguage,
-            icon: const Icon(
+            icon: Icon(
               LucideIcons.globe,
               size: 14,
-              color: AppColors.navy,
+              color: AppColors.textPrimary,
             ),
             label: Text(
               localeProvider.locale.languageCode == 'en'
                   ? (context.tr('arabic') ?? 'Arabic')
                   : (context.tr('english') ?? 'English'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.navy,
+                color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
             ),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -178,7 +178,7 @@ class _WebPatientShellState extends State<WebPatientShell>
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               LucideIcons.logOut,
               size: 18,
               color: AppColors.textSecondary,
@@ -190,7 +190,7 @@ class _WebPatientShellState extends State<WebPatientShell>
               );
             },
             style: IconButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -224,14 +224,14 @@ class _WebPatientShellState extends State<WebPatientShell>
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryLight],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.health_and_safety,
                     color: Colors.white,
                     size: 22,
@@ -244,7 +244,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                     children: [
                       Text(
                         context.tr('ncc_brand') ?? 'NCC',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -333,7 +333,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                           .getLocalizedFullName(context)
                           .substring(0, 1)
                           .toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -348,7 +348,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                     children: [
                       Text(
                         patient.getLocalizedFullName(context).split(' ')[0],
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -358,8 +358,8 @@ class _WebPatientShellState extends State<WebPatientShell>
                       ),
                       Text(
                         context.tr('beneficiary_role') ?? 'Patient',
-                        style: const TextStyle(
-                          color: Colors.white54,
+                        style: TextStyle(
+                          color: AppColors.surface54,
                           fontSize: 11,
                         ),
                         maxLines: 1,
@@ -479,10 +479,10 @@ class _WebPatientShellState extends State<WebPatientShell>
     final int totalSessions = plan?.totalSessions ?? 0;
     final hour = DateTime.now().hour;
     final greeting = hour < 12
-        ? '🌅 صباح الخير،'
+        ? '🌅 ' + context.tr('good_morning_comma')
         : hour < 17
-        ? '☀️ مساء الخير،'
-        : '🌙 مساء الخير،';
+        ? '☀️ ' + context.tr('good_afternoon_comma')
+        : '🌙 ' + context.tr('good_evening_comma');
 
     final shadow = BoxShadow(
       color: Colors.black.withValues(alpha: 0.05),
@@ -505,7 +505,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                   children: [
                     Text(
                       greeting,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
@@ -631,7 +631,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         LucideIcons.syringe,
                                         size: 14,
                                         color: Colors.white,
@@ -642,7 +642,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                               'dose': patient.currentDose,
                                             }) ??
                                             'Prescribed dose: ${patient.currentDose}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
@@ -660,8 +660,8 @@ class _WebPatientShellState extends State<WebPatientShell>
                                     color: Colors.white.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: const Text(
-                                    'بعد 4 أيام',
+                                  child: Text(
+                                    context.tr('in_4_days'),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
@@ -703,7 +703,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                               alpha: 0.15,
                                             ),
                                           ),
-                                          child: const Icon(
+                                          child: Icon(
                                             LucideIcons.syringe,
                                             color: Colors.white,
                                             size: 24,
@@ -722,7 +722,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                       Text(
                                         context.tr('next_injection_reminder') ??
                                             'Next Injection Reminder',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
@@ -731,7 +731,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'لا تنسى تسجيل حقنتك الأسبوعية لمتابعة التزامك',
+                                        context.tr('dont_forget_weekly_injection'),
                                         style: TextStyle(
                                           color: Colors.white.withValues(
                                             alpha: 0.8,
@@ -877,7 +877,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                       context,
                       icon: LucideIcons.trendingDown,
                       value: '${weightLost.toStringAsFixed(1)} kg',
-                      label: 'فقدان الوزن',
+                      label: context.tr('weight_loss'),
                       color: AppColors.success,
                       shadow: shadow,
                     ),
@@ -897,7 +897,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                       context,
                       icon: LucideIcons.calendar,
                       value: '$sessionsAttended/$totalSessions',
-                      label: 'الجلسات المكتملة',
+                      label: context.tr('completed_sessions'),
                       color: AppColors.primary,
                       shadow: shadow,
                     ),
@@ -936,7 +936,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                         const SizedBox(height: 6),
                         Text(
                           'الهدف: $targetWeight kg  •  الحالي: ${patient.weight.toStringAsFixed(1)} kg',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 14,
                           ),
@@ -1002,7 +1002,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                     ),
                     Text(
                       'متبقي ${(patient.weight - targetWeight).toStringAsFixed(1)} kg',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -1079,7 +1079,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                           decoration: BoxDecoration(
                             color: AppColors.error,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
+                            border: Border.all(color: AppColors.surface, width: 3),
                             boxShadow: [
                               BoxShadow(
                                 color: AppColors.error.withValues(alpha: 0.4),
@@ -1097,7 +1097,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                             color: AppColors.error,
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Start',
                           style: TextStyle(
                             fontSize: 12,
@@ -1154,7 +1154,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                             ),
                             child: Text(
                               '${patient.weight.toStringAsFixed(1)} kg',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -1172,7 +1172,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                           decoration: BoxDecoration(
                             color: AppColors.success,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
+                            border: Border.all(color: AppColors.surface, width: 3),
                             boxShadow: [
                               BoxShadow(
                                 color: AppColors.success.withValues(alpha: 0.4),
@@ -1190,7 +1190,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                             color: AppColors.success,
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Target',
                           style: TextStyle(
                             fontSize: 12,
@@ -1225,7 +1225,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children:  [
                                   Text(
                                     'Improving',
                                     style: TextStyle(
@@ -1270,7 +1270,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children:  [
                                   Text(
                                     '8 weeks',
                                     style: TextStyle(
@@ -1330,7 +1330,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                       Text(
                         context.tr('weight_journey_sub') ??
                             'Your progress over time',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 14,
                         ),
@@ -1362,7 +1362,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                   reservedSize: 40,
                                   getTitlesWidget: (value, meta) => Text(
                                     value.toInt().toString(),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 11,
                                       color: AppColors.textSecondary,
                                     ),
@@ -1382,7 +1382,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                               'n': '${idx + 1}',
                                             }) ??
                                             'Check ${idx + 1}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 11,
                                           color: AppColors.textSecondary,
                                         ),
@@ -1417,7 +1417,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                   getDotPainter: (spot, percent, bar, index) =>
                                       FlDotCirclePainter(
                                         radius: 4,
-                                        color: Colors.white,
+                                        color: AppColors.surface,
                                         strokeWidth: 2,
                                         strokeColor: AppColors.primary,
                                       ),
@@ -1501,7 +1501,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                               color: AppColors.border.withValues(alpha: 0.5),
                             ),
                           ),
-                          child: const Row(
+                          child:  Row(
                             children: [
                               Icon(
                                 LucideIcons.checkCircle,
@@ -1509,7 +1509,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                               ),
                               SizedBox(width: 12),
                               Text(
-                                'لا توجد تمارين مجدولة اليوم',
+                                context.tr('no_exercises_scheduled_today'),
                                 style: TextStyle(
                                   color: AppColors.textSecondary,
                                 ),
@@ -1540,7 +1540,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                         ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: const Icon(
+                                      child: Icon(
                                         LucideIcons.activity,
                                         color: AppColors.primary,
                                         size: 20,
@@ -1565,7 +1565,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                           const SizedBox(height: 4),
                                           Text(
                                             '${e.durationMinutes} دقيقة • ${e.sets} مجموعات',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               color: AppColors.textSecondary,
                                               fontSize: 12,
                                             ),
@@ -1584,7 +1584,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                       ),
                                       child: Text(
                                         '${e.durationMinutes} د',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -1702,9 +1702,9 @@ class _WebPatientShellState extends State<WebPatientShell>
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'تحقق من الأهلية السريرية واطلب الدواء مباشرة للتوصيل أو الاستلام من أقرب صيدلية.',
+                    context.tr('check_eligibility_and_request'),
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: AppColors.surface70,
                       fontSize: 15,
                     ),
                   ),
@@ -1787,7 +1787,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                 ),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
@@ -1827,7 +1827,7 @@ class _WebPatientShellState extends State<WebPatientShell>
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               LucideIcons.calendar,
               color: Colors.white,
               size: 20,
@@ -1840,7 +1840,7 @@ class _WebPatientShellState extends State<WebPatientShell>
               children: [
                 Text(
                   '${context.tr('dashboard_upcoming_session')}:${upcoming.sessionNumber}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -1907,7 +1907,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                     ),
@@ -2006,7 +2006,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   LucideIcons.userCheck,
                                   color: AppColors.primary,
                                   size: 20,
@@ -2015,11 +2015,11 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               const SizedBox(width: 14),
                               Text(
                                 context.tr('demographics') ??
-                                    'الملف الديموغرافي المعتمد',
-                                style: const TextStyle(
+                                    context.tr('demographics'),
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.navy,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ],
@@ -2036,7 +2036,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                                 color: AppColors.success.withValues(alpha: 0.2),
                               ),
                             ),
-                            child: const Row(
+                            child:  Row(
                               children: [
                                 Icon(
                                   LucideIcons.shieldCheck,
@@ -2045,7 +2045,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                                 ),
                                 SizedBox(width: 6),
                                 Text(
-                                  'موثق عبر الرقم الرقمي',
+                                  context.tr('verified_digital'),
                                   style: TextStyle(
                                     color: AppColors.success,
                                     fontSize: 11,
@@ -2063,12 +2063,12 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                       ),
                       _buildPremiumRow(
                         context,
-                        context.tr('full_name') ?? 'الاسم الكامل للمستفيد',
+                        context.tr('full_name'),
                         widget.patient.getLocalizedFullName(context),
                       ),
                       _buildPremiumRow(
                         context,
-                        context.tr('nationality') ?? 'الجنسية',
+                        context.tr('nationality'),
                         widget.patient.getLocalizedNationality(context),
                       ),
                       _buildPremiumRow(
@@ -2078,7 +2078,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                       ),
                       _buildPremiumRow(
                         context,
-                        context.tr('region') ?? 'الإمارة / النطاق الجغرافي',
+                        context.tr('region'),
                         widget.patient.getLocalizedEmirate(context),
                       ),
 
@@ -2090,8 +2090,8 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                           children: [
                             Text(
                               context.tr('emirates_id') ??
-                                  'رقم الهوية الإماراتية',
-                              style: const TextStyle(
+                                  context.tr('emirates_id'),
+                              style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -2101,10 +2101,10 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               children: [
                                 Text(
                                   formatEmiratesId(widget.patient.emiratesId),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
-                                    color: AppColors.navy,
+                                    color: AppColors.textPrimary,
                                     fontFamily: 'monospace',
                                   ),
                                 ),
@@ -2172,11 +2172,11 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                           const SizedBox(width: 14),
                           Text(
                             context.tr('gov_subsidy_details') ??
-                                'تغطية الدعم المالي الحكومي',
-                            style: const TextStyle(
+                                context.tr('gov_subsidy_details'),
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.navy,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -2188,7 +2188,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                       _buildPremiumRow(
                         context,
                         context.tr('base_medication_price') ??
-                            'السعر الأساسي للدورة العلاجية',
+                            context.tr('base_medication_price'),
                         '1,000.00 AED',
                       ),
 
@@ -2202,8 +2202,8 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               children: [
                                 Text(
                                   context.tr('coverage_rate') ??
-                                      'نسبة التغطية المعتمدة',
-                                  style: const TextStyle(
+                                      context.tr('coverage_rate'),
+                                  style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 13,
                                   ),
@@ -2227,7 +2227,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                                 backgroundColor: isDark
                                     ? AppColors.darkBackground
                                     : AppColors.background,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                valueColor: AlwaysStoppedAnimation<Color>(
                                   AppColors.primary,
                                 ),
                               ),
@@ -2239,7 +2239,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                       _buildPremiumRow(
                         context,
                         context.tr('govt_contribution') ??
-                            'المساهمة المغطاة من الوزارة',
+                            context.tr('govt_contribution'),
                         '${govtPays.toStringAsFixed(2)} AED',
                         color: AppColors.success,
                       ),
@@ -2266,16 +2266,16 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               children: [
                                 Text(
                                   context.tr('your_copay_per_checkin') ??
-                                      'المبلغ الصافي المستحق والدفع المشترك',
-                                  style: const TextStyle(
+                                      context.tr('your_copay_per_checkin'),
+                                  style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                const Text(
-                                  'يُدفع مباشرة عند الحضور والمطابقة',
+                                Text(
+                                  context.tr('payable_at_checkin'),
                                   style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 11,
@@ -2285,7 +2285,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                             ),
                             Text(
                               '${copay.toStringAsFixed(2)} AED',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.primary,
@@ -2325,7 +2325,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                   color: AppColors.primary.withValues(alpha: 0.15),
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 LucideIcons.heart,
                 color: AppColors.primary,
                 size: 28,
@@ -2337,17 +2337,17 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
               children: [
                 Text(
                   context.tr('my_health_profile') ??
-                      'ملف الصحة والمؤشرات الحيوية للمستفيد',
-                  style: const TextStyle(
+                      context.tr('my_health_profile'),
+                  style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.navy,
+                    color: AppColors.textPrimary,
                     letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'بيانات الحالة الديموغرافية والمالية الشاملة والمسجلة ضمن الأنظمة الوطنية بوزارة الصحة',
+                Text(
+                  context.tr('health_profile_desc'),
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
@@ -2375,7 +2375,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -2409,7 +2409,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+           Row(
             children: [
               Icon(
                 LucideIcons.activity,
@@ -2418,11 +2418,11 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
               ),
               SizedBox(width: 12),
               Text(
-                'المؤشرات والبيانات السريرية المرتبطة بالحساب',
+                context.tr('clinical_data_desc'),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.navy,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
@@ -2433,13 +2433,13 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
               _diagnosticSummaryBlock(
                 context.tr('wizard_bmi_req'),
                 context.tr('wizard_bmi_current').replaceAll('{bmi}', '27.4'),
-                'وزن زائد خفيف - مستقر',
+                context.tr('slight_overweight_stable'),
                 LucideIcons.scale,
                 AppColors.info,
               ),
               const SizedBox(width: 20),
               _diagnosticSummaryBlock(
-                'الجرعة الدوائية النشطة',
+                context.tr('active_dose'),
                 '5 mg / ' + context.tr('frequency_weekly'),
                 'Mounjaro • ' + context.tr('eligible_mounjaro'),
                 LucideIcons.droplet,
@@ -2447,7 +2447,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
               ),
               const SizedBox(width: 20),
               _diagnosticSummaryBlock(
-                'آخر فحص حيوي معملي',
+                context.tr('last_vital_scan'),
                 context.tr('last_dispense_date') + ': ' + context.tr('every_n_days').replaceAll('{n}', '14'),
                 'HbA1c: 5.8% • ' + context.tr('dashboard_improving'),
                 LucideIcons.clipboardCheck,
@@ -2494,7 +2494,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -2503,10 +2503,10 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                   const SizedBox(height: 4),
                   Text(
                     value,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.navy,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),

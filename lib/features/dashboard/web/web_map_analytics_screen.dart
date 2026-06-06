@@ -154,7 +154,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                           decoration: BoxDecoration(
                             color: Colors.purple.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: isSelected ? 3 : 2),
+                            border: Border.all(color: AppColors.surface, width: isSelected ? 3 : 2),
                             boxShadow: [
                               BoxShadow(color: Colors.purple.withValues(alpha: 0.5), blurRadius: 10, spreadRadius: isSelected ? 5 : 2),
                             ],
@@ -184,7 +184,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                           decoration: BoxDecoration(
                             color: AppColors.navy.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: isSelected ? 3 : 2),
+                            border: Border.all(color: AppColors.surface, width: isSelected ? 3 : 2),
                             boxShadow: [
                               BoxShadow(color: AppColors.navy.withValues(alpha: 0.5), blurRadius: 10, spreadRadius: isSelected ? 5 : 2),
                             ],
@@ -217,7 +217,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                           decoration: BoxDecoration(
                             color: mColor.withValues(alpha: 0.8),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: isSelected ? 3 : 1),
+                            border: Border.all(color: AppColors.surface, width: isSelected ? 3 : 1),
                             boxShadow: isSelected ? [BoxShadow(color: mColor.withValues(alpha: 0.5), blurRadius: 10, spreadRadius: 4)] : [],
                           ),
                         ),
@@ -259,23 +259,23 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                 FloatingActionButton(
                   heroTag: 'zoomInBtn',
                   mini: true,
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.background,
                   onPressed: () {
                     final currentZoom = _mapController.camera.zoom;
                     _mapController.move(_mapController.camera.center, currentZoom + 1);
                   },
-                  child: const Icon(LucideIcons.plus, color: AppColors.navy),
+                  child: Icon(LucideIcons.plus, color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 8),
                 FloatingActionButton(
                   heroTag: 'zoomOutBtn',
                   mini: true,
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.background,
                   onPressed: () {
                     final currentZoom = _mapController.camera.zoom;
                     _mapController.move(_mapController.camera.center, currentZoom - 1);
                   },
-                  child: const Icon(LucideIcons.minus, color: AppColors.navy),
+                  child: Icon(LucideIcons.minus, color: AppColors.textPrimary),
                 ),
               ],
             ),
@@ -289,7 +289,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.95),
+        color: AppColors.surface.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10)),
@@ -297,11 +297,11 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
       ),
       child: Row(
         children: [
-          Icon(LucideIcons.map, color: AppColors.navy),
+          Icon(LucideIcons.map, color: AppColors.textPrimary),
           const SizedBox(width: 12),
           Text(
             context.tr('geo_analytics'),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           const SizedBox(width: 24),
           
@@ -380,7 +380,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         child: DropdownButton<String>(
           value: value,
           icon: const Icon(LucideIcons.chevronDown, size: 16),
-          style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
           items: items.map((e) => DropdownMenuItem(value: e, child: Text(getDisplayValue(e)))).toList(),
           onChanged: onChanged,
         ),
@@ -391,7 +391,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
   Widget _buildDrawer(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 30, offset: const Offset(-10, 0)),
         ],
@@ -430,7 +430,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: selectedEntity == null
-                  ? Center(child: Text(context.tr('select_marker'), style: const TextStyle(color: AppColors.textSecondary)))
+                  ? Center(child: Text(context.tr('select_marker'), style: TextStyle(color: AppColors.textSecondary)))
                   : (selectedEntity is Patient
                       ? _buildPatientContent(context, selectedEntity as Patient)
                       : (selectedEntity is DispensingCenter
@@ -462,7 +462,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(p.getLocalizedFullName(context), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                  Text(p.getLocalizedFullName(context), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                   const SizedBox(height: 4),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -488,11 +488,11 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         _buildInfoCard(LucideIcons.mapPin, context.tr('residency'), '${p.getLocalizedResidency(context)} · ${p.getLocalizedEmirate(context)}'),
         
         const SizedBox(height: 24),
-        const Divider(color: AppColors.border),
+        Divider(color: AppColors.border),
         const SizedBox(height: 24),
 
         // Health Metrics
-        Text(context.tr('health_metrics'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+        Text(context.tr('health_metrics'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         const SizedBox(height: 16),
         Row(
           children: [
@@ -511,11 +511,11 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         ),
 
         const SizedBox(height: 24),
-        const Divider(color: AppColors.border),
+        Divider(color: AppColors.border),
         const SizedBox(height: 24),
 
         // Medical Conditions
-        Text(context.tr('medical_conditions'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+        Text(context.tr('medical_conditions'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -523,7 +523,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           children: p.getLocalizedMedicalConditions(context).map((cond) => Chip(
             label: Text(cond),
             backgroundColor: AppColors.surface,
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: AppColors.border),
           )).toList(),
         ),
       ],
@@ -539,16 +539,16 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             CircleAvatar(
               radius: 32,
               backgroundColor: AppColors.navy.withValues(alpha: 0.1),
-              child: const Icon(LucideIcons.store, color: AppColors.navy, size: 32),
+              child: Icon(LucideIcons.store, color: AppColors.textPrimary, size: 32),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(c.getLocalizedName(context), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                  Text(c.getLocalizedName(context), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                   const SizedBox(height: 4),
-                  Text(context.tr('region_label', {'region': c.getLocalizedRegion(context)}), style: const TextStyle(color: AppColors.textSecondary)),
+                  Text(context.tr('region_label', {'region': c.getLocalizedRegion(context)}), style: TextStyle(color: AppColors.textSecondary)),
                 ],
               ),
             ),
@@ -556,7 +556,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         ),
         const SizedBox(height: 32),
         
-        Text(context.tr('inventory_status'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+        Text(context.tr('inventory_status'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         const SizedBox(height: 16),
         
         _buildInventoryRow(context, '2.5 mg', c.inventory2_5mg, c.dispensed2_5mg),
@@ -583,9 +583,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tc.getLocalizedName(context), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                  Text(tc.getLocalizedName(context), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                   const SizedBox(height: 4),
-                  Text(tc.getLocalizedEmirate(context), style: const TextStyle(color: AppColors.textSecondary)),
+                  Text(tc.getLocalizedEmirate(context), style: TextStyle(color: AppColors.textSecondary)),
                 ],
               ),
             ),
@@ -598,10 +598,10 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         _buildInfoCard(LucideIcons.clock, context.tr('working_hours'), tc.workingHours),
         
         const SizedBox(height: 24),
-        const Divider(color: AppColors.border),
+        Divider(color: AppColors.border),
         const SizedBox(height: 24),
 
-        Text(context.tr('services_offered'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+        Text(context.tr('services_offered'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -635,9 +635,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(title, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                 const SizedBox(height: 2),
-                Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
               ],
             ),
           ),
@@ -703,7 +703,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('available'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    Text(context.tr('available'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                     const SizedBox(height: 4),
                     Text('$inventory', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: statusColor)),
                   ],
@@ -716,9 +716,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(context.tr('actual_dispensed'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(context.tr('actual_dispensed'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                       const SizedBox(height: 4),
-                      Text('$dispensed', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                      Text('$dispensed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary)),
                     ],
                   ),
                 ),
@@ -732,7 +732,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             child: LinearProgressIndicator(
               value: (inventory + dispensed) > 0 ? (dispensed / (inventory + dispensed)) : 0,
               backgroundColor: statusColor.withValues(alpha: 0.2),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 8,
             ),
           ),

@@ -153,8 +153,8 @@ class _WebCenterShellState extends State<WebCenterShell> {
     final ready = provider.countPatientsReadyToDispense();
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Column(
@@ -168,12 +168,12 @@ class _WebCenterShellState extends State<WebCenterShell> {
                   children: [
                     Text(
                       context.tr('admin_embed_dispensing_title'),
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       context.tr('admin_embed_dispensing_sub', {'center': center.getLocalizedName(context)}),
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -246,15 +246,15 @@ class _WebCenterShellState extends State<WebCenterShell> {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 28),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: Row(
         children: [
           Builder(
             builder: (ctx) => IconButton(
-              icon: const Icon(Icons.menu, color: AppColors.navy),
+              icon: Icon(Icons.menu, color: AppColors.textPrimary),
               onPressed: () {
                 Scaffold.of(ctx).openDrawer();
               },
@@ -270,9 +270,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.navy)),
+                        color: AppColors.textPrimary)),
                 Text(center.getLocalizedName(context),
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11, color: AppColors.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
@@ -299,26 +299,26 @@ class _WebCenterShellState extends State<WebCenterShell> {
           ],
           OutlinedButton.icon(
             onPressed: localeProvider.toggleLanguage,
-            icon: const Icon(LucideIcons.globe, size: 14, color: AppColors.navy),
+            icon: Icon(LucideIcons.globe, size: 14, color: AppColors.textPrimary),
             label: Text(localeProvider.locale.languageCode == 'en' ? context.tr('arabic') : context.tr('english'),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.navy,
+                    color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600)),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(LucideIcons.logOut, size: 18, color: AppColors.textSecondary),
+            icon: Icon(LucideIcons.logOut, size: 18, color: AppColors.textSecondary),
             onPressed: () {
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
             },
             style: IconButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
@@ -348,14 +348,14 @@ class _WebCenterShellState extends State<WebCenterShell> {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryLight],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.health_and_safety,
+                  child: Icon(Icons.health_and_safety,
                       color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
@@ -365,7 +365,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     children: [
                       Text(
                         context.tr('ncc_brand'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -422,7 +422,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text('PA',
                         style: TextStyle(
                             color: Colors.white,
@@ -444,7 +444,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                           overflow: TextOverflow.ellipsis),
                       Text(context.tr('center_depot'),
                           style: TextStyle(
-                              color: Colors.white54, fontSize: 11),
+                              color: AppColors.surface54, fontSize: 11),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ],
@@ -520,8 +520,8 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 ),
                 child: Text(
                   badge,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                   ),
@@ -574,9 +574,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('select_patient'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                    Text(context.tr('select_patient'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                     const SizedBox(height: 8),
-                    Text(context.tr('select_patient_sub'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                    Text(context.tr('select_patient_sub'), style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _searchController,
@@ -599,7 +599,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12),
                 child: Text(
                   _searchQuery.isEmpty ? context.tr('suggested_eligible') : context.tr('search_results'),
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary, fontSize: 12),
+                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary, fontSize: 12),
                 ),
               ),
               Expanded(
@@ -612,7 +612,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                                 ? context.tr('no_ready_to_dispense')
                                 : context.tr('no_matching_patients'),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(color: AppColors.textSecondary),
                           ),
                         ),
                       )
@@ -634,7 +634,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                         ),
                         title: Text(
                           patient.getLocalizedFullName(context),
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -718,7 +718,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.tr('dispensing_checkout'), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.navy)),
+              Text(context.tr('dispensing_checkout'), style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
@@ -760,14 +760,14 @@ class _WebCenterShellState extends State<WebCenterShell> {
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.clock, color: AppColors.warning, size: 28),
+                  Icon(LucideIcons.clock, color: AppColors.warning, size: 28),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       uiStatus == DispensingUiStatus.pendingCarePlan
                           ? context.tr('care_plan_pending_approval_msg')
                           : context.tr('dispense_pending_clinical_msg', {'date': patient.nextEligibleDate ?? ''}),
-                      style: const TextStyle(color: AppColors.warning, fontWeight: FontWeight.bold, fontSize: 14, height: 1.4),
+                      style: TextStyle(color: AppColors.warning, fontWeight: FontWeight.bold, fontSize: 14, height: 1.4),
                     ),
                   ),
                 ],
@@ -786,7 +786,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.clipboardList, color: AppColors.primary),
+                  Icon(LucideIcons.clipboardList, color: AppColors.primary),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -794,21 +794,21 @@ class _WebCenterShellState extends State<WebCenterShell> {
                       children: [
                         Text(
                           context.tr('active_care_plan'),
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 6),
                         if (plan.clinicalApprovalStatus == 'pending_review')
                           Text(
                             context.tr('care_plan_status_pending'),
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.warning),
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.warning),
                           ),
                         Text(
                           '${context.tr('injection_interval')}: ${context.tr('every_n_days', {'n': '$intervalDays'})}',
-                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                         ),
                         Text(
                           '${context.tr('next_dispense_eligible')}: ${patient.nextEligibleDate ?? context.tr('now')}',
-                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -829,7 +829,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.tr('patient_diagnostics'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        Text(context.tr('patient_diagnostics'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                         const SizedBox(height: 20),
                         _buildDetailRow(context.tr('full_name'), patient.getLocalizedFullName(context)),
                         const SizedBox(height: 12),
@@ -869,7 +869,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.tr('coverage_calculation'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        Text(context.tr('coverage_calculation'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                         const SizedBox(height: 20),
                         _buildDetailRow(context.tr('medication_cost'), '1,000.00 AED'),
                         const SizedBox(height: 12),
@@ -957,7 +957,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
         Text(
           value,
           style: TextStyle(
@@ -975,9 +975,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(LucideIcons.scanFace, size: 64, color: AppColors.textSecondary),
+          Icon(LucideIcons.scanFace, size: 64, color: AppColors.textSecondary),
           const SizedBox(height: 16),
-          Text(text, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+          Text(text, style: TextStyle(fontSize: 16, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -989,9 +989,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.tr('inventory_stock_dashboard'), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('inventory_stock_dashboard'), style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
           const SizedBox(height: 8),
-          Text(context.tr('inventory_stock_sub'), style: const TextStyle(color: AppColors.textSecondary)),
+          Text(context.tr('inventory_stock_sub'), style: TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 32),
           
           Row(
@@ -1014,9 +1014,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.tr('request_restock'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                  Text(context.tr('request_restock'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                   const SizedBox(height: 12),
-                  Text(context.tr('request_restock_sub'), style: const TextStyle(color: AppColors.textSecondary)),
+                  Text(context.tr('request_restock_sub'), style: TextStyle(color: AppColors.textSecondary)),
                   const SizedBox(height: 24),
                   Row(
                     children: [
@@ -1059,7 +1059,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(LucideIcons.package, color: AppColors.primary),
+                Icon(LucideIcons.package, color: AppColors.primary),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -1087,9 +1087,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
               ),
             ),
             const SizedBox(height: 4),
-            Text(doseTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
+            Text(doseTitle, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
             const SizedBox(height: 2),
-            Text(context.tr('sku_label', {'code': code}), style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+            Text(context.tr('sku_label', {'code': code}), style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
           ],
         ),
       ),
@@ -1111,9 +1111,9 @@ class _WebCenterShellState extends State<WebCenterShell> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.tr('recent_center_activity'), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('recent_center_activity'), style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
           const SizedBox(height: 8),
-          Text(context.tr('recent_center_activity_sub'), style: const TextStyle(color: AppColors.textSecondary)),
+          Text(context.tr('recent_center_activity_sub'), style: TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 32),
           Expanded(
             child: Card(
@@ -1130,7 +1130,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                         overridden ? LucideIcons.shieldAlert : LucideIcons.checkCircle,
                         color: overridden ? AppColors.error : AppColors.success,
                       ),
-                      title: Text('${log.getLocalizedPatientName(context)} - ${log.getLocalizedAction(context)}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
+                      title: Text('${log.getLocalizedPatientName(context)} - ${log.getLocalizedAction(context)}', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                       subtitle: Text(
                         log.eventKind == 'dispense'
                             ? '${context.tr('dispensed_at_facility', {'facility': log.getLocalizedCenterName(context)})}\n${context.tr('processed_at', {'time': log.formattedTimestamp})}'

@@ -1,0 +1,15 @@
+  error - lib/features/dashboard/mobile/mobile_admin_shell.dart:135:40 - The getter 'surface24' isn't defined for the type 'AppColors'. Try importing the library that defines 'surface24', correcting the name to the name of an existing getter, or defining a getter or field named 'surface24'. - undefined_getter
+  error - lib/features/dashboard/mobile/mobile_admin_shell.dart:158:67 - The getter 'surface12' isn't defined for the type 'AppColors'. Try importing the library that defines 'surface12', correcting the name to the name of an existing getter, or defining a getter or field named 'surface12'. - undefined_getter
+  error - lib/features/dashboard/patient_shell.dart:135:46 - The getter 'surface24' isn't defined for the type 'AppColors'. Try importing the library that defines 'surface24', correcting the name to the name of an existing getter, or defining a getter or field named 'surface24'. - undefined_getter
+  error - lib/features/dashboard/splash_screen.dart:74:15 - Invalid constant value. - invalid_constant
+  error - lib/features/dashboard/web/web_admin_shell.dart:4159:26 - Invalid constant value. - invalid_constant
+  error - lib/features/dashboard/web/web_patient_shell.dart:1241:46 - Invalid constant value. - invalid_constant
+  error - lib/features/dashboard/web/web_patient_shell.dart:1241:46 - The values in a const list literal must be constants. Try removing the keyword 'const' from the list literal. - non_constant_list_element
+  error - lib/features/dashboard/web/web_patient_shell.dart:1286:46 - Invalid constant value. - invalid_constant
+  error - lib/features/dashboard/web/web_patient_shell.dart:1286:46 - The values in a const list literal must be constants. Try removing the keyword 'const' from the list literal. - non_constant_list_element
+  error - lib/features/dashboard/web/web_patient_shell.dart:1514:42 - Invalid constant value. - invalid_constant
+  error - lib/features/dashboard/web/web_patient_shell.dart:2231:35 - Arguments of a constant creation must be constant expressions. Try making the argument a valid constant, or use 'new' to call the constructor. - const_with_non_constant_argument
+  error - lib/features/dashboard/web/web_patient_shell.dart:2425:26 - Invalid constant value. - invalid_constant
+  error - lib/features/dispensing/payment_screen.dart:276:20 - Invalid constant value. - invalid_constant
+  error - lib/features/treatment_plan/mobile/plan_medication_screen.dart:1316:32 - Invalid constant value. - invalid_constant
+  error - lib/features/treatment_plan/web/web_plan_medication_view.dart:358:82 - The default value of an optional parameter must be constant. - non_constant_default_value

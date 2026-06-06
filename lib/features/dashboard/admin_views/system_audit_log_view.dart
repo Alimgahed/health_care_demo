@@ -23,23 +23,23 @@ class SystemAuditLogView extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(LucideIcons.activitySquare, size: 28, color: AppColors.primary),
+              Icon(LucideIcons.activitySquare, size: 28, color: AppColors.primary),
               const SizedBox(width: 12),
               Text(
-                t.translate('system_audit_log') ?? 'سجل النظام (Audit Log)',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.navy),
+                t.translate('system_audit_log'),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            t.translate('system_audit_log_desc') ?? 'مراقبة حية لجميع الحركات والعمليات التي تمت في النظام.',
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            t.translate('system_audit_log_desc'),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 24),
           Expanded(
             child: logs.isEmpty
-                ? const Center(child: Text('لا توجد سجلات'))
+                ? Center(child: Text(t.translate('no_records_found')))
                 : ListView.builder(
                     itemCount: logs.length,
                     itemBuilder: (context, index) {
@@ -76,7 +76,7 @@ class SystemAuditLogView extends StatelessWidget {
         break;
       case ActivityEventType.clinicalReview:
       case ActivityEventType.carePlan:
-        iconColor = AppColors.navy;
+        iconColor = AppColors.textPrimary;
         bgColor = AppColors.navy.withValues(alpha: 0.1);
         icon = LucideIcons.fileText;
         break;
@@ -95,7 +95,7 @@ class SystemAuditLogView extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
-      color: Colors.white,
+      color: AppColors.surface,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -113,18 +113,18 @@ class SystemAuditLogView extends StatelessWidget {
                 children: [
                   Text(
                     action,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(LucideIcons.user, size: 14, color: AppColors.textSecondary),
+                      Icon(LucideIcons.user, size: 14, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
-                      Text(patient, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                      Text(patient, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                       const SizedBox(width: 16),
-                      const Icon(LucideIcons.building, size: 14, color: AppColors.textSecondary),
+                      Icon(LucideIcons.building, size: 14, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
-                      Text(center, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                      Text(center, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                     ],
                   ),
                 ],
@@ -133,8 +133,8 @@ class SystemAuditLogView extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(timeStr.split(' · ')[0], style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                Text(timeStr.split(' · ')[1], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                Text(timeStr.split(' · ')[0], style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(timeStr.split(' · ')[1], style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
               ],
             ),
           ],

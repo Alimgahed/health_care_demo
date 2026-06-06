@@ -7,6 +7,7 @@ import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/mock_data.dart';
 import '../data/home_exercise_catalog.dart';
 import '../models/treatment_plan.dart';
+import '../../clinical/ai_decision_support_card.dart';
 import '../../clinical/clinical_eligibility_banner.dart';
 import 'treatment_plan_builder.dart';
 
@@ -44,7 +45,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     final exercises = _patientExercises(dataProvider);
 
     return Container(
-      color: Colors.white,
+      color: AppColors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -62,7 +63,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                   backgroundColor: AppColors.accent.withValues(alpha: 0.2),
                   child: Text(
                     patient.getLocalizedFullName(context).substring(0, 1),
-                    style: const TextStyle(fontSize: 32, color: AppColors.accent, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 32, color: AppColors.accent, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 24),
@@ -106,7 +107,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                   label: Text(activePlan == null ? context.tr('create_treatment_plan') : context.tr('edit_plan')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accent,
-                    foregroundColor: AppColors.navy,
+                    foregroundColor: AppColors.textPrimary,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -152,9 +153,9 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: AppColors.surface.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        border: Border.all(color: AppColors.surface.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -172,6 +173,8 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // AiDecisionSupportCard(patient: patient),
+          // const SizedBox(height: 32),
           Row(
             children: [
               Expanded(child: _buildMetricCard(context.tr('weight'), '${patient.weight} kg', LucideIcons.activity, AppColors.primary)),
@@ -186,7 +189,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
             _buildExerciseListSection(context, exercises),
           ],
           const SizedBox(height: 32),
-          Text(context.tr('bmi_trend'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(context.tr('bmi_trend'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
           const SizedBox(height: 24),
           Container(
             height: 300,
@@ -229,7 +232,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))],
@@ -248,7 +251,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+              Text(title, style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
               const SizedBox(height: 4),
               Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
             ],
@@ -266,7 +269,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
           children: [
             Icon(LucideIcons.clipboardList, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
-            Text(context.tr('no_active_plan'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            Text(context.tr('no_active_plan'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
           ],
         ),
       );
@@ -289,12 +292,12 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.clock, color: AppColors.warning),
+                  Icon(LucideIcons.clock, color: AppColors.warning),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       context.tr('care_plan_status_pending'),
-                      style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.warning),
+                      style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.warning),
                     ),
                   ),
                 ],
@@ -350,7 +353,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))],
@@ -358,7 +361,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+          Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 16),
@@ -375,8 +378,8 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         children: [
           Icon(icon, size: 20, color: AppColors.textSecondary),
           const SizedBox(width: 16),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary))),
-          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Expanded(child: Text(label, style: TextStyle(fontSize: 16, color: AppColors.textSecondary))),
+          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         ],
       ),
     );
@@ -561,7 +564,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
           children: [
             Icon(LucideIcons.history, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
-            Text(context.tr('no_activity_logs'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            Text(context.tr('no_activity_logs'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
           ],
         ),
       );
@@ -576,7 +579,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         final (Color color, IconData icon, String typeLabel) = switch (kind) {
           'dispense' => (AppColors.success, LucideIcons.package, context.tr('log_type_dispense')),
           'care_plan' => (AppColors.primary, LucideIcons.clipboardList, context.tr('log_type_care_plan')),
-          'registration' => (AppColors.navy, LucideIcons.userPlus, context.tr('log_type_registration')),
+          'registration' => (AppColors.textPrimary, LucideIcons.userPlus, context.tr('log_type_registration')),
           'clinical_review' => (AppColors.warning, LucideIcons.stethoscope, context.tr('log_type_clinical_review')),
           _ => (AppColors.textSecondary, LucideIcons.activity, context.tr('log_type_other')),
         };
@@ -591,7 +594,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.border),
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))],
@@ -628,7 +631,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                       const SizedBox(height: 8),
                       Text(
                         log.getLocalizedAction(context),
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy, fontSize: 15),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 15),
                       ),
                       if (isCarePlan) ...[
                         const SizedBox(height: 4),
@@ -656,7 +659,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                 const SizedBox(width: 12),
                 Text(
                   log.formatTimestamp(context),
-                  style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy, fontSize: 13),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 13),
                   textAlign: TextAlign.end,
                 ),
               ],

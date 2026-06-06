@@ -119,12 +119,12 @@ class MobileAssessmentsTab extends StatelessWidget {
                 final log = logs[index];
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(LucideIcons.clipboardList, color: AppColors.primary),
+                  leading: Icon(LucideIcons.clipboardList, color: AppColors.primary),
                   title: Text(log.getLocalizedPatientName(context), style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(log.getLocalizedAction(context)),
                   trailing: Text(
                     '${log.timestamp.day}/${log.timestamp.month}',
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   ),
                 );
               },

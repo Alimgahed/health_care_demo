@@ -73,14 +73,14 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
             Directionality.of(context) == TextDirection.rtl 
                 ? LucideIcons.arrowRight 
                 : LucideIcons.arrowLeft, 
-            color: isDark ? Colors.white : AppColors.navy,
+            color: isDark  ? Colors.white : AppColors.textPrimary,
           ),
           onPressed: _prevStep,
         ),
         title: Text(
           context.tr('wizard_title'),
           style: TextStyle(
-            color: isDark ? Colors.white : AppColors.navy,
+            color: isDark  ? Colors.white : AppColors.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -90,7 +90,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
           child: LinearProgressIndicator(
             value: (_currentStep + 1) / 4,
             backgroundColor: AppColors.border.withValues(alpha: 0.5),
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
           ),
         ),
       ),
@@ -150,7 +150,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
           const SizedBox(height: 8),
           Text(
             context.tr('wizard_eligibility_desc'),
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 32),
           
@@ -188,7 +188,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                   Expanded(
                     child: Text(
                       context.tr('wizard_eligible_success'),
-                      style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -209,7 +209,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                   Expanded(
                     child: Text(
                       context.tr('wizard_ineligible_error'),
-                      style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -256,7 +256,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              Text(subtitle, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
             ],
           ),
         ),
@@ -296,19 +296,19 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(LucideIcons.pill, color: AppColors.primary),
+                  child: Icon(LucideIcons.pill, color: AppColors.primary),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(context.tr('wizard_prescribed_med'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      Text(context.tr('wizard_prescribed_med'), style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                       Text('Mounjaro ${patient.currentDose}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     ],
                   ),
                 ),
-                const Icon(LucideIcons.checkCircle2, color: AppColors.success),
+                Icon(LucideIcons.checkCircle2, color: AppColors.success),
               ],
             ),
           ),
@@ -431,7 +431,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                       shape: BoxShape.circle,
                       border: Border.all(color: isSelected ? AppColors.primary : AppColors.border, width: 2),
                     ),
-                    child: isSelected ? Center(child: Container(width: 12, height: 12, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.primary))) : null,
+                    child: isSelected ? Center(child: Container(width: 12, height: 12, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.primary))) : null,
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -439,11 +439,11 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(center.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                        Text(center.region, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                        Text(center.region, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                       ],
                     ),
                   ),
-                  Text(context.tr('wizard_in_stock'), style: const TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text(context.tr('wizard_in_stock'), style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -466,11 +466,11 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
             hintText: context.tr('wizard_enter_address'),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.border),
+              borderSide: BorderSide(color: AppColors.border),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primary),
+              borderSide: BorderSide(color: AppColors.primary),
             ),
           ),
           onChanged: (v) => setState((){}),
@@ -528,7 +528,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(context.tr('wizard_total_pay'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                    Text('AED ${copay.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: AppColors.primary)),
+                    Text('AED ${copay.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: AppColors.primary)),
                   ],
                 ),
               ],
@@ -548,7 +548,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.creditCard, color: AppColors.primary),
+                  Icon(LucideIcons.creditCard, color: AppColors.primary),
                   const SizedBox(width: 16),
                   const Expanded(child: Text('Apple Pay / Credit Card', style: TextStyle(fontWeight: FontWeight.bold))),
                   Container(
@@ -582,7 +582,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: _isProcessing 
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.surface, strokeWidth: 2))
                   : Text(copay > 0 ? context.tr('wizard_pay_confirm').replaceAll('{amount}', copay.toStringAsFixed(2)) : context.tr('wizard_confirm_order'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
@@ -595,7 +595,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
         Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: color)),
       ],
     );
@@ -614,7 +614,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                 color: AppColors.success.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(LucideIcons.checkCircle2, color: AppColors.success, size: 40),
+              child: Icon(LucideIcons.checkCircle2, color: AppColors.success, size: 40),
             ),
             const SizedBox(height: 24),
             Text(
@@ -631,7 +631,7 @@ class _MedicationOrderWizardState extends State<MedicationOrderWizard> {
                   ? context.tr('wizard_pickup_msg').replaceAll('{center}', _selectedCenter?.name ?? '')
                   : context.tr('wizard_delivery_msg'),
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
             ),
             const SizedBox(height: 48),
             SizedBox(

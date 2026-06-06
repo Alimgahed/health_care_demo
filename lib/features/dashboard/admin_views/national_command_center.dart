@@ -14,8 +14,8 @@ class NationalCommandCenter extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(context.tr('ncc_title')),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.navy,
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
         actions: [
           IconButton(icon: const Icon(LucideIcons.bell), onPressed: () {}),
@@ -108,7 +108,7 @@ class NationalCommandCenter extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -160,16 +160,16 @@ class NationalCommandCenter extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.navy,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
@@ -186,7 +186,7 @@ class NationalCommandCenter extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -215,7 +215,7 @@ class NationalCommandCenter extends StatelessWidget {
                     ),
                     Text(
                       context.tr('obesity_index_subtitle'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
                       ),
@@ -223,7 +223,7 @@ class NationalCommandCenter extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(LucideIcons.trendingDown, color: AppColors.primary),
+              Icon(LucideIcons.trendingDown, color: AppColors.primary),
             ],
           ),
           const SizedBox(height: 32),
@@ -270,7 +270,7 @@ class NationalCommandCenter extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
                               months[value.toInt() ~/ 2],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 12,
                               ),
@@ -289,7 +289,7 @@ class NationalCommandCenter extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           '${value.toInt()}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                           ),
@@ -349,7 +349,7 @@ class NationalCommandCenter extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -393,7 +393,7 @@ class NationalCommandCenter extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             titles[value.toInt()],
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
                             ),
@@ -411,7 +411,7 @@ class NationalCommandCenter extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           '${value.toInt()}k',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                           ),
@@ -491,7 +491,7 @@ class NationalCommandCenter extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.bold,

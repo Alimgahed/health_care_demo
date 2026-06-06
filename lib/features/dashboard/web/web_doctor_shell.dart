@@ -118,8 +118,8 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
   }) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Column(
@@ -127,12 +127,12 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
         children: [
           Text(
             context.tr('admin_embed_clinical_title'),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
             context.tr('admin_embed_clinical_sub'),
-            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 14),
           Row(
@@ -192,7 +192,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                   ),
                   child: Text(
                     badge,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -211,15 +211,15 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 28),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: Row(
         children: [
           Builder(
             builder: (ctx) => IconButton(
-              icon: const Icon(Icons.menu, color: AppColors.navy),
+              icon: Icon(Icons.menu, color: AppColors.textPrimary),
               onPressed: () {
                 Scaffold.of(ctx).openDrawer();
               },
@@ -231,38 +231,38 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.tr('clinical_portal'),
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.navy)),
+                      color: AppColors.textPrimary)),
               Text(context.tr('doc_clinic'),
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11, color: AppColors.textSecondary)),
             ],
           ),
           const Spacer(),
           OutlinedButton.icon(
             onPressed: localeProvider.toggleLanguage,
-            icon: const Icon(LucideIcons.globe, size: 14, color: AppColors.navy),
+            icon: Icon(LucideIcons.globe, size: 14, color: AppColors.textPrimary),
             label: Text(localeProvider.locale.languageCode == 'en' ? context.tr('arabic') : context.tr('english'),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.navy,
+                    color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600)),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(LucideIcons.logOut, size: 18, color: AppColors.textSecondary),
+            icon: Icon(LucideIcons.logOut, size: 18, color: AppColors.textSecondary),
             onPressed: () {
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
             },
             style: IconButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
@@ -291,14 +291,14 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryLight],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.health_and_safety,
+                  child: Icon(Icons.health_and_safety,
                       color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
@@ -308,7 +308,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                     children: [
                       Text(
                         context.tr('clinical_brand'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -365,7 +365,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text('DM',
                         style: TextStyle(
                             color: Colors.white,
@@ -379,15 +379,15 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(context.tr('doc_name'),
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                       Text(context.tr('doc_clinic'),
-                          style: const TextStyle(
-                              color: Colors.white54, fontSize: 11),
+                          style: TextStyle(
+                              color: AppColors.surface54, fontSize: 11),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ],
@@ -469,7 +469,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                 ),
                 child: Text(
                   badge,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -608,7 +608,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                               ),
                               title: Text(
                                 patient.getLocalizedFullName(context),
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy),
+                                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -696,7 +696,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
         }
       },
       selectedColor: AppColors.primary.withOpacity(0.15),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       labelStyle: TextStyle(
         color: isSelected ? AppColors.primary : AppColors.textSecondary,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -709,9 +709,9 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(LucideIcons.user, size: 64, color: AppColors.textSecondary),
+          Icon(LucideIcons.user, size: 64, color: AppColors.textSecondary),
           const SizedBox(height: 16),
-          Text(text, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+          Text(text, style: TextStyle(fontSize: 16, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -730,12 +730,12 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
         children: [
           Text(
             context.tr('clinical_assessments_dashboard'),
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.navy),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
             context.tr('clinical_assessments_dashboard_sub'),
-            style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
           Expanded(
@@ -758,10 +758,10 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                                     Expanded(
                                       child: Text(
                                         context.tr('pending_reviews_queue'),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
-                                          color: AppColors.navy,
+                                          color: AppColors.textPrimary,
                                         ),
                                       ),
                                     ),
@@ -821,7 +821,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         subtitle: Text(reason, style: const TextStyle(fontSize: 12)),
-                                        trailing: Text(p.id, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                        trailing: Text(p.id, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                                       ),
                                     );
                                   },

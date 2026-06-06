@@ -54,7 +54,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
             Icon(LucideIcons.dumbbell, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
             Text(context.tr('no_treatment_plan_mobile'),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textSecondary)),
@@ -100,7 +100,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
             ),
             const SizedBox(height: 4),
             Text('$totalMinutes دقيقة إجمالية • ${resolvedExercises.length} تمارين',
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
             const SizedBox(height: 24),
 
             // ── Streak Hero Card ─────────────────────────────────────────
@@ -156,7 +156,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               height: 100,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.08)),
+                  color: AppColors.surface.withValues(alpha: 0.08)),
             ),
           ),
           Row(
@@ -165,11 +165,11 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: AppColors.surface.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: AppColors.surface.withValues(alpha: 0.3),
                           blurRadius: 12)
                     ]),
                 child:
@@ -182,7 +182,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                   children: [
                     Text(context.tr('exercise_streak_title'),
                         style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.surface,
                             fontSize: 14,
                             fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
@@ -190,8 +190,8 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text('$streakDays',
-                            style: const TextStyle(
-                                color: Colors.white,
+                            style: TextStyle(
+                                color: AppColors.surface,
                                 fontSize: 48,
                                 fontWeight: FontWeight.bold,
                                 height: 1.0,
@@ -200,7 +200,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                           padding: EdgeInsets.only(bottom: 6, left: 6),
                           child: Text(context.tr('exercise_streak_unit'),
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.surface,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600)),
                         ),
@@ -211,11 +211,11 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.25),
+                          color: AppColors.surface.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(12)),
-                      child: const Text('🏆 أفضل من 78% من المرضى!',
+                      child: Text('🏆 أفضل من 78% من المرضى!',
                           style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.surface,
                               fontSize: 11,
                               fontWeight: FontWeight.bold)),
                     ),
@@ -305,7 +305,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                     Container(
                       width: 5,
                       height: 5,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           color: AppColors.primary, shape: BoxShape.circle),
                     ),
                 ],
@@ -373,7 +373,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(LucideIcons.flame, size: 14, color: AppColors.error),
+                    Icon(LucideIcons.flame, size: 14, color: AppColors.error),
                     const SizedBox(width: 4),
                     Text('~${(totalMinutes * 5.5).toInt()} سعرة',
                         style: const TextStyle(
@@ -402,7 +402,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                 context.tr('exercise_remaining')
                     .replaceAll('{remaining}', '${total - completed}')
                     .replaceAll('{minutes}', '${totalMinutes - (completed * (totalMinutes ~/ total.clamp(1, 999)))}'),
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.textSecondary, fontSize: 12)),
           ],
         ],
@@ -554,7 +554,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                   ),
                   child: Icon(
                     isCompleted ? LucideIcons.check : LucideIcons.play,
-                    color: Colors.white,
+                    color: AppColors.surface,
                     size: 16,
                   ),
                 ),
@@ -677,7 +677,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Text(desc,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 14,
                                 height: 1.6)),
@@ -738,7 +738,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
             Icon(icon, color: color, size: 20),
             const SizedBox(height: 8),
             Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-            Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+            Text(label, style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -753,10 +753,10 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
           Container(
             width: 20, height: 20,
             decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.12), shape: BoxShape.circle),
-            child: const Icon(Icons.check, size: 12, color: AppColors.primary),
+            child: Icon(Icons.check, size: 12, color: AppColors.primary),
           ),
           const SizedBox(width: 10),
-          Expanded(child: Text(tip, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+          Expanded(child: Text(tip, style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
         ],
       ),
     );
@@ -786,7 +786,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               color: AppColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(LucideIcons.lightbulb, color: AppColors.primary, size: 20),
+            child: Icon(LucideIcons.lightbulb, color: AppColors.primary, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -794,14 +794,14 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(context.tr('exercise_daily_tip_title'),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 13,
                         fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(
                   context.tr('exercise_daily_tip_body'),
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
                 ),
               ],
             ),

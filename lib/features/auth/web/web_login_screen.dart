@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../dashboard/admin_shell.dart';
 import '../../dashboard/center_shell.dart';
 import '../../dashboard/doctor_shell.dart';
@@ -24,7 +24,6 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
   UserRole? _selectedRole;
   UserRole? _hoveredRole;
   bool _isLoading = false;
-
 
   void _handleLogin() {
     if (_selectedRole == null) return;
@@ -73,7 +72,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
     final localeProvider = Provider.of<LocaleProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: Row(
         children: [
           // Left Side: Graphic / Branding
@@ -105,18 +104,20 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                     children: [
                       Text(
                         t.translate('login_title'),
-                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: Theme.of(context).textTheme.displaySmall
+                            ?.copyWith(
+                              color: AppColors.surface,
+                              fontWeight: FontWeight.w800,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         t.translate('login_subtitle'),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
-                          letterSpacing: 2.0,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: AppColors.surface.withOpacity(0.9),
+                              letterSpacing: 2.0,
+                            ),
                       ),
                     ],
                   ),
@@ -124,7 +125,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
               ),
             ),
           ),
-          
+
           // Right Side: Login Form
           Expanded(
             flex: 1,
@@ -132,7 +133,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
               children: [
                 Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
+                    constraints: const BoxConstraints(maxWidth: 700),
                     child: Padding(
                       padding: const EdgeInsets.all(48.0),
                       child: Column(
@@ -141,22 +142,22 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                         children: [
                           Text(
                             t.translate('select_role'),
-                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.navy,
-                            ),
+                            style: Theme.of(context).textTheme.headlineLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.navy,
+                                ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 12),
                           Text(
                             t.translate('choose_portal'),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(color: AppColors.textSecondary),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 48),
-                          
+
                           // Roles Grid
                           Row(
                             children: [
@@ -164,7 +165,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                 child: _buildRoleCard(
                                   role: UserRole.admin,
                                   title: t.translate('ministry_executive'),
-                                  icon: LucideIcons.building2,
+                                  imagePath: 'assets/images/admin.png',
                                 ),
                               ),
                               const SizedBox(width: 24),
@@ -172,7 +173,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                 child: _buildRoleCard(
                                   role: UserRole.doctor,
                                   title: t.translate('doctor_physician'),
-                                  icon: LucideIcons.stethoscope,
+                                  imagePath: 'assets/images/doctor.png',
                                 ),
                               ),
                             ],
@@ -184,7 +185,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                 child: _buildRoleCard(
                                   role: UserRole.center,
                                   title: t.translate('dispensing_center'),
-                                  icon: LucideIcons.store,
+                                  imagePath: 'assets/images/pharmacy.png',
                                 ),
                               ),
                               const SizedBox(width: 24),
@@ -192,37 +193,53 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                 child: _buildRoleCard(
                                   role: UserRole.patient,
                                   title: t.translate('patient_portal'),
-                                  icon: LucideIcons.user,
+                                  imagePath: 'assets/images/patient.png',
                                 ),
                               ),
                             ],
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           if (_selectedRole != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.primary.withOpacity(0.06),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+                                border: Border.all(
+                                  color: AppColors.primary.withOpacity(0.15),
+                                ),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(LucideIcons.key, color: AppColors.primary, size: 18),
+                                  Icon(
+                                    LucideIcons.key,
+                                    color: AppColors.primary,
+                                    size: 18,
+                                  ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
                                       _selectedRole == UserRole.admin
                                           ? context.tr('demo_cred_admin')
                                           : (_selectedRole == UserRole.doctor
-                                              ? context.tr('demo_cred_clinical')
-                                              : (_selectedRole == UserRole.center
-                                                  ? context.tr('demo_cred_pharmacy')
-                                                  : context.tr('demo_cred_patient'))),
-                                      style: const TextStyle(
-                                        color: AppColors.navy,
+                                                ? context.tr(
+                                                    'demo_cred_clinical',
+                                                  )
+                                                : (_selectedRole ==
+                                                          UserRole.center
+                                                      ? context.tr(
+                                                          'demo_cred_pharmacy',
+                                                        )
+                                                      : context.tr(
+                                                          'demo_cred_patient',
+                                                        ))),
+                                      style: TextStyle(
+                                        color: AppColors.textPrimary,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13,
                                       ),
@@ -232,40 +249,47 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               ),
                             ),
 
-                          const SizedBox(height: 40),
-                          
+                          const SizedBox(height: 8),
+
                           // Access Button
                           Container(
-
                             height: 64,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: _selectedRole != null
                                   ? [
                                       BoxShadow(
-                                        color: AppColors.primary.withOpacity(0.3),
+                                        color: AppColors.primary.withOpacity(
+                                          0.3,
+                                        ),
                                         blurRadius: 24,
                                         offset: const Offset(0, 12),
-                                      )
+                                      ),
                                     ]
                                   : [],
                             ),
                             child: ElevatedButton(
-                              onPressed: _selectedRole != null && !_isLoading ? _handleLogin : null,
+                              onPressed: _selectedRole != null && !_isLoading
+                                  ? _handleLogin
+                                  : null,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: _selectedRole != null ? AppColors.primary : AppColors.border.withOpacity(0.5),
-                                foregroundColor: _selectedRole != null ? Colors.white : AppColors.textSecondary,
+                                backgroundColor: _selectedRole != null
+                                    ? AppColors.primary
+                                    : AppColors.border.withOpacity(0.5),
+                                foregroundColor: _selectedRole != null
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
                               child: _isLoading
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                       height: 28,
                                       width: 28,
                                       child: CircularProgressIndicator(
-                                        color: Colors.white,
+                                        color: AppColors.surface,
                                         strokeWidth: 3,
                                       ),
                                     )
@@ -273,7 +297,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                       t.translate('access_portal'),
                                       style: TextStyle(
                                         fontSize: 20,
-                                        fontWeight: _selectedRole != null ? FontWeight.w700 : FontWeight.w600,
+                                        fontWeight: _selectedRole != null
+                                            ? FontWeight.w700
+                                            : FontWeight.w600,
                                         letterSpacing: 0.5,
                                       ),
                                     ),
@@ -284,7 +310,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                     ),
                   ),
                 ),
-                
+
                 // Language Switcher Toggle
                 Align(
                   alignment: Alignment.topRight,
@@ -294,17 +320,28 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                       onPressed: () {
                         localeProvider.toggleLanguage();
                       },
-                      icon: const Icon(LucideIcons.globe, color: AppColors.navy),
+                      icon: Icon(
+                        LucideIcons.globe,
+                        color: AppColors.textPrimary,
+                      ),
                       label: Text(
                         localeProvider.locale.languageCode == 'en'
                             ? context.tr('arabic')
                             : context.tr('english'),
-                        style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       style: TextButton.styleFrom(
                         backgroundColor: AppColors.primary.withOpacity(0.05),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                       ),
                     ),
                   ),
@@ -320,7 +357,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
   Widget _buildRoleCard({
     required UserRole role,
     required String title,
-    required IconData icon,
+    required String imagePath,
   }) {
     final isSelected = _selectedRole == role;
     final isHovered = _hoveredRole == role;
@@ -335,72 +372,90 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
           });
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
-          height: 180, // Fixed height for web cards
-          transform: isHovered && !isSelected 
-              ? (Matrix4.identity()..translate(0, -6, 0)) 
+          height: 240, // Uniform height
+          transform: isHovered && !isSelected
+              ? (Matrix4.identity()..translate(0, -8, 0))
               : Matrix4.identity(),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            color: isSelected
+                ? AppColors.primary.withValues(alpha: 0.04)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(28),
             border: Border.all(
               color: isSelected
-                  ? Colors.transparent
-                  : (isHovered ? AppColors.primary.withValues(alpha: 0.5) : AppColors.border.withValues(alpha: 0.5)),
-              width: 1.5,
+                  ? AppColors.primary
+                  : (isHovered
+                        ? AppColors.primary.withValues(alpha: 0.5)
+                        : AppColors.border.withValues(alpha: 0.5)),
+              width: isSelected ? 3 : 1.5,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.4),
+                      color: AppColors.primary.withValues(alpha: 0.15),
                       blurRadius: 24,
                       offset: const Offset(0, 12),
                     ),
                   ]
                 : (isHovered
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        )
-                      ]
-                    : [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]),
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ]
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]),
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.white.withValues(alpha: 0.15)
-                      : AppColors.primary.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  size: 40,
-                  color: isSelected ? Colors.white : AppColors.primary,
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                child: SizedBox(
+                  height: 170, // Fixed height for the image to fill top section
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                      ),
+                      // Optional subtle overlay for selection state
+                      if (isSelected)
+                        Container(
+                          color: AppColors.primary.withOpacity(0.1),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: isSelected ? Colors.white : AppColors.navy,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  fontSize: 16,
-                  height: 1.3,
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        title.replaceAll('\n', ' '),
+                        maxLines: 1,
+                        softWrap: false,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -409,5 +464,4 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
       ),
     );
   }
-
 }

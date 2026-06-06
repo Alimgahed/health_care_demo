@@ -31,7 +31,7 @@ class MobileAdminDashboardView extends StatelessWidget {
             children: [
               Text(
                 tr('nav_dashboard'),
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.navy),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 16),
               // KPI Grid
@@ -74,7 +74,7 @@ class MobileAdminDashboardView extends StatelessWidget {
               // Mobile compact center inventory summary
               Text(
                 tr('center_inventory_status'),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 12),
               ListView.builder(
@@ -88,11 +88,11 @@ class MobileAdminDashboardView extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
-                    color: Colors.white,
+                    color: AppColors.surface,
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                        child: const Icon(LucideIcons.building, color: AppColors.primary, size: 20),
+                        child: Icon(LucideIcons.building, color: AppColors.primary, size: 20),
                       ),
                       title: Text(center.getLocalizedName(context), style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(center.getLocalizedRegion(context)),
@@ -100,7 +100,7 @@ class MobileAdminDashboardView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('$totalStock units', style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy)),
+                          Text('$totalStock units', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                           Text(totalStock < 100 ? tr('replenishment_critical') : tr('stock_adequate'), 
                             style: TextStyle(color: totalStock < 100 ? AppColors.error : AppColors.success, fontSize: 10)),
                         ],
@@ -131,7 +131,7 @@ class _MobileKpiCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
@@ -151,14 +151,14 @@ class _MobileKpiCard extends StatelessWidget {
           const Spacer(),
           Text(
             value,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -188,7 +188,7 @@ class MobileManageDoctorsView extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           elevation: 0,
-          color: Colors.white,
+          color: AppColors.surface,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -199,7 +199,7 @@ class MobileManageDoctorsView extends StatelessWidget {
                     CircleAvatar(
                       radius: 24,
                       backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                      child: const Icon(LucideIcons.user, color: AppColors.primary),
+                      child: Icon(LucideIcons.user, color: AppColors.primary),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -207,7 +207,7 @@ class MobileManageDoctorsView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(doctor.getLocalizedName(context), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                          Text(doctor.specialty, style: const TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600)),
+                          Text(doctor.specialty, style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600)),
                         ],
                       ),
                     ),
@@ -219,7 +219,7 @@ class MobileManageDoctorsView extends StatelessWidget {
                       ),
                       child: Text(
                         context.tr('active'),
-                        style: const TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -230,17 +230,17 @@ class MobileManageDoctorsView extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    const Icon(LucideIcons.building, size: 14, color: AppColors.textSecondary),
+                    Icon(LucideIcons.building, size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(doctor.getLocalizedHospital(context), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary))),
+                    Expanded(child: Text(doctor.getLocalizedHospital(context), style: TextStyle(fontSize: 12, color: AppColors.textSecondary))),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(LucideIcons.mail, size: 14, color: AppColors.textSecondary),
+                    Icon(LucideIcons.mail, size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(doctor.email, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary))),
+                    Expanded(child: Text(doctor.email, style: TextStyle(fontSize: 12, color: AppColors.textSecondary))),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -251,7 +251,7 @@ class MobileManageDoctorsView extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Edit logic goes here')));
                     },
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.navy,
+                      foregroundColor: AppColors.textPrimary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Text(context.tr('nav_manage_doctors')),
@@ -285,7 +285,7 @@ class MobileManageCentersView extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           elevation: 0,
-          color: Colors.white,
+          color: AppColors.surface,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -300,7 +300,7 @@ class MobileManageCentersView extends StatelessWidget {
                         color: AppColors.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(LucideIcons.building2, color: AppColors.accent),
+                      child: Icon(LucideIcons.building2, color: AppColors.accent),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -308,7 +308,7 @@ class MobileManageCentersView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(center.getLocalizedName(context), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                          Text(center.getLocalizedRegion(context), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                          Text(center.getLocalizedRegion(context), style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -331,7 +331,7 @@ class MobileManageCentersView extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () {},
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.navy,
+                      foregroundColor: AppColors.textPrimary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Text(context.tr('nav_manage_centers')),
@@ -358,7 +358,7 @@ class _InfoItem extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: AppColors.textSecondary),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+        Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -383,12 +383,12 @@ class MobileInventoryView extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           elevation: 0,
-          color: Colors.white,
+          color: AppColors.surface,
           clipBehavior: Clip.antiAlias,
           child: ExpansionTile(
-            title: Text(center.getLocalizedName(context), style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.navy)),
-            subtitle: Text(center.getLocalizedRegion(context), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-            leading: const CircleAvatar(backgroundColor: AppColors.background, child: Icon(LucideIcons.package, color: AppColors.primary, size: 18)),
+            title: Text(center.getLocalizedName(context), style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+            subtitle: Text(center.getLocalizedRegion(context), style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+            leading: CircleAvatar(backgroundColor: AppColors.background, child: Icon(LucideIcons.package, color: AppColors.primary, size: 18)),
             children: [
               Container(
                 color: AppColors.background,
@@ -457,7 +457,7 @@ class _MobileDoseRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-              child: Text(dose, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
+              child: Text(dose, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
             ),
             Text('${context.tr('available')}: $available', style: TextStyle(color: isLow ? AppColors.error : AppColors.textSecondary, fontWeight: FontWeight.w600, fontSize: 12)),
           ],
@@ -496,7 +496,7 @@ class MobileFraudAuditView extends StatelessWidget {
           children: [
             Icon(LucideIcons.shieldCheck, size: 48, color: AppColors.success.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
-            Text(context.tr('no_fraud_alerts'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+            Text(context.tr('no_fraud_alerts'), style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
           ],
         ),
       );
@@ -516,7 +516,7 @@ class MobileFraudAuditView extends StatelessWidget {
             side: BorderSide(color: isCritical ? AppColors.error.withValues(alpha: 0.5) : Colors.transparent),
           ),
           elevation: 0,
-          color: Colors.white,
+          color: AppColors.surface,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -539,16 +539,16 @@ class MobileFraudAuditView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(log.message, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4)),
+                Text(log.message, style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4)),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(log.time, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                    Text(log.time, style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(4)),
-                      child: Text(isCritical ? 'FLAGGED' : 'OVERRIDDEN', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                      child: Text(isCritical ? 'FLAGGED' : 'OVERRIDDEN', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                     ),
                   ],
                 ),
@@ -600,13 +600,13 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.border),
             ),
             child: Row(
               children: [
-                const Icon(LucideIcons.search, size: 20, color: AppColors.textSecondary),
+                Icon(LucideIcons.search, size: 20, color: AppColors.textSecondary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
@@ -614,7 +614,7 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: tr('search'),
-                      hintStyle: const TextStyle(color: AppColors.textSecondary),
+                      hintStyle: TextStyle(color: AppColors.textSecondary),
                     ),
                   ),
                 ),
@@ -645,7 +645,7 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                 margin: const EdgeInsets.only(bottom: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 0,
-                color: Colors.white,
+                color: AppColors.surface,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -656,7 +656,7 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                         children: [
                           Text(
                             localizedEmirate,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy),
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -666,9 +666,9 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                             ),
                             child: Row(
                               children: [
-                                Text(avgBMI.toStringAsFixed(1), style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13)),
+                                Text(avgBMI.toStringAsFixed(1), style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13)),
                                 const SizedBox(width: 4),
-                                const Icon(LucideIcons.activity, size: 12, color: AppColors.primary),
+                                Icon(LucideIcons.activity, size: 12, color: AppColors.primary),
                               ],
                             ),
                           ),
@@ -686,7 +686,7 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Text(tr('dispensing_vs_goals'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                      Text(tr('dispensing_vs_goals'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -696,13 +696,13 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                               child: LinearProgressIndicator(
                                 value: progressValue,
                                 backgroundColor: AppColors.border,
-                                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent),
+                                valueColor: AlwaysStoppedAnimation<Color>(AppColors.accent),
                                 minHeight: 8,
                               ),
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Text('$progressPercentage%', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                          Text('$progressPercentage%', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
                         ],
                       ),
                     ],
@@ -724,8 +724,8 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
-            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+            Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+            Text(label, style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
           ],
         ),
       ],

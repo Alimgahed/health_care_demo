@@ -51,7 +51,7 @@ class AppTypography {
   }
 
   static TextTheme get darkTextTheme {
-    return GoogleFonts.interTextTheme().copyWith(
+    return GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
       displayLarge: GoogleFonts.inter(
         fontSize: 32,
         fontWeight: FontWeight.bold,

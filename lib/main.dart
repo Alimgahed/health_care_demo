@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'core/theme/app_theme.dart';
+
+import 'core/constants/mock_data.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/localization/locale_provider.dart';
-import 'core/constants/mock_data.dart';
+import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/dashboard/splash_screen.dart';
 
 void main() {
@@ -13,6 +15,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => LocaleProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => DataProvider()),
       ],
       child: const MounjaroApp(),
@@ -25,20 +28,17 @@ class MounjaroApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LocaleProvider>(
-      builder: (context, localeProvider, child) {
+    return Consumer2<LocaleProvider, ThemeProvider>(
+      builder: (context, localeProvider, themeProvider, child) {
         final locale = localeProvider.locale;
         return MaterialApp(
           title: 'Health System',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.system,
+          themeMode: themeProvider.themeMode,
           locale: locale,
-          supportedLocales: const [
-            Locale('en'),
-            Locale('ar'),
-          ],
+          supportedLocales: const [Locale('en'), Locale('ar')],
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,

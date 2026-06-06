@@ -67,9 +67,9 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(titles[_currentIndex], style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: AppColors.navy),
+        title: Text(titles[_currentIndex], style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        backgroundColor: AppColors.background,
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
         elevation: 0,
         actions: [
           IconButton(
@@ -95,7 +95,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [AppColors.primary, AppColors.primaryLight],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -110,7 +110,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(context.tr('ncc_brand'), style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text(context.tr('patient_portal_title'), style: const TextStyle(color: AppColors.accent, fontSize: 13, fontWeight: FontWeight.w500)),
+                          Text(context.tr('patient_portal_title'), style: TextStyle(color: AppColors.accent, fontSize: 13, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
@@ -132,7 +132,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                     _buildDrawerItem(LucideIcons.activity, context.tr('nav_exercises') ?? 'Exercises', 5, showDot: hasExercisesPending),
                     
                     const SizedBox(height: 32),
-                    const Divider(color: Colors.white24),
+                    Divider(color: AppColors.surface24),
                     ListTile(
                       leading: const Icon(LucideIcons.globe, color: Colors.white),
                       title: Text(localeProvider.locale.languageCode == 'en' ? context.tr('arabic') : context.tr('english'), style: const TextStyle(color: Colors.white)),
@@ -216,7 +216,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
             Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
             ),
         ],
       ),
@@ -251,7 +251,7 @@ class MobilePatientProfileTab extends StatelessWidget {
         children: [
           Text(context.tr('my_health_profile'), style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 8),
-          Text(context.tr('my_health_profile_sub'), style: const TextStyle(color: AppColors.textSecondary)),
+          Text(context.tr('my_health_profile_sub'), style: TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 24),
 
           // Demographics Card
@@ -278,7 +278,7 @@ class MobilePatientProfileTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(context.tr('demographics'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-                          Text(patient.getLocalizedFullName(context), style: const TextStyle(color: AppColors.textSecondary)),
+                          Text(patient.getLocalizedFullName(context), style: TextStyle(color: AppColors.textSecondary)),
                         ],
                       ),
                     ),
@@ -349,7 +349,7 @@ class MobilePatientProfileTab extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+          Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
           Text(
             value,
             style: TextStyle(

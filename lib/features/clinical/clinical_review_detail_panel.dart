@@ -41,7 +41,7 @@ class ClinicalReviewDetailPanel extends StatelessWidget {
                     backgroundColor: AppColors.primary.withValues(alpha: 0.12),
                     child: Text(
                       p.getLocalizedFullName(context).substring(0, 1).toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
@@ -55,15 +55,15 @@ class ClinicalReviewDetailPanel extends StatelessWidget {
                       children: [
                         Text(
                           p.getLocalizedFullName(context),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.navy,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
                           '${p.id} · ${p.emiratesId}',
-                          style: const TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -87,7 +87,7 @@ class ClinicalReviewDetailPanel extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Text(reason, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+              Text(reason, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
               const SizedBox(height: 16),
               ClinicalEligibilityBanner(patient: p),
               const SizedBox(height: 16),
@@ -195,7 +195,7 @@ class ClinicalReviewDetailPanel extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Text(
                             context.tr('no_lab_documents'),
-                            style: const TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(color: AppColors.textSecondary),
                           ),
                         ),
                       ]
@@ -243,7 +243,7 @@ class ClinicalReviewDetailPanel extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
@@ -254,7 +254,7 @@ class ClinicalReviewDetailPanel extends StatelessWidget {
             children: [
               Icon(icon, size: 20, color: AppColors.primary),
               const SizedBox(width: 10),
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
+              Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
             ],
           ),
           const SizedBox(height: 16),
@@ -274,10 +274,10 @@ class ClinicalReviewDetailPanel extends StatelessWidget {
         children: [
           SizedBox(
             width: 160,
-            child: Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            child: Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
           ),
           Expanded(
-            child: Text(value, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy)),
+            child: Text(value, style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
           ),
         ],
       ),

@@ -18,38 +18,94 @@ enum ProgramAlertKind {
   nonCompliance,
 }
 
+enum AlertCategory { fraud, clinical, supply, info }
+
 class ProgramAlert {
+  final int id;
   final String message;
   final IconData icon;
   final Color color;
   final String time;
   final ProgramAlertKind kind;
   final Map<String, dynamic> metadata;
+  final int severity;
+  final String action;
+  final IconData actionIcon;
 
   const ProgramAlert({
+    this.id = 0,
     required this.message,
     required this.icon,
     required this.color,
     required this.time,
     required this.kind,
     this.metadata = const {},
+    this.severity = 1,
+    this.action = 'Review',
+    this.actionIcon = Icons.remove_red_eye,
   });
+
+  AlertCategory get category {
+    switch (kind) {
+      case ProgramAlertKind.fraudAttempt:
+      case ProgramAlertKind.override:
+      case ProgramAlertKind.flagged:
+        return AlertCategory.fraud;
+      case ProgramAlertKind.clinicalPending:
+      case ProgramAlertKind.clinicalIneffective:
+      case ProgramAlertKind.nonCompliance:
+        return AlertCategory.clinical;
+      case ProgramAlertKind.inventory:
+      case ProgramAlertKind.criticalShortage:
+      case ProgramAlertKind.readyDispense:
+        return AlertCategory.supply;
+      case ProgramAlertKind.allClear:
+        return AlertCategory.info;
+    }
+  }
+
+  String localizedKindLabel(BuildContext context) {
+    switch (category) {
+      case AlertCategory.fraud:
+        return context.tr('alert_category_fraud');
+      case AlertCategory.clinical:
+        return context.tr('alert_category_medical');
+      case AlertCategory.supply:
+        return context.tr('alert_category_supply');
+      case AlertCategory.info:
+        return context.tr('alert_category_info');
+    }
+  }
+
+  IconData get kindIcon {
+    switch (category) {
+      case AlertCategory.fraud: return Icons.shield_outlined;
+      case AlertCategory.clinical: return Icons.monitor_heart_outlined;
+      case AlertCategory.supply: return Icons.inventory_2_outlined;
+      case AlertCategory.info: return Icons.info_outline;
+    }
+  }
 }
 
 /// National safety / supply alerts (shared by dashboard panel, full view, nav badge).
 List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
   final tr = context.tr;
   final alerts = <ProgramAlert>[];
+  int _idCounter = 1;
 
   final readyCount = dp.countPatientsReadyToDispense();
   if (readyCount > 0) {
     alerts.add(
       ProgramAlert(
+        id: _idCounter++,
         message: tr('alert_ready_dispense', {'count': '$readyCount'}),
         icon: LucideIcons.pill,
         color: AppColors.success,
         time: tr('now'),
         kind: ProgramAlertKind.readyDispense,
+        severity: 1,
+        action: tr('action_dispense'),
+        actionIcon: Icons.check,
       ),
     );
   }
@@ -58,11 +114,15 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
   if (pendingReviews > 0) {
     alerts.add(
       ProgramAlert(
+        id: _idCounter++,
         message: tr('alert_pending_reviews', {'count': '$pendingReviews'}),
         icon: LucideIcons.stethoscope,
         color: AppColors.warning,
         time: tr('now'),
         kind: ProgramAlertKind.clinicalPending,
+        severity: 1,
+        action: tr('review_plan'),
+        actionIcon: Icons.check,
       ),
     );
   }
@@ -72,6 +132,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
       if (units > 10) return;
       alerts.add(
         ProgramAlert(
+        id: _idCounter++,
           message: tr('inventory_low_msg', {
             'center': center.getLocalizedName(context),
             'dose': dose,
@@ -81,6 +142,9 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
           color: units <= 5 ? AppColors.error : AppColors.warning,
           time: tr('now'),
           kind: ProgramAlertKind.inventory,
+          severity: 1,
+          action: tr('send_emergency_supply'),
+          actionIcon: Icons.local_shipping_outlined,
         ),
       );
     }
@@ -94,6 +158,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
   for (final log in dp.logs.where((l) => l.status == 'Overridden').take(8)) {
     alerts.add(
       ProgramAlert(
+        id: _idCounter++,
         message: tr('fraud_log_entry', {
           'patient': log.getLocalizedPatientName(context),
           'id': log.patientId,
@@ -104,6 +169,9 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
         color: AppColors.warning,
         time: tr('today'),
         kind: ProgramAlertKind.override,
+        severity: 2,
+        action: tr('review_plan'),
+        actionIcon: Icons.find_in_page_outlined,
       ),
     );
   }
@@ -116,6 +184,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
       if (units == 0) {
         alerts.insert(0,
           ProgramAlert(
+        id: _idCounter++,
             message: tr('alert_critical_shortage', {
               'center': center.getLocalizedName(context),
               'dose': dose,
@@ -125,6 +194,9 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
             color: AppColors.error,
             time: tr('now'),
             kind: ProgramAlertKind.criticalShortage,
+            severity: 3,
+            action: tr('send_emergency_supply'),
+            actionIcon: Icons.local_shipping_outlined,
             metadata: {
               'centerName': center.getLocalizedName(context),
               'dose': dose,
@@ -148,11 +220,15 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
     if (dp.logs.any((l) => l.patientId == patient.id && l.status == 'Overridden')) {
       alerts.insert(0,
         ProgramAlert(
+        id: _idCounter++,
           message: tr('alert_fraud_attempt', {'name': patientName}),
           icon: LucideIcons.shieldAlert,
           color: AppColors.error,
           time: tr('today'),
           kind: ProgramAlertKind.fraudAttempt,
+          severity: 3,
+          action: tr('freeze_account'),
+          actionIcon: Icons.lock_outline,
           metadata: {
             'patientName': patientName,
             'emiratesId': patient.emiratesId,
@@ -165,11 +241,15 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
     if (patient.weightHistory.isNotEmpty && (patient.weightHistory.first - patient.weight < 1.0) && (patient.currentDose == '10 mg' || patient.currentDose == '10.0 mg' || patient.currentDose == '7.5 mg')) {
       alerts.add(
         ProgramAlert(
+        id: _idCounter++,
           message: tr('alert_clinical_ineffective', {'name': patientName}),
           icon: LucideIcons.activity,
           color: AppColors.accent,
-          time: '2 days ago',
+          time: tr('time_days_ago', {'count': '2'}),
           kind: ProgramAlertKind.clinicalIneffective,
+          severity: 2,
+          action: tr('review_plan'),
+          actionIcon: Icons.find_in_page_outlined,
           metadata: {
             'patientName': patientName,
             'startingWeight': patient.weightHistory.first,
@@ -189,6 +269,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
         if (diff > 7) {
           alerts.add(
             ProgramAlert(
+        id: _idCounter++,
               message: tr('alert_non_compliance', {
                 'name': patientName,
                 'days': '$diff',
@@ -197,6 +278,9 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
               color: AppColors.warning,
               time: tr('today'),
               kind: ProgramAlertKind.nonCompliance,
+              severity: 1,
+              action: tr('contact_patient'),
+              actionIcon: Icons.phone_outlined,
               metadata: {
                 'patientName': patientName,
                 'daysOverdue': diff,
@@ -212,6 +296,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
   for (final log in dp.logs.where((l) => l.status == 'Flagged').take(5)) {
     alerts.add(
       ProgramAlert(
+        id: _idCounter++,
         message: tr('fraud_log_entry', {
           'patient': log.getLocalizedPatientName(context),
           'id': log.patientId,
@@ -222,6 +307,9 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
         color: AppColors.error,
         time: tr('today'),
         kind: ProgramAlertKind.flagged,
+        severity: 2,
+        action: tr('review_plan'),
+        actionIcon: Icons.find_in_page_outlined,
       ),
     );
   }
@@ -229,11 +317,15 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
   if (alerts.isEmpty) {
     alerts.add(
       ProgramAlert(
+        id: _idCounter++,
         message: tr('inventory_stable'),
         icon: Icons.check_circle_outline,
         color: AppColors.success,
         time: tr('now'),
         kind: ProgramAlertKind.allClear,
+        severity: 0,
+        action: '',
+        actionIcon: Icons.check,
       ),
     );
   }

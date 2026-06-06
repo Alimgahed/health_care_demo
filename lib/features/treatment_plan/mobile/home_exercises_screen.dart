@@ -48,7 +48,7 @@ class HomeExercisesScreen extends StatelessWidget {
                           color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(LucideIcons.activity, color: AppColors.primary),
+                        child: Icon(LucideIcons.activity, color: AppColors.primary),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -65,11 +65,11 @@ class HomeExercisesScreen extends StatelessWidget {
                         ),
                       ),
                       if (isCompletedToday)
-                        const Icon(LucideIcons.checkCircle, color: AppColors.success)
+                        Icon(LucideIcons.checkCircle, color: AppColors.success)
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text(isAr ? ex.descriptionAr : ex.description, style: const TextStyle(color: AppColors.textSecondary)),
+                  Text(isAr ? ex.descriptionAr : ex.description, style: TextStyle(color: AppColors.textSecondary)),
                   const SizedBox(height: 16),
                   if (!isCompletedToday)
                     SizedBox(
@@ -84,7 +84,7 @@ class HomeExercisesScreen extends StatelessWidget {
                         label: Text(context.tr('mark_complete')),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary),
+                          side: BorderSide(color: AppColors.primary),
                         ),
                       ),
                     ),

@@ -51,7 +51,7 @@ class DemoPortalScaffold extends StatelessWidget {
                               'n': '${stepIndex + 1}',
                               'total': '$kDemoWorkflowStepCount',
                             }),
-                            style: const TextStyle(color: AppColors.accent, fontSize: 11, fontWeight: FontWeight.w600),
+                            style: TextStyle(color: AppColors.accent, fontSize: 11, fontWeight: FontWeight.w600),
                           ),
                           Text(
                             context.tr(step.titleKey),
@@ -70,7 +70,7 @@ class DemoPortalScaffold extends StatelessWidget {
                       },
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.accent,
-                        backgroundColor: Colors.white.withValues(alpha: 0.12),
+                        backgroundColor: AppColors.background.withValues(alpha: 0.12),
                       ),
                       child: Text(context.tr('demo_mark_done')),
                     ),

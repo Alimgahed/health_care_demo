@@ -126,7 +126,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(LucideIcons.clipboardList,
+            child: Icon(LucideIcons.clipboardList,
                 size: 36, color: AppColors.primary),
           ),
           const SizedBox(height: 16),
@@ -162,7 +162,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               const SizedBox(height: 4),
               Text(
                 widget.patient.fullName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
@@ -221,7 +221,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
       double progress, double weightLost, double weightToGo) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColors.primary, AppColors.primaryLight],
@@ -246,7 +246,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               height: 150,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.06),
+                color: AppColors.surface.withOpacity(0.06),
               ),
             ),
           ),
@@ -282,8 +282,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                                 size: const Size(110, 110),
                                 painter: _RingPainter(
                                   progress: progress * _progressAnimation.value,
-                                  backgroundColor:
-                                      Colors.white.withOpacity(0.15),
+                                  backgroundColor: AppColors.background.withOpacity(0.15),
                                   progressColor: AppColors.accent,
                                   strokeWidth: 9,
                                 ),
@@ -293,17 +292,17 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                                 children: [
                                   Text(
                                     '${(progress * _progressAnimation.value * 100).toStringAsFixed(0)}%',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w800,
                                       fontSize: 22,
-                                      color: Colors.white,
+                                      color: AppColors.surface,
                                     ),
                                   ),
-                                  const Text(
+                                  Text(
                                     'Goal',
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Colors.white70,
+                                      color: AppColors.surface70,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -319,10 +318,10 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Weight Goal',
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: AppColors.surface70,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.5,
@@ -331,10 +330,10 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                           const SizedBox(height: 2),
                           Text(
                             '${plan.targetWeight} kg',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                              color: AppColors.surface,
                               letterSpacing: -1,
                             ),
                           ),
@@ -343,13 +342,13 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: AppColors.surface.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               '${weightToGo.toStringAsFixed(1)} kg to go',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: AppColors.surface,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -368,10 +367,10 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Journey Progress',
                           style: TextStyle(
-                              color: Colors.white70,
+                              color: AppColors.surface70,
                               fontSize: 12,
                               fontWeight: FontWeight.w600),
                         ),
@@ -393,7 +392,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                           borderRadius: BorderRadius.circular(6),
                           child: LinearProgressIndicator(
                             value: progress * _progressAnimation.value,
-                            backgroundColor: Colors.white.withOpacity(0.2),
+                            backgroundColor: AppColors.background.withOpacity(0.2),
                             valueColor: const AlwaysStoppedAnimation<Color>(
                                 AppColors.accent),
                             minHeight: 8,
@@ -511,7 +510,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               color: AppColors.textSecondary,
             ),
@@ -610,8 +609,8 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                       ),
                       child: Text(
                         '${currentWeight.toStringAsFixed(1)} kg',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: AppColors.surface,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -668,7 +667,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
+            border: Border.all(color: AppColors.surface, width: 2),
             boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 6)],
           ),
         ),
@@ -683,7 +682,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         ),
         Text(
           label,
-          style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -712,7 +711,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                         fontWeight: FontWeight.w700,
                         color: color)),
                 Text(label,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 10, color: AppColors.textSecondary)),
               ],
             ),
@@ -752,7 +751,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(LucideIcons.clipboardList,
+                  child: Icon(LucideIcons.clipboardList,
                       size: 18, color: AppColors.primary),
                 ),
                 const SizedBox(width: 12),
@@ -791,7 +790,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               icon: LucideIcons.stethoscope,
               label: 'Treatment Type',
               value: 'Nutritional Therapy',
-              iconColor: AppColors.navy),
+              iconColor: AppColors.textPrimary),
           const SizedBox(height: 4),
         ],
       ),
@@ -819,7 +818,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w500),
@@ -882,7 +881,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               ),
               GestureDetector(
                 onTap: () {},
-                child: const Text(
+                child: Text(
                   'View All',
                   style: TextStyle(
                     color: AppColors.primary,
@@ -926,8 +925,8 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                             ? const Icon(LucideIcons.clock,
                                 size: 12, color: AppColors.accent)
                             : isAttended
-                                ? const Icon(LucideIcons.check,
-                                    size: 12, color: Colors.white)
+                                ? Icon(LucideIcons.check,
+                                    size: 12, color: AppColors.surface)
                                 : null,
                       ),
                       const SizedBox(height: 4),
@@ -974,7 +973,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         const SizedBox(width: 5),
         Text(label,
             style:
-                const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                TextStyle(fontSize: 11, color: AppColors.textSecondary)),
       ],
     );
   }
@@ -1032,10 +1031,10 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Next Milestone',
                   style: TextStyle(
-                    color: Colors.white60,
+                    color: AppColors.surface60,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.3,
@@ -1044,8 +1043,8 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                 const SizedBox(height: 2),
                 Text(
                   nextMilestone,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: AppColors.surface,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1055,7 +1054,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: milestoneProgress.clamp(0.0, 1.0),
-                    backgroundColor: Colors.white.withOpacity(0.15),
+                    backgroundColor: AppColors.background.withOpacity(0.15),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                         AppColors.accent),
                     minHeight: 5,
@@ -1207,7 +1206,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           ),
           Text(
             unit,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,

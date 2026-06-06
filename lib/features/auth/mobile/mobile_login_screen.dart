@@ -99,7 +99,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // Background Gradient Header
@@ -109,7 +109,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
             right: 0,
             height: size.height * 0.45,
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -138,7 +138,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                             width: 140,
                             height: 140,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.surface,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
@@ -150,8 +150,8 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                             ),
                             padding: const EdgeInsets.all(4),
                             child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
                                 shape: BoxShape.circle,
                               ),
                               child: ClipOval(
@@ -159,7 +159,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                   'assets/logo.png',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
-                                      const Center(
+                                      Center(
                                         child: Icon(
                                           Icons.health_and_safety,
                                           size: 60,
@@ -174,7 +174,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                           Text(
                             t.translate('login_title'),
                             style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                  color: Colors.white,
+                                  color: AppColors.surface,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.5,
                                 ),
@@ -183,7 +183,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                           Text(
                             t.translate('login_subtitle'),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.white.withOpacity(0.85),
+                                  color: AppColors.surface.withOpacity(0.85),
                                   letterSpacing: 2.0,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -204,7 +204,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                       position: _slideAnimation,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surface,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(40),
                             topRight: Radius.circular(40),
@@ -246,7 +246,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                   child: _buildRoleCard(
                                     role: UserRole.admin,
                                     title: t.translate('ministry_executive'),
-                                    icon: LucideIcons.building2,
+                                    imagePath: 'assets/images/admin.png',
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -254,7 +254,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                   child: _buildRoleCard(
                                     role: UserRole.doctor,
                                     title: t.translate('doctor_physician'),
-                                    icon: LucideIcons.stethoscope,
+                                    imagePath: 'assets/images/doctor.png',
                                   ),
                                 ),
                               ],
@@ -266,7 +266,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                   child: _buildRoleCard(
                                     role: UserRole.center,
                                     title: t.translate('dispensing_center'),
-                                    icon: LucideIcons.store,
+                                    imagePath: 'assets/images/pharmacy.png',
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -274,7 +274,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                   child: _buildRoleCard(
                                     role: UserRole.patient,
                                     title: t.translate('patient_portal'),
-                                    icon: LucideIcons.user,
+                                    imagePath: 'assets/images/patient.png',
                                   ),
                                 ),
                               ],
@@ -296,7 +296,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                       ),
                                       child: Row(
                                         children: [
-                                          const Icon(LucideIcons.info, color: AppColors.primary, size: 20),
+                                          Icon(LucideIcons.info, color: AppColors.primary, size: 20),
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: Text(
@@ -307,8 +307,8 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                                       : (_selectedRole == UserRole.center
                                                           ? 'Demo: pharmacy@moh.gov.ae'
                                                           : 'Demo: patient@mounjaro.ae')),
-                                              style: const TextStyle(
-                                                color: AppColors.navy,
+                                              style: TextStyle(
+                                                color: AppColors.textPrimary,
                                                 fontWeight: FontWeight.w700,
                                                 fontSize: 13,
                                               ),
@@ -330,7 +330,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 gradient: _selectedRole != null
-                                    ? const LinearGradient(
+                                    ? LinearGradient(
                                         colors: [AppColors.primary, AppColors.primaryDark],
                                         begin: Alignment.centerLeft,
                                         end: Alignment.centerRight,
@@ -354,11 +354,11 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                   borderRadius: BorderRadius.circular(20),
                                   child: Center(
                                     child: _isLoading
-                                        ? const SizedBox(
+                                        ? SizedBox(
                                             height: 28,
                                             width: 28,
                                             child: CircularProgressIndicator(
-                                              color: Colors.white,
+                                              color: AppColors.surface,
                                               strokeWidth: 3,
                                             ),
                                           )
@@ -403,13 +403,13 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                       icon: const Icon(LucideIcons.globe, color: Colors.white, size: 18),
                       label: Text(
                         localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: AppColors.surface,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.15),
+                        backgroundColor: AppColors.background.withOpacity(0.15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -432,7 +432,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
   Widget _buildRoleCard({
     required UserRole role,
     required String title,
-    required IconData icon,
+    required String imagePath,
   }) {
     final isSelected = _selectedRole == role;
     return GestureDetector(
@@ -444,7 +444,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
-        height: 140, // Fixed height to prevent overflow and ensure uniformity
+        height: 160, // Fixed height to prevent overflow and ensure uniformity
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -473,15 +473,21 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.all(14),
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
+                color: isSelected ? AppColors.surface.withValues(alpha: 0.2) : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: isSelected
+                    ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]
+                    : [],
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: isSelected ? Colors.white : AppColors.primary,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -493,7 +499,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: isSelected ? Colors.white : AppColors.navy,
+                      color: isSelected  ? Colors.white : AppColors.textPrimary,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                       fontSize: 14,
                       height: 1.2,
