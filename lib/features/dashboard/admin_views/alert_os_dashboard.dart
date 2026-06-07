@@ -6,6 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/constants/mock_data.dart';
+import '../../../../core/models/activity_log.dart';
 import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../program_alerts.dart';
@@ -90,32 +91,14 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
   final ScrollController _chatScroll = ScrollController();
   final ScrollController _contentScroll = ScrollController();
 
-  late List<String> _feedPool;
-
-  final List<AlertCategory> _feedCategoryPool = [
-    AlertCategory.fraud,
-    AlertCategory.supply,
-    AlertCategory.clinical,
-    AlertCategory.fraud,
-    AlertCategory.supply,
-    AlertCategory.clinical,
-    AlertCategory.supply,
-    AlertCategory.fraud,
-  ];
+  List<ActivityLog> _feedLogSource = [];
+  int _feedRingIndex = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _feedPool = [
-      context.tr('feed_msg_1'),
-      context.tr('feed_msg_2'),
-      context.tr('feed_msg_3'),
-      context.tr('feed_msg_4'),
-      context.tr('feed_msg_5'),
-      context.tr('feed_msg_6'),
-      context.tr('feed_msg_7'),
-      context.tr('feed_msg_8'),
-    ];
+    final dp = context.read<DataProvider>();
+    _feedLogSource = List.from(dp.logs);
   }
 
   @override
@@ -127,28 +110,48 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
         text: context.tr('ai_welcome_msg'),
         time: DateTime.now(),
       ));
-      for (int i = 0; i < 4; i++) {
-        _addFeedItem();
-      }
+      _bootstrapLiveFeed();
     });
 
     _feedTimer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (mounted) setState(() => _addFeedItem());
+      if (mounted) setState(() => _pushNextFeedItem());
     });
     _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() => _now = DateTime.now());
     });
   }
 
-  void _addFeedItem() {
-    if (_feedPool.isEmpty) return;
-    final rnd = Random();
-    final idx = rnd.nextInt(_feedPool.length);
-    _feedItems.insert(0, FeedItem(
-      category: _feedCategoryPool[idx],
-      message: _feedPool[idx],
-      time: DateTime.now(),
-    ));
+  void _bootstrapLiveFeed() {
+    final dp = context.read<DataProvider>();
+    _feedLogSource = List.from(dp.logs);
+    _feedItems.clear();
+    _feedRingIndex = 0;
+    final initial = _feedLogSource.length.clamp(0, 6);
+    for (var i = 0; i < initial; i++) {
+      _feedItems.add(_feedItemFromLog(_feedLogSource[i]));
+    }
+    _feedRingIndex = initial;
+    if (mounted) setState(() {});
+  }
+
+  FeedItem _feedItemFromLog(ActivityLog log) {
+    return FeedItem(
+      category: alertCategoryForActivityLog(log),
+      message: activityFeedMessage(context, log),
+      time: log.timestamp,
+    );
+  }
+
+  void _pushNextFeedItem() {
+    if (_feedLogSource.isEmpty) {
+      _bootstrapLiveFeed();
+      return;
+    }
+    if (_feedRingIndex >= _feedLogSource.length) {
+      _feedRingIndex = 0;
+    }
+    _feedItems.insert(0, _feedItemFromLog(_feedLogSource[_feedRingIndex]));
+    _feedRingIndex++;
     if (_feedItems.length > 20) _feedItems.removeLast();
   }
 
@@ -197,6 +200,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
     await Future.delayed(const Duration(milliseconds: 200));
     _scrollChat();
     await Future.delayed(Duration(milliseconds: 1000 + Random().nextInt(800)));
+    if (!mounted) return;
     final reply = AlertOsAiAssistant.reply(context, context.read<DataProvider>(), text);
     if (mounted) {
       setState(() {
@@ -331,7 +335,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           _liveDot(),
           const SizedBox(width: 8),
           Text(
-            context.tr('live_badge') ?? 'مباشر',
+            context.tr('live_badge'),
             style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
           ),
           Container(
@@ -396,7 +400,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
       children: [
         Expanded(
           child: _metricCard(
-            context.tr('security_fraud') ?? 'أمن واحتيال',
+            context.tr('security_fraud'),
             fraudCount,
             AppColors.error,
             LucideIcons.shieldAlert,
@@ -406,7 +410,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
         const SizedBox(width: 10),
         Expanded(
           child: _metricCard(
-            context.tr('clinical_followup') ?? 'متابعة سريرية',
+            context.tr('clinical_followup'),
             clinicalCount,
             AppColors.accent,
             LucideIcons.stethoscope,
@@ -416,7 +420,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
         const SizedBox(width: 10),
         Expanded(
           child: _metricCard(
-            context.tr('supply_crises') ?? 'أزمات الإمداد',
+            context.tr('supply_crises'),
             supplyCount,
             AppColors.warning,
             LucideIcons.package,
@@ -426,7 +430,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
         const SizedBox(width: 10),
         Expanded(
           child: _metricCard(
-            context.tr('total_alerts') ?? 'إجمالي التنبيهات',
+            context.tr('total_alerts'),
             allAlerts.length,
             AppColors.info,
             LucideIcons.bell,
@@ -529,7 +533,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           ],
           Expanded(
             child: Text(
-              title ?? context.tr('active_alerts') ?? 'التنبيهات النشطة',
+              title ?? context.tr('active_alerts'),
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
             ),
           ),
@@ -540,7 +544,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
               controller: _searchCtrl,
               style: TextStyle(fontSize: 12, color: AppColors.textPrimary),
               decoration: InputDecoration(
-                hintText: context.tr('search') ?? 'بحث...',
+                hintText: context.tr('search'),
                 hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 prefixIcon: Icon(Icons.search, size: 16, color: AppColors.textSecondary),
                 filled: true,
@@ -610,7 +614,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                       controller: _contentScroll,
                       padding: const EdgeInsets.all(16),
                       itemCount: filtered.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (_, i) => _alertListTile(filtered[i]),
                     ),
         ),
@@ -781,7 +785,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
-              '+ ${alerts.length - 4} ${context.tr('more_alerts') ?? 'تنبيهات أخرى'}',
+              '+ ${alerts.length - 4} ${context.tr('more_alerts')}',
               style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
           ),
@@ -932,7 +936,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
             Icon(Icons.check_circle_outline, size: 48, color: AppColors.success),
             const SizedBox(height: 12),
             Text(
-              context.tr('no_matching_alerts') ?? 'لا توجد تنبيهات مطابقة',
+              context.tr('no_matching_alerts'),
               style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ],
@@ -958,7 +962,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
             ),
             const SizedBox(width: 10),
             Text(
-              context.tr('alert_details') ?? 'تفاصيل التنبيه',
+              context.tr('alert_details'),
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
           ],
@@ -970,12 +974,12 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
             Text(alert.message, style: TextStyle(fontSize: 14, color: AppColors.textPrimary, height: 1.5)),
             const SizedBox(height: 12),
             Text(
-              '${context.tr('suggested_action') ?? 'الإجراء المقترح:'} ${alert.action}',
+              '${context.tr('suggested_action')} ${alert.action}',
               style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 4),
             Text(
-              '${context.tr('time_label') ?? 'الوقت:'} ${alert.time}',
+              '${context.tr('time_label')} ${alert.time}',
               style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
             ),
           ],
@@ -983,13 +987,13 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(context.tr('close') ?? 'إغلاق', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(context.tr('close'), style: TextStyle(color: AppColors.textSecondary)),
           ),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('${context.tr('action_executed_successfully') ?? 'تم تنفيذ:'} ${alert.action}'),
+                content: Text('${context.tr('action_executed_successfully')} ${alert.action}'),
                 backgroundColor: AppColors.success,
                 duration: const Duration(seconds: 2),
               ));
@@ -1019,9 +1023,9 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           style: TextStyle(fontSize: 11, color: AppColors.textPrimary),
           dropdownColor: AppColors.surface,
           items: [
-            DropdownMenuItem(value: 'newest', child: Text(context.tr('sort_newest') ?? 'الأحدث')),
-            DropdownMenuItem(value: 'oldest', child: Text(context.tr('sort_oldest') ?? 'الأقدم')),
-            DropdownMenuItem(value: 'severity', child: Text(context.tr('sort_severity') ?? 'الأشد')),
+            DropdownMenuItem(value: 'newest', child: Text(context.tr('sort_newest'))),
+            DropdownMenuItem(value: 'oldest', child: Text(context.tr('sort_oldest'))),
+            DropdownMenuItem(value: 'severity', child: Text(context.tr('sort_severity'))),
           ],
           onChanged: (v) => setState(() => _sortMode = v!),
         ),
@@ -1040,18 +1044,18 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
               _liveDot(),
               const SizedBox(width: 8),
               Text(
-                context.tr('live_activity_feed') ?? 'سجل الأنشطة المباشر',
+                context.tr('live_activity_feed'),
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
               const Spacer(),
               Text('${_feedItems.length}', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               const SizedBox(width: 4),
-              Text(context.tr('alert_count') ?? 'تنبيه', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text(context.tr('alert_count'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               const SizedBox(width: 8),
               IconButton(
-                onPressed: () => setState(() => _feedItems.clear()),
+                onPressed: () => setState(_bootstrapLiveFeed),
                 icon: Icon(Icons.delete_outline, size: 18, color: AppColors.textSecondary),
-                tooltip: context.tr('clear') ?? 'مسح',
+                tooltip: context.tr('clear'),
               ),
             ],
           ),
@@ -1064,7 +1068,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   controller: _feedScroll,
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   itemCount: _feedItems.length,
-                  separatorBuilder: (_, __) => Divider(height: 1, color: AppColors.border.withValues(alpha: 0.5)),
+                  separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.border.withValues(alpha: 0.5)),
                   itemBuilder: (ctx, i) {
                     final item = _feedItems[i];
                     final color = item.category == AlertCategory.fraud
@@ -1073,10 +1077,10 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                             ? AppColors.accent
                             : AppColors.warning;
                     final label = item.category == AlertCategory.fraud
-                        ? (context.tr('security_fraud_short') ?? 'احتيال')
+                        ? (context.tr('security_fraud_short'))
                         : item.category == AlertCategory.clinical
-                            ? (context.tr('clinical_short') ?? 'سريري')
-                            : (context.tr('supply_short') ?? 'إمداد');
+                            ? (context.tr('clinical_short'))
+                            : (context.tr('supply_short'));
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       child: Row(
@@ -1233,7 +1237,7 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: suggestions.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) => ActionChip(
                     label: Text(suggestions[i], style: const TextStyle(fontSize: 11)),
                     backgroundColor: AppColors.background,

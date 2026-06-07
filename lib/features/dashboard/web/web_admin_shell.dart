@@ -1,6 +1,4 @@
 import '../admin_views/alert_os_dashboard.dart';
-import 'dart:async';
-import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -210,7 +208,7 @@ class _Sidebar extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                   width: 1,
                 ),
               ),
@@ -353,7 +351,7 @@ class _Sidebar extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                   width: 1,
                 ),
               ),
@@ -417,7 +415,7 @@ class _Sidebar extends StatelessWidget {
       child: Text(
         label.toUpperCase(),
         style: TextStyle(
-          color: Colors.white.withOpacity(0.35),
+          color: Colors.white.withValues(alpha: 0.35),
           fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
@@ -432,7 +430,7 @@ class _Sidebar extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: Colors.white.withOpacity(0.28),
+          color: Colors.white.withValues(alpha: 0.28),
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
@@ -466,7 +464,7 @@ class _Sidebar extends StatelessWidget {
               size: 16,
               color: isSelected
                   ? Colors.white
-                  : Colors.white.withOpacity(0.55),
+                  : Colors.white.withValues(alpha: 0.55),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -475,7 +473,7 @@ class _Sidebar extends StatelessWidget {
                 style: TextStyle(
                   color: isSelected
                       ? Colors.white
-                      : Colors.white.withOpacity(0.65),
+                      : Colors.white.withValues(alpha: 0.65),
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
@@ -1123,7 +1121,7 @@ class _KpiCard extends StatelessWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -1139,7 +1137,7 @@ class _KpiCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.10),
+                  color: accentColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: accentColor, size: 20),
@@ -1219,7 +1217,7 @@ class _ChartCard extends StatelessWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -1262,10 +1260,10 @@ class _ChartCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: (pillColor ?? AppColors.success).withOpacity(0.1),
+                    color: (pillColor ?? AppColors.success).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: (pillColor ?? AppColors.success).withOpacity(0.25),
+                      color: (pillColor ?? AppColors.success).withValues(alpha: 0.25),
                     ),
                   ),
                   child: Text(
@@ -1318,7 +1316,7 @@ class _ObesityLineChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             getDrawingHorizontalLine: (_) => FlLine(
-              color: AppColors.border.withOpacity(0.6),
+              color: AppColors.border.withValues(alpha: 0.6),
               strokeWidth: 1,
             ),
           ),
@@ -1377,7 +1375,7 @@ class _ObesityLineChart extends StatelessWidget {
               isStrokeCapRound: true,
               dotData: FlDotData(
                 show: true,
-                getDotPainter: (spot, __, ___, ____) => FlDotCirclePainter(
+                getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
                   radius: 3.5,
                   color: AppColors.primary,
                   strokeWidth: 2,
@@ -1388,7 +1386,7 @@ class _ObesityLineChart extends StatelessWidget {
                 show: true,
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primary.withOpacity(0.18),
+                    AppColors.primary.withValues(alpha: 0.18),
                     Colors.transparent,
                   ],
                   begin: Alignment.topCenter,
@@ -1402,7 +1400,7 @@ class _ObesityLineChart extends StatelessWidget {
                 (i) => FlSpot(i.toDouble(), targetLine[i]),
               ),
               isCurved: false,
-              color: AppColors.accent.withOpacity(0.7),
+              color: AppColors.accent.withValues(alpha: 0.7),
               barWidth: 1.5,
               isStrokeCapRound: false,
               dashArray: [5, 4],
@@ -1499,7 +1497,7 @@ class _ConsumptionBarChart extends StatelessWidget {
                   show: true,
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.border.withOpacity(0.6),
+                    color: AppColors.border.withValues(alpha: 0.6),
                     strokeWidth: 1,
                   ),
                 ),
@@ -1520,7 +1518,7 @@ class _ConsumptionBarChart extends StatelessWidget {
                       ),
                       BarChartRodData(
                         toY: targets[i],
-                        color: AppColors.accent.withOpacity(0.7),
+                        color: AppColors.accent.withValues(alpha: 0.7),
                         width: 20,
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(5),
@@ -1696,7 +1694,7 @@ class _AdherenceBarChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             getDrawingHorizontalLine: (_) => FlLine(
-              color: AppColors.border.withOpacity(0.6),
+              color: AppColors.border.withValues(alpha: 0.6),
               strokeWidth: 1,
             ),
           ),
@@ -1791,8 +1789,8 @@ class _CenterInventoryTable extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: low
-                          ? AppColors.error.withOpacity(0.1)
-                          : AppColors.success.withOpacity(0.1),
+                          ? AppColors.error.withValues(alpha: 0.1)
+                          : AppColors.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -1861,7 +1859,7 @@ class _AiAlertsPanel extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.25),
+            color: AppColors.primary.withValues(alpha: 0.25),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -1920,9 +1918,9 @@ class _AlertTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1931,7 +1929,7 @@ class _AlertTile extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: data.color.withOpacity(0.2),
+              color: data.color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(data.icon, color: data.color, size: 16),
@@ -1953,7 +1951,7 @@ class _AlertTile extends StatelessWidget {
                 Text(
                   data.time,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: Colors.white.withValues(alpha: 0.4),
                     fontSize: 10,
                   ),
                 ),
@@ -2195,7 +2193,7 @@ class _PatientsViewState extends State<_PatientsView> {
                     Expanded(
                       child: ListView.separated(
                         itemCount: pageItems.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (_, _) =>
                             Divider(height: 1, color: AppColors.border),
                         itemBuilder: (context, i) {
                           final p = pageItems[i];
@@ -2377,15 +2375,15 @@ class _PatientsViewState extends State<_PatientsView> {
                               ),
                               _infoRow(context.tr('current_treatment_plan'), p.currentDose),
                               _infoRow(
-                                context.tr('last_dispense_date') + ':',
+                                '${context.tr('last_dispense_date')}:',
                                 p.lastDispensingDate ?? 'غير متوفر',
                               ),
                               _infoRow(
-                                context.tr('next_eligible_date') + ':',
+                                '${context.tr('next_eligible_date')}:',
                                 p.nextEligibleDate ?? 'غير متوفر',
                               ),
                               _infoRow(
-                                context.tr('compliance_rate') + ':',
+                                '${context.tr('compliance_rate')}:',
                                 '${(p.complianceRate * 100).toInt()}%',
                               ),
                               const SizedBox(height: 24),
@@ -2461,15 +2459,15 @@ class _PatientsViewState extends State<_PatientsView> {
                                 ),
                                 _infoRow('رقم الهوية:', p.emiratesId),
                                 _infoRow(
-                                  context.tr('nationality') + ':',
+                                  '${context.tr('nationality')}:',
                                   p.getLocalizedNationality(context),
                                 ),
                                 _infoRow(
-                                  context.tr('residency_status') + ':',
+                                  '${context.tr('residency_status')}:',
                                   p.getLocalizedResidency(context),
                                 ),
                                 _infoRow(
-                                  context.tr('emirate') + ':',
+                                  '${context.tr('emirate')}:',
                                   p.getLocalizedEmirate(context),
                                 ),
                                 const SizedBox(height: 24),
@@ -2642,15 +2640,15 @@ class _StatusChip extends StatelessWidget {
     Color bg, fg;
     switch (status) {
       case 'Flagged':
-        bg = AppColors.error.withOpacity(0.1);
+        bg = AppColors.error.withValues(alpha: 0.1);
         fg = AppColors.error;
         break;
       case 'Override':
-        bg = AppColors.warning.withOpacity(0.1);
+        bg = AppColors.warning.withValues(alpha: 0.1);
         fg = AppColors.warning;
         break;
       default:
-        bg = AppColors.success.withOpacity(0.1);
+        bg = AppColors.success.withValues(alpha: 0.1);
         fg = AppColors.success;
     }
     return Container(
@@ -2947,15 +2945,15 @@ class _InventoryCardState extends State<_InventoryCard> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: anyLow
-                ? AppColors.error.withOpacity(0.7)
+                ? AppColors.error.withValues(alpha: 0.7)
                 : (_isHovered
-                      ? AppColors.primary.withOpacity(0.5)
+                      ? AppColors.primary.withValues(alpha: 0.5)
                       : AppColors.border),
             width: anyLow || _isHovered ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(_isHovered ? 0.06 : 0.02),
+              color: Colors.black.withValues(alpha: _isHovered ? 0.06 : 0.02),
               blurRadius: _isHovered ? 16 : 8,
               offset: Offset(0, _isHovered ? 6 : 2),
             ),
@@ -2971,7 +2969,7 @@ class _InventoryCardState extends State<_InventoryCard> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(LucideIcons.store, color: AppColors.primary),
@@ -3057,13 +3055,13 @@ class _InventoryCardState extends State<_InventoryCard> {
                   ),
                   decoration: BoxDecoration(
                     color: anyLow
-                        ? AppColors.error.withOpacity(0.08)
-                        : AppColors.success.withOpacity(0.08),
+                        ? AppColors.error.withValues(alpha: 0.08)
+                        : AppColors.success.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: anyLow
-                          ? AppColors.error.withOpacity(0.3)
-                          : AppColors.success.withOpacity(0.3),
+                          ? AppColors.error.withValues(alpha: 0.3)
+                          : AppColors.success.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -3267,14 +3265,14 @@ class _InventoryCardState extends State<_InventoryCard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: color.withOpacity(0.15),
+            backgroundColor: color.withValues(alpha: 0.15),
             radius: 18,
             child: Icon(icon, color: color, size: 18),
           ),
@@ -3461,14 +3459,14 @@ class _KPICard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isCritical
-              ? AppColors.error.withOpacity(0.3)
+              ? AppColors.error.withValues(alpha: 0.3)
               : AppColors.border,
         ),
       ),
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: iconColor.withOpacity(0.1),
+            backgroundColor: iconColor.withValues(alpha: 0.1),
             radius: 24,
             child: Icon(icon, color: iconColor, size: 24),
           ),
@@ -3675,7 +3673,7 @@ class _FraudAuditView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dp = context.watch<DataProvider>();
-    final alerts = fraudProgramAlerts(context, dp);
+    final logs = dp.misusePreventionLogs;
 
     return Padding(
       padding: const EdgeInsets.all(28),
@@ -3703,7 +3701,7 @@ class _FraudAuditView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.border),
               ),
-              child: alerts.isEmpty
+              child: logs.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -3727,35 +3725,52 @@ class _FraudAuditView extends StatelessWidget {
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.all(16),
-                      itemCount: alerts.length,
-                      separatorBuilder: (_, __) =>
+                      itemCount: logs.length,
+                      separatorBuilder: (_, _) =>
                           Divider(color: AppColors.border, height: 1),
                       itemBuilder: (context, i) {
-                        final alert = alerts[i];
+                        final log = logs[i];
+                        final isOverride = log.status == 'Overridden';
+                        final color = isOverride ? AppColors.warning : AppColors.error;
                         return ListTile(
                           leading: Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: alert.color.withValues(alpha: 0.12),
+                              color: color.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
-                              alert.icon,
-                              color: alert.color,
+                              isOverride ? LucideIcons.shieldCheck : LucideIcons.shieldAlert,
+                              color: color,
                               size: 20,
                             ),
                           ),
                           title: Text(
-                            alert.message,
+                            context.tr('fraud_log_entry', {
+                              'patient': log.getLocalizedPatientName(context),
+                              'id': log.patientId,
+                              'action': log.getLocalizedAction(context),
+                              'center': log.getLocalizedCenterName(context),
+                            }),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
                           ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '${log.getLocalizedStatus(context)} · ${log.getLocalizedCenterName(context)}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
                           trailing: Text(
-                            alert.time,
+                            log.formatTimestamp(context),
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -3882,7 +3897,7 @@ class _ManageDoctorsView extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: dp.doctors.length,
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (_, _) =>
                       Divider(height: 1, color: AppColors.border),
                   itemBuilder: (context, i) {
                     final doc = dp.doctors[i];
@@ -3892,7 +3907,7 @@ class _ManageDoctorsView extends StatelessWidget {
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         child: Icon(
                           LucideIcons.stethoscope,
                           color: AppColors.primary,
@@ -4162,7 +4177,7 @@ class _ManageCentersView extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: dp.therapyCenters.length,
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (_, _) =>
                       Divider(height: 1, color: AppColors.border),
                   itemBuilder: (context, i) {
                     final center = dp.therapyCenters[i];
@@ -4172,7 +4187,7 @@ class _ManageCentersView extends StatelessWidget {
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.accent.withOpacity(0.1),
+                        backgroundColor: AppColors.accent.withValues(alpha: 0.1),
                         child: Icon(
                           LucideIcons.building,
                           color: AppColors.textPrimary,

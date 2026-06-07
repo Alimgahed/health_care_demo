@@ -68,8 +68,11 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
                   value: isSelected,
                   onChanged: (val) {
                     setState(() {
-                      if (val == true) _selected.add(ex);
-                      else _selected.removeWhere((e) => e.id == ex.id);
+                      if (val == true) {
+                        _selected.add(ex);
+                      } else {
+                        _selected.removeWhere((e) => e.id == ex.id);
+                      }
                     });
                   },
                   secondary: CircleAvatar(

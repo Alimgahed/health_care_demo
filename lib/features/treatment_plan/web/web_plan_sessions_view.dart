@@ -54,14 +54,14 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
               child: Icon(LucideIcons.calendarX2, size: 36, color: AppColors.primary),
             ),
             const SizedBox(height: 16),
-            Text(context.tr('no_treatment_plan_mobile') ?? 'No Plan', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+            Text(context.tr('no_treatment_plan_mobile'), style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
           ],
         ),
       );
     }
 
     final upcomingSession = plan.sessions.firstWhere((s) => !s.isAttended, orElse: () => plan.sessions.last);
-    final centerName = plan.assignedCenterId == null ? (context.tr('not_assigned') ?? 'Not Assigned') : provider.therapyCenterLabel(context, plan.assignedCenterId);
+    final centerName = plan.assignedCenterId == null ? (context.tr('not_assigned')) : provider.therapyCenterLabel(context, plan.assignedCenterId);
 
     final attendedSessions = plan.sessions.where((s) => s.isAttended).toList();
     final upcomingSessions = plan.sessions.where((s) => !s.isAttended).toList();
@@ -146,7 +146,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.tr('nav_sessions') ?? 'Sessions', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                Text(context.tr('nav_sessions'), style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                 Text('Track your therapy journey', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
               ],
             ),
@@ -259,7 +259,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Next Session', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
-                          Text(context.tr('session_n_of_total', {'n': '${upcomingSession.sessionNumber}', 'total': '${plan.totalSessions}'}) ?? 'Session ${upcomingSession.sessionNumber}',
+                          Text(context.tr('session_n_of_total', {'n': '${upcomingSession.sessionNumber}', 'total': '${plan.totalSessions}'}),
                               style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -292,7 +292,7 @@ class _WebPlanSessionsViewState extends State<WebPlanSessionsView> with TickerPr
                             Navigator.push(context, MaterialPageRoute(builder: (context) => SessionCheckinScreen(plan: plan, session: upcomingSession)));
                           },
                     icon: Icon(isCompleted ? LucideIcons.checkCircle : LucideIcons.logIn, size: 18),
-                    label: Text(isCompleted ? 'Completed' : (context.tr('session_checkin') ?? 'Check-in'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    label: Text(isCompleted ? 'Completed' : (context.tr('session_checkin')), style: const TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.background,
                       foregroundColor: AppColors.primary,

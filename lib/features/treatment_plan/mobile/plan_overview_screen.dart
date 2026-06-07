@@ -123,7 +123,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(LucideIcons.clipboardList,
@@ -175,13 +175,13 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: plan.clinicalApprovalStatus == 'approved'
-                ? AppColors.success.withOpacity(0.12)
-                : AppColors.warning.withOpacity(0.12),
+                ? AppColors.success.withValues(alpha: 0.12)
+                : AppColors.warning.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: plan.clinicalApprovalStatus == 'approved'
-                  ? AppColors.success.withOpacity(0.3)
-                  : AppColors.warning.withOpacity(0.3),
+                  ? AppColors.success.withValues(alpha: 0.3)
+                  : AppColors.warning.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -200,8 +200,8 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               const SizedBox(width: 6),
               Text(
                 plan.clinicalApprovalStatus == 'approved'
-                    ? (context.tr('approved') ?? 'Approved')
-                    : (context.tr('pending_review') ?? 'Pending'),
+                    ? (context.tr('approved'))
+                    : (context.tr('pending_review')),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -229,7 +229,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.35),
+            color: AppColors.primary.withValues(alpha: 0.35),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
@@ -246,7 +246,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               height: 150,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.surface.withOpacity(0.06),
+                color: AppColors.surface.withValues(alpha: 0.06),
               ),
             ),
           ),
@@ -258,7 +258,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.accent.withOpacity(0.15),
+                color: AppColors.accent.withValues(alpha: 0.15),
               ),
             ),
           ),
@@ -282,7 +282,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                                 size: const Size(110, 110),
                                 painter: _RingPainter(
                                   progress: progress * _progressAnimation.value,
-                                  backgroundColor: AppColors.background.withOpacity(0.15),
+                                  backgroundColor: AppColors.background.withValues(alpha: 0.15),
                                   progressColor: AppColors.accent,
                                   strokeWidth: 9,
                                 ),
@@ -299,7 +299,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                                     ),
                                   ),
                                   Text(
-                                    'Goal',
+                                    context.tr('goal'),
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: AppColors.surface70,
@@ -319,7 +319,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Weight Goal',
+                            context.tr('weight_goal'),
                             style: TextStyle(
                               color: AppColors.surface70,
                               fontSize: 12,
@@ -329,7 +329,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${plan.targetWeight} kg',
+                            "${plan.targetWeight} ${context.tr('kg_label')}",
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
@@ -342,11 +342,11 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: AppColors.surface.withOpacity(0.15),
+                              color: AppColors.surface.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
-                              '${weightToGo.toStringAsFixed(1)} kg to go',
+                              context.tr('weight_to_go', {'weight': '${weightToGo.toStringAsFixed(1)}'}),
                               style: TextStyle(
                                 color: AppColors.surface,
                                 fontSize: 12,
@@ -368,14 +368,14 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Journey Progress',
+                          context.tr('journey_progress'),
                           style: TextStyle(
                               color: AppColors.surface70,
                               fontSize: 12,
                               fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          'Lost ${weightLost.toStringAsFixed(1)} kg',
+                          context.tr('weight_lost', {'weight': '${weightLost.toStringAsFixed(1)}'}),
                           style: const TextStyle(
                             color: AppColors.accent,
                             fontSize: 12,
@@ -392,7 +392,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                           borderRadius: BorderRadius.circular(6),
                           child: LinearProgressIndicator(
                             value: progress * _progressAnimation.value,
-                            backgroundColor: AppColors.background.withOpacity(0.2),
+                            backgroundColor: AppColors.background.withValues(alpha: 0.2),
                             valueColor: const AlwaysStoppedAnimation<Color>(
                                 AppColors.accent),
                             minHeight: 8,
@@ -421,9 +421,9 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           child: _buildMiniStat(
             context, isDark, cardBg, borderColor,
             icon: LucideIcons.checkCircle2,
-            label: 'Sessions',
+            label: context.tr('sessions_label'),
             value: '$attended',
-            sub: 'of ${plan.totalSessions}',
+            sub: context.tr('session_completed', {'completed': '', 'total': '${plan.totalSessions}'}).replaceFirst(' ', ''),
             color: AppColors.primary,
           ),
         ),
@@ -432,9 +432,9 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           child: _buildMiniStat(
             context, isDark, cardBg, borderColor,
             icon: LucideIcons.trendingUp,
-            label: 'Adherence',
+            label: context.tr('adherence'),
             value: '95%',
-            sub: 'Excellent',
+            sub: context.tr('excellent'),
             color: AppColors.success,
           ),
         ),
@@ -443,9 +443,9 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           child: _buildMiniStat(
             context, isDark, cardBg, borderColor,
             icon: LucideIcons.flame,
-            label: 'Streak',
+            label: context.tr('streak'),
             value: '12',
-            sub: 'days',
+            sub: context.tr('days_label'),
             color: AppColors.accent,
           ),
         ),
@@ -472,7 +472,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -484,7 +484,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 16, color: color),
@@ -535,7 +535,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -548,7 +548,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Weight Journey',
+                context.tr('weight_journey'),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -558,11 +558,11 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.1),
+                  color: AppColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  '↓ ${weightLost.toStringAsFixed(1)} kg lost',
+                  context.tr('weight_lost', {'weight': '${weightLost.toStringAsFixed(1)}'}),
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.success,
@@ -577,7 +577,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
             children: [
               _buildWeightPoint(
                 context, isDark,
-                label: 'Start',
+                label: context.tr('start_label'),
                 weight: startWeight,
                 color: AppColors.error,
                 isActive: false,
@@ -586,7 +586,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Container(height: 2, color: AppColors.primary.withOpacity(0.15)),
+                    Container(height: 2, color: AppColors.primary.withValues(alpha: 0.15)),
                     Container(
                       height: 2,
                       alignment: Alignment.centerLeft,
@@ -608,7 +608,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        '${currentWeight.toStringAsFixed(1)} kg',
+                        "${currentWeight.toStringAsFixed(1)} ${context.tr('kg_label')}",
                         style: TextStyle(
                           color: AppColors.surface,
                           fontSize: 11,
@@ -621,7 +621,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               ),
               _buildWeightPoint(
                 context, isDark,
-                label: 'Target',
+                label: context.tr('target_label'),
                 weight: plan.targetWeight.toDouble(),
                 color: AppColors.success,
                 isActive: true,
@@ -634,8 +634,8 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               Expanded(
                 child: _buildJourneyMetric(
                   isDark,
-                  label: 'BMI Progress',
-                  value: 'Improving',
+                  label: context.tr('bmi_progress'),
+                  value: context.tr('improving'),
                   icon: LucideIcons.activity,
                   color: AppColors.info,
                 ),
@@ -644,8 +644,8 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               Expanded(
                 child: _buildJourneyMetric(
                   isDark,
-                  label: 'Est. Completion',
-                  value: '8 weeks',
+                  label: context.tr('est_completion'),
+                  value: context.tr('weeks_count', {'count': '8'}),
                   icon: LucideIcons.calendarClock,
                   color: AppColors.accent,
                 ),
@@ -668,12 +668,12 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
             color: color,
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.surface, width: 2),
-            boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 6)],
+            boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 6)],
           ),
         ),
         const SizedBox(height: 6),
         Text(
-          '${weight.toStringAsFixed(0)}kg',
+          "${weight.toStringAsFixed(0)} ${context.tr('kg_label')}",
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -693,9 +693,9 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.15)),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
@@ -732,7 +732,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -748,7 +748,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(LucideIcons.clipboardList,
@@ -756,7 +756,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  context.tr('plan_details') ?? 'Plan Details',
+                  context.tr('plan_details_title'),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -769,27 +769,27 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           const SizedBox(height: 16),
           _buildDetailTile(context, isDark,
               icon: LucideIcons.userCircle,
-              label: context.tr('assigned_doctor') ?? 'Doctor',
+              label: context.tr('assigned_doctor'),
               value: plan.doctorName,
               iconColor: AppColors.primary),
           _buildDivider(isDark),
           _buildDetailTile(context, isDark,
               icon: LucideIcons.calendarDays,
-              label: context.tr('treatment_start') ?? 'Started',
+              label: context.tr('treatment_start'),
               value:
                   '${plan.createdAt.day} / ${plan.createdAt.month} / ${plan.createdAt.year}',
               iconColor: AppColors.info),
           _buildDivider(isDark),
           _buildDetailTile(context, isDark,
               icon: LucideIcons.target,
-              label: 'Plan Duration',
-              value: '${plan.totalSessions} Sessions',
+              label: context.tr('treatment_duration'),
+              value: context.tr('sessions_count', {'count': '${plan.totalSessions}'}),
               iconColor: AppColors.accent),
           _buildDivider(isDark),
           _buildDetailTile(context, isDark,
               icon: LucideIcons.stethoscope,
-              label: 'Treatment Type',
-              value: 'Nutritional Therapy',
+              label: context.tr('treatment_type_label'),
+              value: context.tr('nutritional_therapy'),
               iconColor: AppColors.textPrimary),
           const SizedBox(height: 4),
         ],
@@ -809,7 +809,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 16, color: iconColor),
@@ -859,7 +859,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -872,7 +872,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Recent Sessions',
+                context.tr('recent_sessions'),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -882,7 +882,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               GestureDetector(
                 onTap: () {},
                 child: Text(
-                  'View All',
+                  context.tr('view_all'),
                   style: TextStyle(
                     color: AppColors.primary,
                     fontSize: 13,
@@ -896,10 +896,14 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           // Session dots timeline
           Row(
             children: List.generate(plan.totalSessions.clamp(0, 10), (index) {
-              final isAttended = index < sessions.length
-                  ? (sessions[index].isAttended ?? false)
-                  : false;
-              final isCurrent = index == sessions.length;
+              final session = index < plan.sessions.length ? plan.sessions[index] : null;
+              final isAttended = session?.isAttended == true;
+              final isMissed = session != null && !isAttended && session.scheduledDate.isBefore(DateTime.now().subtract(const Duration(days: 1)));
+              
+              int upcomingIdx = plan.sessions.indexWhere((s) => s.isAttended != true && s.scheduledDate.isAfter(DateTime.now().subtract(const Duration(days: 1))));
+              if (upcomingIdx == -1) upcomingIdx = plan.sessions.where((s) => s.isAttended == true).length;
+              final isCurrent = index == upcomingIdx;
+
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -909,25 +913,28 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                         height: 32,
                         decoration: BoxDecoration(
                           color: isCurrent
-                              ? AppColors.accent.withOpacity(0.2)
+                              ? AppColors.accent.withValues(alpha: 0.2)
                               : isAttended
                                   ? AppColors.primary
-                                  : isDark
-                                      ? AppColors.darkBorder
-                                      : AppColors.border,
+                                  : isMissed
+                                      ? AppColors.error.withValues(alpha: 0.15)
+                                      : isDark
+                                          ? AppColors.darkBorder
+                                          : AppColors.border,
                           borderRadius: BorderRadius.circular(6),
                           border: isCurrent
-                              ? Border.all(
-                                  color: AppColors.accent, width: 1.5)
-                              : null,
+                              ? Border.all(color: AppColors.accent, width: 1.5)
+                              : isMissed
+                                  ? Border.all(color: AppColors.error, width: 1.0)
+                                  : null,
                         ),
                         child: isCurrent
-                            ? const Icon(LucideIcons.clock,
-                                size: 12, color: AppColors.accent)
+                            ? const Icon(LucideIcons.clock, size: 12, color: AppColors.accent)
                             : isAttended
-                                ? Icon(LucideIcons.check,
-                                    size: 12, color: AppColors.surface)
-                                : null,
+                                ? Icon(LucideIcons.check, size: 12, color: AppColors.surface)
+                                : isMissed
+                                    ? const Icon(LucideIcons.x, size: 12, color: AppColors.error)
+                                    : null,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -948,13 +955,15 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildLegendDot(AppColors.primary, 'Attended'),
-              const SizedBox(width: 16),
-              _buildLegendDot(AppColors.accent, 'Upcoming'),
-              const SizedBox(width: 16),
+              _buildLegendDot(AppColors.primary, context.tr('attended_status')),
+              const SizedBox(width: 12),
+              _buildLegendDot(AppColors.accent, context.tr('upcoming_status')),
+              const SizedBox(width: 12),
+              _buildLegendDot(AppColors.error, context.tr('missed_status')),
+              const SizedBox(width: 12),
               _buildLegendDot(
                   isDark ? AppColors.darkBorder : AppColors.border,
-                  'Scheduled'),
+                  context.tr('scheduled_status')),
             ],
           ),
         ],
@@ -983,7 +992,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
     final nextMilestone = progress < 0.25
         ? '25% Goal Reached'
         : progress < 0.5
-            ? 'Halfway Point'
+            ? context.tr('halfway_point')
             : progress < 0.75
                 ? '75% Goal Reached'
                 : 'Final Goal';
@@ -1009,7 +1018,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withOpacity(0.4),
+            color: AppColors.navy.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -1020,7 +1029,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.accent.withOpacity(0.2),
+              color: AppColors.accent.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(LucideIcons.trophy,
@@ -1032,7 +1041,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Next Milestone',
+                  context.tr('next_milestone'),
                   style: TextStyle(
                     color: AppColors.surface60,
                     fontSize: 12,
@@ -1054,7 +1063,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: milestoneProgress.clamp(0.0, 1.0),
-                    backgroundColor: AppColors.background.withOpacity(0.15),
+                    backgroundColor: AppColors.background.withValues(alpha: 0.15),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                         AppColors.accent),
                     minHeight: 5,
@@ -1085,7 +1094,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Health Metrics',
+          context.tr('health_metrics'),
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -1101,7 +1110,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                 icon: LucideIcons.droplets,
                 label: 'Hydration',
                 value: '2.4L',
-                unit: 'daily avg',
+                unit: context.tr('daily_avg'),
                 progress: 0.8,
                 color: AppColors.info,
               ),
@@ -1113,7 +1122,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                 icon: LucideIcons.utensils,
                 label: 'Calories',
                 value: '1,800',
-                unit: 'kcal / day',
+                unit: context.tr('kcal_per_day'),
                 progress: 0.72,
                 color: AppColors.warning,
               ),
@@ -1129,7 +1138,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                 icon: LucideIcons.footprints,
                 label: 'Steps',
                 value: '7,432',
-                unit: 'avg / day',
+                unit: context.tr('avg_per_day'),
                 progress: 0.74,
                 color: AppColors.success,
               ),
@@ -1141,7 +1150,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
                 icon: LucideIcons.moon,
                 label: 'Sleep',
                 value: '7.2h',
-                unit: 'per night',
+                unit: context.tr('per_night'),
                 progress: 0.9,
                 color: AppColors.navy,
               ),
@@ -1171,7 +1180,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -1217,7 +1226,7 @@ class _PlanOverviewScreenState extends State<PlanOverviewScreen>
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: color.withOpacity(0.12),
+              backgroundColor: color.withValues(alpha: 0.12),
               valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 4,
             ),

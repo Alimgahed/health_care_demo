@@ -13,6 +13,7 @@ enum ActivityEventType {
   documentUpload,
   inventoryReplenish,
   adminAction,
+  misusePrevented,
   other,
 }
 
@@ -63,6 +64,7 @@ class ActivityLog {
         ActivityEventType.clinicalReview => 'clinical_review',
         ActivityEventType.inventoryReplenish => 'inventory_replenish',
         ActivityEventType.adminAction => 'admin_action',
+        ActivityEventType.misusePrevented => 'misuse_prevented',
         _ => 'other',
       };
 
@@ -206,6 +208,36 @@ class ActivityLog {
       timestamp: timestamp,
       status: 'Success',
       statusAr: 'ناجح',
+    );
+  }
+
+  /// Blocked or supervisor-overridden misuse attempt (misuse prevention log).
+  static ActivityLog misusePrevented({
+    required String id,
+    required PatientRef patient,
+    required CenterRef center,
+    required String reason,
+    required String reasonAr,
+    required DateTime timestamp,
+    bool overridden = false,
+  }) {
+    return ActivityLog(
+      id: id,
+      patientName: patient.name,
+      patientNameAr: patient.nameAr,
+      patientId: patient.id,
+      eventType: ActivityEventType.misusePrevented,
+      action: overridden
+          ? 'Override approved · $reason · ${center.name}'
+          : 'Misuse blocked · $reason · ${center.name}',
+      actionAr: overridden
+          ? 'تجاوز معتمد · $reasonAr · ${center.nameAr}'
+          : 'منع إساءة · $reasonAr · ${center.nameAr}',
+      centerName: center.name,
+      centerNameAr: center.nameAr,
+      timestamp: timestamp,
+      status: overridden ? 'Overridden' : 'Flagged',
+      statusAr: overridden ? 'تم التجاوز' : 'مُبلّغ',
     );
   }
 }

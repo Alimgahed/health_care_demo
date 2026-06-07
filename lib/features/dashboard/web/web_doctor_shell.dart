@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -6,8 +5,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/constants/mock_data.dart';
-import '../../eligibility/eligibility_card.dart';
-import '../../eligibility/clinical_assessment_card.dart';
 import '../../auth/login_screen.dart';
 import '../../../core/widgets/skeleton_loader.dart';
 import '../../../core/widgets/custom_toast.dart';
@@ -283,7 +280,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
             decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
-                      color: Colors.white.withOpacity(0.08), width: 1)),
+                      color: Colors.white.withValues(alpha: 0.08), width: 1)),
             ),
             child: Row(
               children: [
@@ -354,7 +351,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
             decoration: BoxDecoration(
               border: Border(
                   top: BorderSide(
-                      color: Colors.white.withOpacity(0.08), width: 1)),
+                      color: Colors.white.withValues(alpha: 0.08), width: 1)),
             ),
             child: Row(
               children: [
@@ -407,7 +404,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
       child: Text(
         label.toUpperCase(),
         style: TextStyle(
-          color: Colors.white.withOpacity(0.35),
+          color: Colors.white.withValues(alpha: 0.35),
           fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
@@ -446,7 +443,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                 size: 16,
                 color: isSelected
                     ? Colors.white
-                    : Colors.white.withOpacity(0.55)),
+                    : Colors.white.withValues(alpha: 0.55)),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -454,7 +451,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                 style: TextStyle(
                   color: isSelected
                       ? Colors.white
-                      : Colors.white.withOpacity(0.65),
+                      : Colors.white.withValues(alpha: 0.65),
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
@@ -562,7 +559,8 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                 child: ElevatedButton.icon(
                   onPressed: () async {
                     final newP = await RegisterPatientDialog.show(context);
-                    if (newP != null && mounted) {
+                    if (newP != null) {
+                      if (!context.mounted) return;
                       setState(() => _selectedPatient = newP);
                       CustomToast.show(
                         context,
@@ -594,10 +592,10 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                           final patient = filtered[index];
                           bool isSelected = _selectedPatient != null && _selectedPatient!.id == patient.id;
                           return Container(
-                            color: isSelected ? AppColors.primary.withOpacity(0.04) : Colors.transparent,
+                            color: isSelected ? AppColors.primary.withValues(alpha: 0.04) : Colors.transparent,
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: isSelected ? AppColors.primary : AppColors.primary.withOpacity(0.1),
+                                backgroundColor: isSelected ? AppColors.primary : AppColors.primary.withValues(alpha: 0.1),
                                 child: Text(
                                   patient.getLocalizedFullName(context).substring(0, 1).toUpperCase(),
                                   style: TextStyle(
@@ -616,7 +614,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: patient.bmi >= 35 ? AppColors.error.withOpacity(0.1) : AppColors.success.withOpacity(0.1),
+                                  color: patient.bmi >= 35 ? AppColors.error.withValues(alpha: 0.1) : AppColors.success.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -695,7 +693,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
           });
         }
       },
-      selectedColor: AppColors.primary.withOpacity(0.15),
+      selectedColor: AppColors.primary.withValues(alpha: 0.15),
       backgroundColor: AppColors.background,
       labelStyle: TextStyle(
         color: isSelected ? AppColors.primary : AppColors.textSecondary,
@@ -868,6 +866,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
   }
 
   // Dialog to check in patient weight
+  // ignore: unused_element
   void _showWeightCheckInDialog(BuildContext context, Patient patient, DataProvider provider) {
     final controller = TextEditingController(text: patient.weight.toString());
     showDialog(
@@ -920,6 +919,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
   }
 
   // Dialog to escalate/change dose
+  // ignore: unused_element
   void _showEscalateDoseDialog(BuildContext context, Patient patient, DataProvider provider) {
     String selectedDose = patient.currentDose;
     final doses = ['2.5 mg', '5 mg', '7.5 mg', '10 mg', '12.5 mg', '15 mg'];
@@ -937,7 +937,7 @@ class _WebDoctorShellState extends State<WebDoctorShell> {
               Text(context.tr('select_new_dose')),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: doses.contains(selectedDose) ? selectedDose : doses.first,
+                initialValue: doses.contains(selectedDose) ? selectedDose : doses.first,
                 items: doses.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
                 onChanged: (val) {
                   if (val != null) {

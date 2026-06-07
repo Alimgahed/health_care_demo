@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/mock_data.dart';
@@ -58,7 +57,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
           children: [
             Icon(LucideIcons.clipboardList, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
-            Text(context.tr('no_treatment_plan_mobile') ?? 'No treatment plan', style: TextStyle(fontSize: 18, color: AppColors.textSecondary)),
+            Text(context.tr('no_treatment_plan_mobile'), style: TextStyle(fontSize: 18, color: AppColors.textSecondary)),
           ],
         ),
       );
@@ -95,7 +94,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('nav_overview_plan') ?? 'Plan Overview',
+                    Text(context.tr('nav_overview_plan'),
                         style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, letterSpacing: -0.5)),
                     Text('خطتك العلاجية الشاملة', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
                   ],
@@ -120,7 +119,7 @@ class _WebPlanOverviewViewState extends State<WebPlanOverviewView> with TickerPr
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        plan.clinicalApprovalStatus == 'approved' ? (context.tr('approved') ?? 'Approved') : (context.tr('pending_review') ?? 'Pending'),
+                        plan.clinicalApprovalStatus == 'approved' ? (context.tr('approved')) : (context.tr('pending_review')),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,

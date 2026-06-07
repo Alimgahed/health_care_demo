@@ -92,7 +92,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      AppColors.navy.withOpacity(0.8),
+                      AppColors.navy.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -115,7 +115,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                         t.translate('login_subtitle'),
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(
-                              color: AppColors.surface.withOpacity(0.9),
+                              color: AppColors.surface.withValues(alpha: 0.9),
                               letterSpacing: 2.0,
                             ),
                       ),
@@ -208,10 +208,10 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.06),
+                                color: AppColors.primary.withValues(alpha: 0.06),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.15),
+                                  color: AppColors.primary.withValues(alpha: 0.15),
                                 ),
                               ),
                               child: Row(
@@ -259,7 +259,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               boxShadow: _selectedRole != null
                                   ? [
                                       BoxShadow(
-                                        color: AppColors.primary.withOpacity(
+                                        color: AppColors.primary.withValues(alpha: 
                                           0.3,
                                         ),
                                         blurRadius: 24,
@@ -275,7 +275,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _selectedRole != null
                                     ? AppColors.primary
-                                    : AppColors.border.withOpacity(0.5),
+                                    : AppColors.border.withValues(alpha: 0.5),
                                 foregroundColor: _selectedRole != null
                                     ? Colors.white
                                     : AppColors.textSecondary,
@@ -334,7 +334,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor: AppColors.primary.withOpacity(0.05),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.05),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -376,7 +376,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
           curve: Curves.easeOutCubic,
           height: 240, // Uniform height
           transform: isHovered && !isSelected
-              ? (Matrix4.identity()..translate(0, -8, 0))
+              ? Matrix4.translationValues(0, -8, 0)
               : Matrix4.identity(),
           decoration: BoxDecoration(
             color: isSelected
@@ -432,7 +432,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                       // Optional subtle overlay for selection state
                       if (isSelected)
                         Container(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                         ),
                     ],
                   ),

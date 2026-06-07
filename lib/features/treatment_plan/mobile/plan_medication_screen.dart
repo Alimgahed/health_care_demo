@@ -3,7 +3,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/constants/mock_data.dart';
-import '../../../core/localization/locale_provider.dart';
 import '../../patient_app/medication_order/medication_order_wizard.dart' as mounjaro_demo;
 import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -102,7 +101,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -145,7 +144,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               ),
               const SizedBox(height: 4),
               Text(
-                'Mounjaro (Tirzepatide) — Weekly Injection',
+                context.tr('mounjaro_weekly'),
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
@@ -158,9 +157,9 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.primary.withOpacity(0.25)),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -197,7 +196,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.4),
+            color: AppColors.primary.withValues(alpha: 0.4),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
@@ -213,7 +212,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.surface.withOpacity(0.06),
+                color: AppColors.surface.withValues(alpha: 0.06),
               ),
             ),
           ),
@@ -225,7 +224,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.accent.withOpacity(0.12),
+                color: AppColors.accent.withValues(alpha: 0.12),
               ),
             ),
           ),
@@ -246,7 +245,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               height: 70 + (_pulseAnimation.value * 12),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.surface.withOpacity(
+                                color: AppColors.surface.withValues(alpha: 
                                   0.06 * (1 - _pulseAnimation.value),
                                 ),
                               ),
@@ -256,7 +255,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               height: 64,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.surface.withOpacity(0.15),
+                                color: AppColors.surface.withValues(alpha: 0.15),
                               ),
                               child: Icon(
                                 LucideIcons.syringe,
@@ -274,7 +273,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Next Mounjaro Dose',
+                            context.tr('next_mounjaro_dose'),
                             style: TextStyle(
                               color: AppColors.surface70,
                               fontSize: 12,
@@ -284,7 +283,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'In 5 Days',
+                            context.tr('in_days', {'days': '5'}),
                             style: TextStyle(
                               color: AppColors.surface,
                               fontSize: 28,
@@ -299,10 +298,10 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.accent.withOpacity(0.25),
+                              color: AppColors.accent.withValues(alpha: 0.25),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: AppColors.accent.withOpacity(0.4),
+                                color: AppColors.accent.withValues(alpha: 0.4),
                               ),
                             ),
                             child: const Text(
@@ -334,12 +333,12 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               height: 6,
                               decoration: BoxDecoration(
                                 color: isPast
-                                    ? AppColors.surface.withOpacity(0.9)
+                                    ? AppColors.surface.withValues(alpha: 0.9)
                                     : isToday
                                     ? AppColors.accent
                                     : isNext
-                                    ? AppColors.accent.withOpacity(0.5)
-                                    : AppColors.surface.withOpacity(0.2),
+                                    ? AppColors.accent.withValues(alpha: 0.5)
+                                    : AppColors.surface.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),
@@ -382,7 +381,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -395,7 +394,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Adherence Overview',
+                context.tr('adherence_overview'),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -410,11 +409,11 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.1),
+                  color: AppColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
-                  'Excellent',
+                child: Text(
+                  context.tr('excellent'),
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.success,
@@ -431,7 +430,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 child: _buildAdherenceStat(
                   isDark,
                   value: '100%',
-                  label: 'This Month',
+                  label: context.tr('this_month'),
                   color: AppColors.success,
                   icon: LucideIcons.checkCircle2,
                 ),
@@ -441,7 +440,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 child: _buildAdherenceStat(
                   isDark,
                   value: '4/4',
-                  label: 'Doses Taken',
+                  label: context.tr('doses_taken'),
                   color: AppColors.primary,
                   icon: LucideIcons.pill,
                 ),
@@ -451,7 +450,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 child: _buildAdherenceStat(
                   isDark,
                   value: '0',
-                  label: 'Missed',
+                  label: context.tr('missed'),
                   color: AppColors.info,
                   icon: LucideIcons.x,
                 ),
@@ -469,10 +468,10 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                       Container(
                         height: 36,
                         decoration: BoxDecoration(
-                          color: AppColors.success.withOpacity(0.15),
+                          color: AppColors.success.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppColors.success.withOpacity(0.3),
+                            color: AppColors.success.withValues(alpha: 0.3),
                           ),
                         ),
                         child: const Center(
@@ -485,7 +484,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Wk ${week + 1}',
+                        context.tr('week_n', {'n': '${week + 1}'}),
                         style: TextStyle(
                           fontSize: 10,
                           color: AppColors.textSecondary,
@@ -555,7 +554,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -570,7 +569,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.accent.withOpacity(0.12),
+                    color: AppColors.accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -581,7 +580,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Mounjaro — Dosage Information',
+                  context.tr('dosage_information'),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -598,8 +597,8 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             context,
             isDark,
             icon: LucideIcons.pill,
-            label: 'Medication',
-            value: 'Mounjaro (Tirzepatide)',
+            label: context.tr('medication_label'),
+            value: context.tr('mounjaro_tirzepatide'),
             color: AppColors.primary,
           ),
           _buildInfoDivider(isDark),
@@ -607,7 +606,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             context,
             isDark,
             icon: LucideIcons.droplets,
-            label: 'Current Dose',
+            label: context.tr('current_dose'),
             value: '5 mg',
             color: AppColors.accent,
           ),
@@ -616,7 +615,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             context,
             isDark,
             icon: LucideIcons.trendingUp,
-            label: 'Dose Escalation',
+            label: context.tr('dose_escalation'),
             value: '2.5 → 5 → 7.5 mg',
             color: AppColors.info,
           ),
@@ -625,8 +624,8 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             context,
             isDark,
             icon: LucideIcons.repeat,
-            label: 'Frequency',
-            value: 'Once Weekly',
+            label: context.tr('frequency'),
+            value: context.tr('once_weekly'),
             color: AppColors.warning,
           ),
           _buildInfoDivider(isDark),
@@ -634,8 +633,8 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             context,
             isDark,
             icon: LucideIcons.mapPin,
-            label: 'Injection Site',
-            value: 'Abdomen / Thigh / Upper Arm',
+            label: context.tr('injection_site'),
+            value: context.tr('abdomen_thigh_arm'),
             color: AppColors.success,
           ),
           _buildInfoDivider(isDark),
@@ -643,8 +642,8 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             context,
             isDark,
             icon: LucideIcons.thermometer,
-            label: 'Storage',
-            value: '2°C – 8°C (Refrigerated)',
+            label: context.tr('storage'),
+            value: context.tr('refrigerated'),
             color: AppColors.navy,
           ),
           _buildInfoDivider(isDark),
@@ -652,8 +651,8 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             context,
             isDark,
             icon: LucideIcons.building2,
-            label: 'Manufacturer',
-            value: 'Eli Lilly',
+            label: context.tr('manufacturer'),
+            value: context.tr('eli_lilly'),
             color: AppColors.primaryDark,
           ),
           const SizedBox(height: 4),
@@ -677,7 +676,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 16, color: color),
@@ -716,7 +715,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
   }
 
   Widget _buildTabBar(BuildContext context, bool isDark) {
-    final tabs = ['History', 'Schedule', 'Side Effects'];
+    final tabs = [context.tr('tab_history'), context.tr('tab_schedule'), context.tr('tab_side_effects')];
     final cardBg = isDark ? AppColors.darkSurface : Colors.white;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -780,31 +779,31 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
 
     final history = [
       {
-        'week': 'Week 4',
-        'date': '2 days ago',
-        'dose': '5 mg',
-        'site': 'Abdomen',
+        'week': context.tr('week_n', {'n': '4'}),
+        'date': context.tr('days_ago', {'n': '2'}),
+        'dose': "5 ${context.tr('mg_label')}",
+        'site': context.tr('abdomen'),
         'done': true,
       },
       {
-        'week': 'Week 3',
-        'date': '9 days ago',
-        'dose': '5 mg',
-        'site': 'Thigh',
+        'week': context.tr('week_n', {'n': '3'}),
+        'date': context.tr('days_ago', {'n': '9'}),
+        'dose': "5 ${context.tr('mg_label')}",
+        'site': context.tr('thigh'),
         'done': true,
       },
       {
-        'week': 'Week 2',
-        'date': '16 days ago',
-        'dose': '2.5 mg',
-        'site': 'Abdomen',
+        'week': context.tr('week_n', {'n': '2'}),
+        'date': context.tr('days_ago', {'n': '16'}),
+        'dose': "2.5 ${context.tr('mg_label')}",
+        'site': context.tr('abdomen'),
         'done': true,
       },
       {
-        'week': 'Week 1',
-        'date': '23 days ago',
-        'dose': '2.5 mg',
-        'site': 'Upper Arm',
+        'week': context.tr('week_n', {'n': '1'}),
+        'date': context.tr('days_ago', {'n': '23'}),
+        'dose': "2.5 ${context.tr('mg_label')}",
+        'site': context.tr('upper_arm'),
         'done': true,
       },
     ];
@@ -817,7 +816,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -830,7 +829,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                context.tr('injection_history') ?? 'Injection History',
+                context.tr('injection_history'),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -840,7 +839,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 ),
               ),
               Text(
-                '${history.length} doses',
+                context.tr('doses_count', {'count': '${history.length}'}),
                 style: TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
@@ -900,7 +899,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                     boxShadow: isCompleted
                         ? [
                             BoxShadow(
-                              color: AppColors.success.withOpacity(0.3),
+                              color: AppColors.success.withValues(alpha: 0.3),
                               blurRadius: 8,
                             ),
                           ]
@@ -925,7 +924,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                           end: Alignment.bottomCenter,
                           colors: [
                             AppColors.success,
-                            AppColors.success.withOpacity(0.2),
+                            AppColors.success.withValues(alpha: 0.2),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(2),
@@ -943,7 +942,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 margin: const EdgeInsets.only(left: 4),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? AppColors.darkBackground.withOpacity(0.5)
+                      ? AppColors.darkBackground.withValues(alpha: 0.5)
                       : AppColors.background,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
@@ -972,7 +971,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.success.withOpacity(0.1),
+                            color: AppColors.success.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -1039,25 +1038,25 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
       {
         'week': 'Week 5',
         'date': 'Jun 12, 2025',
-        'dose': '5 mg',
+        'dose': "5 ${context.tr('mg_label')}",
         'status': 'next',
       },
       {
         'week': 'Week 6',
         'date': 'Jun 19, 2025',
-        'dose': '5 mg',
+        'dose': "5 ${context.tr('mg_label')}",
         'status': 'scheduled',
       },
       {
         'week': 'Week 7',
         'date': 'Jun 26, 2025',
-        'dose': '5 mg',
+        'dose': "5 ${context.tr('mg_label')}",
         'status': 'scheduled',
       },
       {
         'week': 'Week 8',
         'date': 'Jul 3, 2025',
-        'dose': '5 mg',
+        'dose': "5 ${context.tr('mg_label')}",
         'status': 'scheduled',
       },
       {
@@ -1076,7 +1075,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1113,15 +1112,15 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: isNext
-                    ? AppColors.primary.withOpacity(0.06)
+                    ? AppColors.primary.withValues(alpha: 0.06)
                     : isEscalation
-                    ? AppColors.accent.withOpacity(0.06)
+                    ? AppColors.accent.withValues(alpha: 0.06)
                     : isDark
-                    ? AppColors.darkBackground.withOpacity(0.5)
+                    ? AppColors.darkBackground.withValues(alpha: 0.5)
                     : AppColors.background,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: color.withOpacity(isNext || isEscalation ? 0.3 : 0.15),
+                  color: color.withValues(alpha: isNext || isEscalation ? 0.3 : 0.15),
                   width: isNext || isEscalation ? 1.5 : 1,
                 ),
               ),
@@ -1131,7 +1130,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
+                      color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -1177,7 +1176,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.15),
+                          color: color.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -1274,7 +1273,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1304,7 +1303,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child:  Row(
@@ -1342,16 +1341,16 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.06),
+                color: color.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withOpacity(0.2)),
+                border: Border.all(color: color.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.12),
+                      color: color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(LucideIcons.activity, size: 16, color: color),
@@ -1387,7 +1386,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
+                      color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -1420,7 +1419,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withOpacity(0.4),
+            color: AppColors.navy.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -1431,7 +1430,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.accent.withOpacity(0.2),
+              color: AppColors.accent.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -1446,7 +1445,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mounjaro Pen Refill',
+                  context.tr('mounjaro_pen_refill'),
                   style: TextStyle(
                     color: AppColors.surface60,
                     fontSize: 12,
@@ -1455,7 +1454,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '2 auto-injector pens left',
+                  context.tr('pens_left', {'count': '2'}),
                   style: TextStyle(
                     color: AppColors.surface,
                     fontSize: 15,
@@ -1467,7 +1466,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: 0.4,
-                    backgroundColor: AppColors.background.withOpacity(0.15),
+                    backgroundColor: AppColors.background.withValues(alpha: 0.15),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       AppColors.accent,
                     ),
@@ -1494,7 +1493,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'Request',
+                context.tr('request_button'),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 13,

@@ -340,7 +340,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
             decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
-                      color: Colors.white.withOpacity(0.08), width: 1)),
+                      color: Colors.white.withValues(alpha: 0.08), width: 1)),
             ),
             child: Row(
               children: [
@@ -411,7 +411,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
             decoration: BoxDecoration(
               border: Border(
                   top: BorderSide(
-                      color: Colors.white.withOpacity(0.08), width: 1)),
+                      color: Colors.white.withValues(alpha: 0.08), width: 1)),
             ),
             child: Row(
               children: [
@@ -464,7 +464,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
       child: Text(
         label.toUpperCase(),
         style: TextStyle(
-          color: Colors.white.withOpacity(0.35),
+          color: Colors.white.withValues(alpha: 0.35),
           fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
@@ -497,7 +497,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 size: 16,
                 color: isSelected
                     ? Colors.white
-                    : Colors.white.withOpacity(0.55)),
+                    : Colors.white.withValues(alpha: 0.55)),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -505,7 +505,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 style: TextStyle(
                   color: isSelected
                       ? Colors.white
-                      : Colors.white.withOpacity(0.65),
+                      : Colors.white.withValues(alpha: 0.65),
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
@@ -623,10 +623,10 @@ class _WebCenterShellState extends State<WebCenterShell> {
                     final uiStatus = provider.dispensingUiStatus(patient);
                     bool isSelected = _activePatient != null && _activePatient!.id == patient.id;
                     return Container(
-                      color: isSelected ? AppColors.primary.withOpacity(0.04) : Colors.transparent,
+                      color: isSelected ? AppColors.primary.withValues(alpha: 0.04) : Colors.transparent,
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: isSelected ? AppColors.primary : AppColors.primary.withOpacity(0.1),
+                          backgroundColor: isSelected ? AppColors.primary : AppColors.primary.withValues(alpha: 0.1),
                           child: Text(
                             patient.getLocalizedFullName(context).substring(0, 1).toUpperCase(),
                             style: TextStyle(color: isSelected ? Colors.white : AppColors.primary, fontWeight: FontWeight.bold),
@@ -1063,7 +1063,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: lowStock ? AppColors.error.withOpacity(0.1) : AppColors.success.withOpacity(0.1),
+                    color: lowStock ? AppColors.error.withValues(alpha: 0.1) : AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1139,7 +1139,7 @@ class _WebCenterShellState extends State<WebCenterShell> {
                       trailing: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: overridden ? AppColors.error.withOpacity(0.1) : AppColors.success.withOpacity(0.1),
+                          color: overridden ? AppColors.error.withValues(alpha: 0.1) : AppColors.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

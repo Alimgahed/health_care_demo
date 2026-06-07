@@ -625,7 +625,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                             const SizedBox(height: 16),
                             _buildReceiptRow(context.tr('patient'), patient!.getLocalizedFullName(context)),
                             const SizedBox(height: 16),
-                            _buildReceiptRow(context.tr('description'), context.tr('mounjaro_terzepatide') + ' - ' + context.tr('dose') + ' ${patient!.currentDose}'),
+                            _buildReceiptRow(context.tr('description'), '${context.tr('mounjaro_terzepatide')} - ${context.tr('dose')} ${patient!.currentDose}'),
                           ],
                           Padding(
                             padding: EdgeInsets.symmetric(vertical: 24),

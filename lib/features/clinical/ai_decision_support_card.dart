@@ -23,7 +23,7 @@ class AiDecisionSupportCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withOpacity(0.3),
+            color: AppColors.navy.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -37,14 +37,14 @@ class AiDecisionSupportCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.surface.withOpacity(0.2),
+                  color: AppColors.surface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(LucideIcons.sparkles, color: AppColors.accent, size: 20),
               ),
               const SizedBox(width: 12),
               Text(
-                context.tr('ai_clinical_insight') ?? 'AI Clinical Insight',
+                context.tr('ai_clinical_insight'),
                 style: const TextStyle(
                   color: AppColors.accent,
                   fontSize: 16,
@@ -56,16 +56,16 @@ class AiDecisionSupportCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.2),
+                  color: AppColors.success.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.success.withOpacity(0.5)),
+                  border: Border.all(color: AppColors.success.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   children: [
                     Icon(LucideIcons.checkCircle, color: AppColors.success, size: 12),
                     const SizedBox(width: 4),
                     Text(
-                      context.tr('confidence_high') ?? '98% Confidence',
+                      context.tr('confidence_high'),
                       style: const TextStyle(
                         color: AppColors.success,
                         fontSize: 11,
@@ -85,14 +85,14 @@ class AiDecisionSupportCard extends StatelessWidget {
               _buildMetricChip(
                 context,
                 LucideIcons.trendingDown,
-                '${context.tr('bmi_trend') ?? 'BMI Trend'}: -1.2',
+                '${context.tr('bmi_trend')}: -1.2',
                 AppColors.success,
               ),
               const SizedBox(width: 8),
               _buildMetricChip(
                 context,
                 LucideIcons.activity,
-                '${context.tr('adherence') ?? 'Adherence'}: ${(patient.complianceRate * 100).toInt()}%',
+                '${context.tr('adherence')}: ${(patient.complianceRate * 100).toInt()}%',
                 patient.complianceRate > 0.8 ? AppColors.success : AppColors.warning,
               ),
             ],
@@ -108,15 +108,15 @@ class AiDecisionSupportCard extends StatelessWidget {
     Color color = Colors.white;
 
     if (patient.bmi > 35 && patient.complianceRate > 0.8) {
-      message = context.tr('ai_rec_increase_dose') ?? 'Patient is highly compliant but BMI remains above 35. Consider stepping up to next dose for optimal therapeutic effect.';
+      message = context.tr('ai_rec_increase_dose');
       icon = LucideIcons.arrowUpCircle;
       color = AppColors.warning;
     } else if (patient.complianceRate <= 0.6) {
-      message = context.tr('ai_rec_adherence') ?? 'Low adherence detected. Recommend scheduling a telehealth consultation to discuss barriers to compliance before adjusting dose.';
+      message = context.tr('ai_rec_adherence');
       icon = LucideIcons.alertTriangle;
       color = AppColors.error;
     } else {
-      message = context.tr('ai_rec_maintain') ?? 'Patient is responding well to current treatment plan. BMI is trending downwards and compliance is satisfactory. Maintain current dose.';
+      message = context.tr('ai_rec_maintain');
       icon = LucideIcons.checkCircle;
       color = AppColors.success;
     }
@@ -144,7 +144,7 @@ class AiDecisionSupportCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface.withOpacity(0.1),
+        color: AppColors.surface.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(

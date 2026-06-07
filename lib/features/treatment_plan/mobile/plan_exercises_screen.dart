@@ -99,7 +99,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                   letterSpacing: -0.5),
             ),
             const SizedBox(height: 4),
-            Text('$totalMinutes دقيقة إجمالية • ${resolvedExercises.length} تمارين',
+            Text(context.tr('exercise_total_summary', {'mins': '$totalMinutes', 'count': '${resolvedExercises.length}'}),
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
             const SizedBox(height: 24),
 
@@ -213,7 +213,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       decoration: BoxDecoration(
                           color: AppColors.surface.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(12)),
-                      child: Text('🏆 أفضل من 78% من المرضى!',
+                      child: Text(context.tr('exercise_better_than_avg'),
                           style: TextStyle(
                               color: AppColors.surface,
                               fontSize: 11,
@@ -254,7 +254,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface)),
-              Text('${_activeDays.length}/7 أيام',
+              Text(context.tr('exercise_days_count', {'days': '${_activeDays.length}'}),
                   style: const TextStyle(
                       color: AppColors.success,
                       fontSize: 13,
@@ -353,8 +353,8 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                   const SizedBox(height: 4),
                   Text(
                       progress >= 1.0
-                          ? '🎉 أنجزت كل تمارينك!'
-                          : '$completed من $total تمارين مكتملة',
+                          ? context.tr('exercise_all_done')
+                          : context.tr('exercise_progress_count', {'completed': '$completed', 'total': '$total'}),
                       style: TextStyle(
                           color: progress >= 1.0
                               ? AppColors.success
@@ -375,7 +375,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                   children: [
                     Icon(LucideIcons.flame, size: 14, color: AppColors.error),
                     const SizedBox(width: 4),
-                    Text('~${(totalMinutes * 5.5).toInt()} سعرة',
+                    Text(context.tr('exercise_calories_burned', {'calories': '${(totalMinutes * 5.5).toInt()}'}),
                         style: const TextStyle(
                             color: AppColors.error,
                             fontSize: 12,
@@ -437,7 +437,7 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface)),
             const Spacer(),
-            Text('${exercises.length} تمارين',
+            Text(context.tr('exercise_count_label', {'count': '${exercises.length}'}),
                 style: TextStyle(
                     color: catColor, fontSize: 12, fontWeight: FontWeight.bold)),
           ],
@@ -518,9 +518,9 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                     Wrap(
                       spacing: 8,
                       children: [
-                        _chip(LucideIcons.clock, '${exercise.durationMinutes} دق', AppColors.info),
-                        if (exercise.sets > 1) _chip(LucideIcons.repeat, '${exercise.sets} مج', catColor),
-                        if (exercise.reps > 1) _chip(LucideIcons.zap, '${exercise.reps} تك', AppColors.warning),
+                        _chip(LucideIcons.clock, context.tr('exercise_minutes_short', {'mins': '${exercise.durationMinutes}'}), AppColors.info),
+                        if (exercise.sets > 1) _chip(LucideIcons.repeat, context.tr('exercise_sets_short', {'sets': '${exercise.sets}'}), catColor),
+                        if (exercise.reps > 1) _chip(LucideIcons.zap, context.tr('exercise_reps_short', {'reps': '${exercise.reps}'}), AppColors.warning),
                       ],
                     ),
                   ],
@@ -654,11 +654,11 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       // Stats Row
                       Row(
                         children: [
-                          _detailStat(context, '${resolved.durationMinutes}', 'دقيقة', LucideIcons.clock, AppColors.info),
+                          _detailStat(context, '${resolved.durationMinutes}', context.tr('exercise_minutes'), LucideIcons.clock, AppColors.info),
                           const SizedBox(width: 12),
-                          _detailStat(context, '${resolved.sets}', 'مجموعات', LucideIcons.repeat, catColor),
+                          _detailStat(context, '${resolved.sets}', context.tr('exercise_sets'), LucideIcons.repeat, catColor),
                           const SizedBox(width: 12),
-                          _detailStat(context, '${resolved.reps}', 'تكرارات', LucideIcons.zap, AppColors.warning),
+                          _detailStat(context, '${resolved.reps}', context.tr('exercise_reps'), LucideIcons.zap, AppColors.warning),
                         ],
                       ),
                       const SizedBox(height: 24),

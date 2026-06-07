@@ -675,7 +675,7 @@ class AlertOsAiAssistant {
   }
 
   static String _fraudSummary(BuildContext context, DataProvider dp, bool isAr) {
-    final logs = dp.logs.where((l) => l.status == 'Overridden' || l.status == 'Flagged').take(5).toList();
+    final logs = dp.misusePreventionLogs.take(8).toList();
     if (logs.isEmpty) {
       return isAr ? 'لا توجد سجلات احتيال أو تجاوز في آخر البيانات.' : 'No fraud or override records in current data.';
     }

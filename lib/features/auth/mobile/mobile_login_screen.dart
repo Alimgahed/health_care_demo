@@ -142,7 +142,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha: 0.25),
                                   blurRadius: 40,
                                   offset: const Offset(0, 20),
                                 ),
@@ -183,7 +183,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                           Text(
                             t.translate('login_subtitle'),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: AppColors.surface.withOpacity(0.85),
+                                  color: AppColors.surface.withValues(alpha: 0.85),
                                   letterSpacing: 2.0,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -211,7 +211,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 30,
                               offset: const Offset(0, -10),
                             ),
@@ -290,9 +290,9 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                       key: ValueKey<UserRole>(_selectedRole!),
                                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withOpacity(0.06),
+                                        color: AppColors.primary.withValues(alpha: 0.06),
                                         borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+                                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
                                       ),
                                       child: Row(
                                         children: [
@@ -336,11 +336,11 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                         end: Alignment.centerRight,
                                       )
                                     : null,
-                                color: _selectedRole == null ? AppColors.border.withOpacity(0.5) : null,
+                                color: _selectedRole == null ? AppColors.border.withValues(alpha: 0.5) : null,
                                 boxShadow: _selectedRole != null
                                     ? [
                                         BoxShadow(
-                                          color: AppColors.primary.withOpacity(0.4),
+                                          color: AppColors.primary.withValues(alpha: 0.4),
                                           blurRadius: 20,
                                           offset: const Offset(0, 8),
                                         ),
@@ -409,7 +409,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor: AppColors.background.withOpacity(0.15),
+                        backgroundColor: AppColors.background.withValues(alpha: 0.15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -479,7 +479,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                 color: isSelected ? AppColors.surface.withValues(alpha: 0.2) : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: isSelected
-                    ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]
+                    ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)]
                     : [],
               ),
               child: ClipRRect(

@@ -6,7 +6,7 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_colors.dart';
 
 class NationalCommandCenter extends StatelessWidget {
-  const NationalCommandCenter({Key? key}) : super(key: key);
+  const NationalCommandCenter({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -112,12 +112,12 @@ class NationalCommandCenter extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
         ],
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,8 +135,8 @@ class NationalCommandCenter extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isPositive
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.1),
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -190,7 +190,7 @@ class NationalCommandCenter extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -237,7 +237,7 @@ class NationalCommandCenter extends StatelessWidget {
                   horizontalInterval: 1,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppColors.border.withOpacity(0.5),
+                      color: AppColors.border.withValues(alpha: 0.5),
                       strokeWidth: 1,
                     );
                   },
@@ -328,8 +328,8 @@ class NationalCommandCenter extends StatelessWidget {
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.primary.withOpacity(0.3),
-                          AppColors.primary.withOpacity(0.0),
+                          AppColors.primary.withValues(alpha: 0.3),
+                          AppColors.primary.withValues(alpha: 0.0),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -353,7 +353,7 @@ class NationalCommandCenter extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -431,7 +431,7 @@ class NationalCommandCenter extends StatelessWidget {
                   drawVerticalLine: false,
                   horizontalInterval: 25,
                   getDrawingHorizontalLine: (value) => FlLine(
-                    color: AppColors.border.withOpacity(0.5),
+                    color: AppColors.border.withValues(alpha: 0.5),
                     strokeWidth: 1,
                   ),
                 ),

@@ -123,62 +123,139 @@ class _PatientAppScreenState extends State<PatientAppScreen>
   // ── Greeting Header ─────────────────────────────────────────────────────────
   Widget _buildGreeting(BuildContext context, Patient patient) {
     final hour = DateTime.now().hour;
-    final greeting = hour < 12
-        ? '🌅 صباح الخير،'
-        : hour < 17
-        ? '☀️ مساء الخير،'
-        : '🌙 مساء الخير،';
+    final isMorning = hour < 12;
+    
+    final greetingText = isMorning ? 'صباح الخير،' : 'مساء الخير،';
 
     return Row(
       children: [
+        // User Avatar
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [
+                AppColors.primary.withValues(alpha: 0.2),
+                AppColors.primary.withValues(alpha: 0.05),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              width: 1.5,
+            ),
+          ),
+          child: Center(
+            child: Icon(
+              LucideIcons.user,
+              color: AppColors.primary,
+              size: 26,
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        
+        // Greeting Text
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                greeting,
+                greetingText,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 22,
                   color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              Text(
-                patient.getLocalizedFullName(context).split(' ')[0],
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  letterSpacing: -0.5,
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  patient.getLocalizedFullName(context).split(' ')[0],
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    letterSpacing: -0.5,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                '👋',
+                style: TextStyle(fontSize: 22),
               ),
             ],
           ),
         ),
-        // Compliance Badge
+        
+        // Adherence Pill
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.success.withValues(alpha: 0.12),
+            color: Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(
+              color: AppColors.success.withValues(alpha: 0.15),
+              width: 1,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                LucideIcons.trendingUp,
-                size: 14,
-                color: AppColors.success,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                context.tr('dashboard_adherence_kpi').replaceAll('{pct}', (patient.complianceRate * 100).toStringAsFixed(0)),
-                style: const TextStyle(
-                  color: AppColors.success,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+              SizedBox(
+                width: 28,
+                height: 28,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      value: patient.complianceRate,
+                      strokeWidth: 3.5,
+                      backgroundColor: AppColors.success.withValues(alpha: 0.15),
+                      valueColor: const AlwaysStoppedAnimation<Color>(AppColors.success),
+                    ),
+                    const Icon(
+                      LucideIcons.flame,
+                      size: 12,
+                      color: AppColors.success,
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'الالتزام',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    '${(patient.complianceRate * 100).toStringAsFixed(0)}%',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.success,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -192,14 +269,12 @@ class _PatientAppScreenState extends State<PatientAppScreen>
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       decoration: BoxDecoration(
-        color: _injectionDone ? Color(0xFF059669) : AppColors.primaryDark,
-        image: const DecorationImage(
-          image: AssetImage('assets/illustrations/dashboard_hero.png'),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black45, // Darken for text readability
-            BlendMode.darken,
-          ),
+        gradient: LinearGradient(
+          colors: _injectionDone 
+              ? [const Color(0xFF059669), const Color(0xFF047857)]
+              : [AppColors.primary, AppColors.primaryDark],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
@@ -398,7 +473,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
           value: '${weightLost.toStringAsFixed(1)} kg',
           label: context.tr('app_stat_weight_loss'),
           color: AppColors.success,
-          flex: 2,
+          flex: 1,
         ),
         const SizedBox(width: 12),
         _buildStatBubble(
@@ -653,6 +728,7 @@ class _PatientAppScreenState extends State<PatientAppScreen>
   }
 
   // ── Weight Chart ─────────────────────────────────────────────────────────────
+  // ignore: unused_element
   Widget _buildWeightChart(BuildContext context, Patient patient) {
     return Container(
       padding: const EdgeInsets.all(22),

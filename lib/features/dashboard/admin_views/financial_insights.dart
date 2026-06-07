@@ -5,7 +5,7 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_colors.dart';
 
 class FinancialInsights extends StatelessWidget {
-  const FinancialInsights({Key? key}) : super(key: key);
+  const FinancialInsights({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class FinancialInsights extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -126,7 +126,7 @@ class FinancialInsights extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withOpacity(0.3),
+            color: AppColors.navy.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -140,7 +140,7 @@ class FinancialInsights extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.surface.withOpacity(0.1),
+                  color: AppColors.surface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(LucideIcons.calculator, color: AppColors.accent, size: 28),
@@ -159,7 +159,7 @@ class FinancialInsights extends StatelessWidget {
                     ),
                     Text(
                       context.tr('next_quarter_projection'),
-                      style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
                     ),
                   ],
                 ),
@@ -169,7 +169,7 @@ class FinancialInsights extends StatelessWidget {
           const SizedBox(height: 32),
           Text(
             context.tr('estimated_q3_subsidy_requirement'),
-            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
@@ -185,9 +185,9 @@ class FinancialInsights extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface.withOpacity(0.05),
+              color: AppColors.surface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.surface.withOpacity(0.1)),
+              border: Border.all(color: AppColors.surface.withValues(alpha: 0.1)),
             ),
             child: Row(
               children: [
@@ -196,7 +196,7 @@ class FinancialInsights extends StatelessWidget {
                 Expanded(
                   child: Text(
                     context.tr('budget_forecast_abu_dhabi_dubai'),
-                    style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13, height: 1.5),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13, height: 1.5),
                   ),
                 ),
               ],

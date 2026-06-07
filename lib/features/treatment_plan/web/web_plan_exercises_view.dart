@@ -382,8 +382,11 @@ class _WebPlanExercisesViewState extends State<WebPlanExercisesView> {
                     ),
                     IconButton.filled(
                       onPressed: () => setState(() {
-                        if (isCompleted) _completedToday.remove(exercise.id);
-                        else _completedToday.add(exercise.id);
+                        if (isCompleted) {
+                          _completedToday.remove(exercise.id);
+                        } else {
+                          _completedToday.add(exercise.id);
+                        }
                       }),
                       icon: Icon(isCompleted ? LucideIcons.check : LucideIcons.play, size: 14, color: Colors.white),
                       style: IconButton.styleFrom(

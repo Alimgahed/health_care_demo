@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/constants/demo_metrics.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -10,7 +9,6 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../auth/login_screen.dart';
 import 'mobile_admin_views.dart';
-import '../admin_views/regional_analytics.dart';
 import '../admin_views/system_audit_log_view.dart';
 
 class MobileAdminShell extends StatefulWidget {
@@ -169,7 +167,7 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(context.tr('ministry_executive_user'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                          Text('admin@moh.gov.ae', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
+                          Text('admin@moh.gov.ae', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12)),
                         ],
                       ),
                     )
@@ -190,7 +188,7 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: Colors.white.withOpacity(0.5),
+          color: Colors.white.withValues(alpha: 0.5),
           fontSize: 11,
           fontWeight: FontWeight.w800,
           letterSpacing: 1.2,
@@ -232,7 +230,7 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
           ],
         ),
         selected: isSelected,
-        selectedTileColor: Colors.white.withOpacity(0.1),
+        selectedTileColor: Colors.white.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         onTap: () => _onItemTapped(index, totalLogs),
       ),

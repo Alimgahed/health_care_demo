@@ -360,7 +360,7 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             const SizedBox(width: 16),
             Expanded(
               child: DropdownButtonFormField<String>(
-                value: _gender,
+                initialValue: _gender,
                 decoration: InputDecoration(labelText: context.tr('gender')),
                 items: [
                   DropdownMenuItem(value: 'Male', child: Text(context.tr('male'))),
@@ -373,7 +373,7 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
-          value: _nationality,
+          initialValue: _nationality,
           decoration: InputDecoration(labelText: context.tr('nationality')),
           items: ['United Arab Emirates', 'United Kingdom', 'United States', 'India', 'Pakistan', 'Egypt']
               .map((n) => DropdownMenuItem(value: n, child: Text(context.nationalityLabel(n))))
@@ -385,7 +385,7 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
           children: [
             Expanded(
               child: DropdownButtonFormField<ResidencyStatus>(
-                value: _residency,
+                initialValue: _residency,
                 decoration: InputDecoration(labelText: context.tr('residency_status')),
                 items: [
                   DropdownMenuItem(value: ResidencyStatus.citizen, child: Text(context.tr('emirati'))),
@@ -398,7 +398,7 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             const SizedBox(width: 16),
             Expanded(
               child: DropdownButtonFormField<String>(
-                value: _emirate,
+                initialValue: _emirate,
                 decoration: InputDecoration(labelText: context.tr('region')),
                 items: ['Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah']
                     .map((e) => DropdownMenuItem(value: e, child: Text(context.emirateLabel(e))))

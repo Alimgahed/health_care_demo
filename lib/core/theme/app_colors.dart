@@ -18,11 +18,11 @@ class AppColors {
   // Neutrals (Light Mode)
   static Color get background => isDarkMode ? darkBackground : const Color(0xFFF8F9FA);
   static Color get surface => isDarkMode ? darkSurface : Colors.white;
-  static Color get surface12 => surface.withOpacity(0.12);
-  static Color get surface24 => surface.withOpacity(0.24);
-  static Color get surface54 => surface.withOpacity(0.54);
-  static Color get surface60 => surface.withOpacity(0.60);
-  static Color get surface70 => surface.withOpacity(0.70);
+  static Color get surface12 => surface.withValues(alpha: 0.12);
+  static Color get surface24 => surface.withValues(alpha: 0.24);
+  static Color get surface54 => surface.withValues(alpha: 0.54);
+  static Color get surface60 => surface.withValues(alpha: 0.60);
+  static Color get surface70 => surface.withValues(alpha: 0.70);
   static Color get textPrimary => isDarkMode ? darkTextPrimary : const Color(0xFF1A1F24);
   static Color get textSecondary => isDarkMode ? darkTextSecondary : const Color(0xFF6B7280);
   static Color get border => isDarkMode ? darkBorder : const Color(0xFFE5E7EB);

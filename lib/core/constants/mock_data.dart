@@ -1300,7 +1300,7 @@ class MockData {
         final day = int.parse(lastDispDate.split('-')[2]);
         final month = int.parse(lastDispDate.split('-')[1]);
         final nextMonth = month + 1;
-        nextDispDate = '2026-0${nextMonth}-${day < 10 ? "0$day" : day}';
+        nextDispDate = '2026-0$nextMonth-${day < 10 ? "0$day" : day}';
       }
 
       final currentDose = ['2.5 mg', '5 mg', '7.5 mg', '10 mg'][rand.nextInt(4)];
@@ -1316,8 +1316,11 @@ class MockData {
             doseHist.add(currentDose);
           }
         }
-        if (doseHist.isEmpty) doseHist.add(currentDose);
-        else doseHist[doseHist.length - 1] = currentDose;
+        if (doseHist.isEmpty) {
+          doseHist.add(currentDose);
+        } else {
+          doseHist[doseHist.length - 1] = currentDose;
+        }
       }
 
       list.add(
@@ -1469,9 +1472,13 @@ class DataProvider extends ChangeNotifier {
   List<DispensingCenter> get centers => _centers;
   List<PhysicalTherapyCenter> get therapyCenters => _therapyCenters;
 
-  List<TreatmentPlan> _treatmentPlans = MockData.treatmentPlans;
+  final List<TreatmentPlan> _treatmentPlans = MockData.treatmentPlans;
   List<TreatmentPlan> get treatmentPlans => _treatmentPlans;
-  List<ActivityLog> get logs => _logs;
+  List<ActivityLog> get logs => List.unmodifiable(_logs);
+
+  /// Flagged / overridden events for misuse prevention log and fraud alerts.
+  List<ActivityLog> get misusePreventionLogs =>
+      List.unmodifiable(_logs.where((l) => l.status == 'Flagged' || l.status == 'Overridden'));
 
   /// Doctor-approved early dispensing before the refill interval ends.
   final Set<String> _dispenseAuthorizations = {};
@@ -1524,6 +1531,134 @@ class DataProvider extends ChangeNotifier {
         ),
       );
       logIdx++;
+    }
+
+    _seedMisusePreventionLogs(logIdx);
+
+    _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  void _seedMisusePreventionLogs(int startIdx) {
+    var logIdx = startIdx;
+    final anchor = DateTime(2026, 6, 6, 11, 0);
+
+    void add({
+      required Patient p,
+      required DispensingCenter c,
+      required String reason,
+      required String reasonAr,
+      required bool overridden,
+      required int hoursAgo,
+    }) {
+      _logs.add(
+        ActivityLog.misusePrevented(
+          id: 'LOG${logIdx.toString().padLeft(3, '0')}',
+          patient: PatientRef(id: p.id, name: p.fullName, nameAr: p.fullNameAr),
+          center: CenterRef(name: c.name, nameAr: c.nameAr),
+          reason: reason,
+          reasonAr: reasonAr,
+          timestamp: anchor.subtract(Duration(hours: hoursAgo)),
+          overridden: overridden,
+        ),
+      );
+      logIdx++;
+    }
+
+    Patient? p(String id) => getPatientById(id);
+    DispensingCenter? c(String id) {
+      for (final center in _centers) {
+        if (center.id == id) return center;
+      }
+      return _centers.isNotEmpty ? _centers.first : null;
+    }
+
+    final ahmed = p('P001');
+    final sarah = p('P002');
+    final fatima = p('P004');
+    final rashid = p('P005');
+    final dubai = c('C001');
+    final abuDhabi = c('C002');
+    final sharjah = c('C003');
+
+    if (sarah != null && dubai != null) {
+      add(
+        p: sarah,
+        c: dubai,
+        reason: 'Duplicate dispense within 28-day refill window',
+        reasonAr: 'محاولة صرف مكررة خلال فترة الاستحقاق 28 يوماً',
+        overridden: false,
+        hoursAgo: 2,
+      );
+    }
+    if (ahmed != null && abuDhabi != null) {
+      add(
+        p: ahmed,
+        c: abuDhabi,
+        reason: 'Emirates ID mismatch at dispensing terminal',
+        reasonAr: 'عدم تطابق الهوية الإماراتية عند نقطة الصرف',
+        overridden: false,
+        hoursAgo: 5,
+      );
+    }
+    if (fatima != null && abuDhabi != null) {
+      add(
+        p: fatima,
+        c: abuDhabi,
+        reason: 'Early refill without physician authorization',
+        reasonAr: 'صرف مبكر بدون اعتماد الطبيب',
+        overridden: true,
+        hoursAgo: 8,
+      );
+    }
+    if (rashid != null && sharjah != null) {
+      add(
+        p: rashid,
+        c: sharjah,
+        reason: 'Second facility dispense attempt same day',
+        reasonAr: 'محاولة صرف من منشأة ثانية في نفس اليوم',
+        overridden: false,
+        hoursAgo: 14,
+      );
+    }
+    if (sarah != null && dubai != null) {
+      add(
+        p: sarah,
+        c: dubai,
+        reason: 'Prescription dose escalation without care plan update',
+        reasonAr: 'رفع الجرعة بدون تحديث خطة الرعاية',
+        overridden: false,
+        hoursAgo: 20,
+      );
+    }
+    if (ahmed != null && dubai != null) {
+      add(
+        p: ahmed,
+        c: dubai,
+        reason: 'Supervisor override after verified missed appointment',
+        reasonAr: 'تجاوز مشرف بعد تأكيد موعد فائت موثّق',
+        overridden: true,
+        hoursAgo: 26,
+      );
+    }
+    if (fatima != null && sharjah != null) {
+      add(
+        p: fatima,
+        c: sharjah,
+        reason: 'Biometric verification failed twice',
+        reasonAr: 'فشل التحقق البيومتري مرتين',
+        overridden: false,
+        hoursAgo: 32,
+      );
+    }
+    if (rashid != null && dubai != null) {
+      add(
+        p: rashid,
+        c: dubai,
+        reason: 'Pharmacist account flagged for unusual override pattern',
+        reasonAr: 'حساب صيدلي مُبلّغ عن نمط تجاوز غير اعتيادي',
+        overridden: false,
+        hoursAgo: 40,
+      );
     }
 
     _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));

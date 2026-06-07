@@ -7,7 +7,6 @@ import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/mock_data.dart';
 import '../data/home_exercise_catalog.dart';
 import '../models/treatment_plan.dart';
-import '../../clinical/ai_decision_support_card.dart';
 import '../../clinical/clinical_eligibility_banner.dart';
 import 'treatment_plan_builder.dart';
 
@@ -117,19 +116,24 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
           ),
 
           // Tabs
-          TabBar(
-            controller: _tabController,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.textSecondary,
-            indicatorColor: AppColors.primary,
-            indicatorWeight: 3,
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            tabs: [
-              Tab(text: context.tr('overview')),
-              Tab(text: context.tr('treatment_plan')),
-              Tab(text: context.tr('medical_history')),
-              Tab(text: context.tr('activity_log')),
-            ],
+          Container(
+            color: AppColors.surface,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textSecondary,
+              indicatorColor: AppColors.primary,
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+              tabs: [
+                Tab(text: context.tr('overview')),
+                Tab(text: context.tr('treatment_plan')),
+                Tab(text: context.tr('medical_history')),
+                Tab(text: context.tr('activity_log')),
+              ],
+            ),
           ),
 
           // Content
@@ -168,59 +172,205 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
   }
 
   Widget _buildOverviewTab(BuildContext context, Patient patient, List<HomeExercise> exercises) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // AiDecisionSupportCard(patient: patient),
-          // const SizedBox(height: 32),
-          Row(
-            children: [
-              Expanded(child: _buildMetricCard(context.tr('weight'), '${patient.weight} kg', LucideIcons.activity, AppColors.primary)),
-              const SizedBox(width: 24),
-              Expanded(child: _buildMetricCard(context.tr('bmi'), patient.bmi.toStringAsFixed(1), LucideIcons.activitySquare, patient.bmi >= 35.0 ? AppColors.error : AppColors.warning)),
-              const SizedBox(width: 24),
-              Expanded(child: _buildMetricCard(context.tr('compliance_score'), '${(patient.complianceRate * 100).toInt()}%', LucideIcons.checkCircle, AppColors.success)),
-            ],
-          ),
-          if (exercises.isNotEmpty) ...[
-            const SizedBox(height: 28),
-            _buildExerciseListSection(context, exercises),
-          ],
-          const SizedBox(height: 32),
-          Text(context.tr('bmi_trend'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-          const SizedBox(height: 24),
-          Container(
-            height: 300,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+    final provider = Provider.of<DataProvider>(context, listen: false);
+    final dispenseStatus = provider.dispensingUiStatus(patient);
+
+    return Container(
+      color: AppColors.background,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.tr('patient_overview_snapshot'),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
             ),
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(show: true, drawVerticalLine: false),
-                titlesData: FlTitlesData(
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _buildSnapshotChip(
+                  context.tr('col_id'),
+                  patient.id,
+                  LucideIcons.badgeCheck,
+                  AppColors.primary,
                 ),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: patient.weightHistory.asMap().entries.map((e) {
-                      double bmi = e.value / ((patient.height / 100) * (patient.height / 100));
-                      return FlSpot(e.key.toDouble(), bmi);
-                    }).toList(),
-                    isCurved: true,
-                    color: AppColors.primary,
-                    barWidth: 4,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: true),
+                _buildSnapshotChip(
+                  context.tr('residency_status'),
+                  patient.getLocalizedResidency(context),
+                  LucideIcons.home,
+                  AppColors.navy,
+                ),
+                _buildSnapshotChip(
+                  patient.programEligibility.eligible ? context.tr('eligible_dispensation') : context.tr('status_program_ineligible'),
+                  _dispensingStatusLabel(context, provider, patient),
+                  LucideIcons.package,
+                  _dispensingStatusColor(dispenseStatus),
+                ),
+                _buildSnapshotChip(
+                  context.tr('compliance_score'),
+                  '${(patient.complianceRate * 100).toInt()}%',
+                  LucideIcons.checkCircle,
+                  AppColors.success,
+                ),
+                if (patient.lastDispensingDate != null)
+                  _buildSnapshotChip(
+                    context.tr('last_dispense_date'),
+                    patient.lastDispensingDate!,
+                    LucideIcons.calendar,
+                    AppColors.textPrimary,
                   ),
-                ],
-              ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final wide = constraints.maxWidth >= 900;
+                final demographics = _buildInfoSection(
+                  title: context.tr('demographics_section'),
+                  icon: LucideIcons.userCircle,
+                  accent: AppColors.primary,
+                  items: [
+                    _InfoItem(context.tr('full_name'), patient.getLocalizedFullName(context), LucideIcons.user),
+                    _InfoItem(context.tr('full_name_en'), patient.fullName, LucideIcons.languages),
+                    _InfoItem(context.tr('full_name_ar'), patient.fullNameAr, LucideIcons.languages),
+                    _InfoItem(context.tr('emirates_id'), patient.emiratesId, LucideIcons.hash),
+                    _InfoItem(context.tr('col_id'), patient.id, LucideIcons.badgeCheck),
+                    _InfoItem('${context.tr('age')} / ${context.tr('gender')}', '${patient.age} · ${patient.getLocalizedGender(context)}'),
+                    _InfoItem(context.tr('nationality'), patient.getLocalizedNationality(context), LucideIcons.globe),
+                    _InfoItem(context.tr('residency_status'), patient.getLocalizedResidency(context), LucideIcons.home),
+                    _InfoItem(context.tr('region'), patient.getLocalizedEmirate(context), LucideIcons.mapPin),
+                  ],
+                );
+                final program = _buildInfoSection(
+                  title: context.tr('program_dispensing_section'),
+                  icon: LucideIcons.clipboardCheck,
+                  accent: AppColors.navy,
+                  items: [
+                    _InfoItem(
+                      context.tr('select_dose'),
+                      context.mounjaroDoseLabel(patient.currentDose),
+                      LucideIcons.pill,
+                    ),
+                    _InfoItem(
+                      context.tr('last_dispense_date'),
+                      patient.lastDispensingDate ?? context.tr('never_dispensed'),
+                      LucideIcons.calendar,
+                    ),
+                    _InfoItem(
+                      context.tr('next_dispense_eligible'),
+                      patient.nextEligibleDate ?? context.tr('now'),
+                      LucideIcons.clock,
+                    ),
+                    if (patient.lastDispensingCenterId != null)
+                      _InfoItem(
+                        context.tr('last_dispensing_facility'),
+                        provider.dispensingFacilityLabel(context, patient.lastDispensingCenterId),
+                        LucideIcons.building2,
+                      ),
+                    _InfoItem(
+                      context.tr('eligible_dispensation'),
+                      _dispensingStatusLabel(context, provider, patient),
+                      LucideIcons.shieldCheck,
+                    ),
+                    _InfoItem(
+                      context.tr('compliance_score'),
+                      '${(patient.complianceRate * 100).toInt()}%',
+                      LucideIcons.checkCircle,
+                    ),
+                  ],
+                );
+
+                if (wide) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: demographics),
+                      const SizedBox(width: 20),
+                      Expanded(child: program),
+                    ],
+                  );
+                }
+                return Column(
+                  children: [
+                    demographics,
+                    const SizedBox(height: 20),
+                    program,
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _dispensingStatusLabel(BuildContext context, DataProvider provider, Patient patient) {
+    switch (provider.dispensingUiStatus(patient)) {
+      case DispensingUiStatus.eligible:
+        return context.tr('eligible_dispensation');
+      case DispensingUiStatus.approvedEarly:
+        return context.tr('status_clinical_approved_dispense');
+      case DispensingUiStatus.pendingCarePlan:
+        return context.tr('status_pending_care_plan');
+      case DispensingUiStatus.pendingClinicalReview:
+        return context.tr('status_pending_clinical_review');
+      case DispensingUiStatus.clinicalIneligible:
+        return context.tr('status_program_ineligible');
+    }
+  }
+
+  Color _dispensingStatusColor(DispensingUiStatus status) {
+    switch (status) {
+      case DispensingUiStatus.eligible:
+      case DispensingUiStatus.approvedEarly:
+        return AppColors.success;
+      case DispensingUiStatus.pendingCarePlan:
+      case DispensingUiStatus.pendingClinicalReview:
+        return AppColors.warning;
+      case DispensingUiStatus.clinicalIneligible:
+        return AppColors.error;
+    }
+  }
+
+  Widget _buildSnapshotChip(String label, String value, IconData icon, Color color) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 180),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: color),
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ],
@@ -228,33 +378,190 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     );
   }
 
-  Widget _buildMetricCard(String title, String value, IconData icon, Color color) {
+  Widget _buildInfoSection({
+    required String title,
+    required IconData icon,
+    required Color accent,
+    required List<_InfoItem> items,
+    Widget? trailing,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.06),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+              border: Border(bottom: BorderSide(color: AppColors.border)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 20, color: accent),
+                ),
+                const SizedBox(width: 12),
+                Text(title, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: items.isEmpty && trailing != null
+                ? trailing
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final cols = constraints.maxWidth >= 520 ? 2 : 1;
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: items.length,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: cols,
+                              mainAxisExtent: 72,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 12,
+                            ),
+                            itemBuilder: (_, i) => _buildInfoCell(items[i]),
+                          );
+                        },
+                      ),
+                      if (trailing != null) ...[
+                        const SizedBox(height: 16),
+                        trailing,
+                      ],
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCell(_InfoItem item) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+          if (item.icon != null) ...[
+            Icon(item.icon, size: 16, color: AppColors.textSecondary),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(item.label, style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 4),
+                Text(
+                  item.value,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-              const SizedBox(height: 4),
-              Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-            ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrendChartSection(BuildContext context, Patient patient, {required bool showBmi}) {
+    final title = showBmi ? context.tr('bmi_trend') : context.tr('weight_trend');
+    final spots = patient.weightHistory.asMap().entries.map((e) {
+      final y = showBmi
+          ? e.value / ((patient.height / 100) * (patient.height / 100))
+          : e.value;
+      return FlSpot(e.key.toDouble(), y);
+    }).toList();
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.06),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+              border: Border(bottom: BorderSide(color: AppColors.border)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(LucideIcons.lineChart, size: 20, color: AppColors.primary),
+                ),
+                const SizedBox(width: 12),
+                Text(title, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: SizedBox(
+              height: 260,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: showBmi ? 1 : 2),
+                  titlesData: const FlTitlesData(
+                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      color: AppColors.primary,
+                      barWidth: 3,
+                      isStrokeCapRound: true,
+                      dotData: const FlDotData(show: true),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -385,39 +692,6 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     );
   }
 
-  Widget _buildHistoryRow(String label, String value, {IconData icon = LucideIcons.circle}) {
-    return _buildPlanRow(icon, label, value);
-  }
-
-  Widget _buildExerciseListSection(BuildContext context, List<HomeExercise> exercises) {
-    final isAr = context.isArabic;
-    return _buildPlanSection(
-      context.tr('assigned_home_exercises'),
-      exercises.map((e) {
-        final resolved = HomeExerciseCatalog.resolve(e);
-        final completed = resolved.completedDates.length;
-        return _buildPlanRow(
-          LucideIcons.dumbbell,
-          HomeExerciseCatalog.displayName(resolved, isAr),
-          completed > 0
-              ? context.tr('exercise_with_completions', {
-                  'detail': context.tr('exercise_duration_format', {
-                    'minutes': '${resolved.durationMinutes}',
-                    'sets': '${resolved.sets}',
-                    'reps': '${resolved.reps}',
-                  }),
-                  'count': '$completed',
-                })
-              : context.tr('exercise_duration_format', {
-                  'minutes': '${resolved.durationMinutes}',
-                  'sets': '${resolved.sets}',
-                  'reps': '${resolved.reps}',
-                }),
-        );
-      }).toList(),
-    );
-  }
-
   Widget _buildMedicalHistoryTab(
     BuildContext context,
     Patient patient,
@@ -429,127 +703,193 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
           orElse: () => null,
         );
     final conditions = patient.getLocalizedMedicalConditions(context);
+    final weightLoss = patient.weightHistory.length >= 2
+        ? (patient.weightHistory.first - patient.weight).toStringAsFixed(1)
+        : null;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClinicalEligibilityBanner(patient: patient),
-          const SizedBox(height: 8),
-          _buildPlanSection(context.tr('demographics_section'), [
-            _buildHistoryRow(context.tr('full_name'), patient.getLocalizedFullName(context), icon: LucideIcons.user),
-            _buildHistoryRow(context.tr('emirates_id'), patient.emiratesId, icon: LucideIcons.hash),
-            _buildHistoryRow('${context.tr('age')} / ${context.tr('gender')}', '${patient.age} · ${patient.getLocalizedGender(context)}'),
-            _buildHistoryRow(context.tr('nationality'), patient.getLocalizedNationality(context), icon: LucideIcons.globe),
-            _buildHistoryRow(context.tr('residency_status'), patient.getLocalizedResidency(context)),
-            _buildHistoryRow(context.tr('region'), patient.getLocalizedEmirate(context), icon: LucideIcons.mapPin),
-          ]),
-          const SizedBox(height: 24),
-          _buildPlanSection(context.tr('clinical_assessment'), [
-            _buildHistoryRow(context.tr('weight'), '${patient.weight.toStringAsFixed(1)} kg', icon: LucideIcons.scale),
-            _buildHistoryRow(context.tr('height_cm'), '${patient.height.toStringAsFixed(0)} cm'),
-            _buildHistoryRow(context.tr('col_bmi'), patient.bmi.toStringAsFixed(1), icon: LucideIcons.activity),
-            _buildHistoryRow(
-              context.tr('has_chronic_disease'),
-              patient.hasChronicDisease ? context.tr('yes') : context.tr('no'),
+    return Container(
+      color: AppColors.background,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClinicalEligibilityBanner(patient: patient),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _buildSnapshotChip(
+                  context.tr('weight'),
+                  '${patient.weight.toStringAsFixed(1)} kg',
+                  LucideIcons.scale,
+                  AppColors.primary,
+                ),
+                _buildSnapshotChip(
+                  context.tr('col_bmi'),
+                  patient.bmi.toStringAsFixed(1),
+                  LucideIcons.activity,
+                  patient.bmi >= 35.0 ? AppColors.error : AppColors.warning,
+                ),
+                if (weightLoss != null)
+                  _buildSnapshotChip(
+                    context.tr('weight_loss'),
+                    '$weightLoss kg',
+                    LucideIcons.trendingDown,
+                    AppColors.success,
+                  ),
+                if (patient.hba1cPercent != null)
+                  _buildSnapshotChip(
+                    context.tr('hba1c_label'),
+                    '${patient.hba1cPercent!.toStringAsFixed(1)}%',
+                    LucideIcons.droplets,
+                    AppColors.navy,
+                  ),
+              ],
             ),
-            _buildHistoryRow(
-              context.tr('hba1c_label'),
-              patient.hba1cPercent != null ? '${patient.hba1cPercent!.toStringAsFixed(1)}%' : context.tr('not_recorded'),
-            ),
-            _buildHistoryRow(
-              context.tr('fasting_glucose_label'),
-              patient.fastingGlucoseMgDl != null
-                  ? '${patient.fastingGlucoseMgDl!.toStringAsFixed(0)} mg/dL'
-                  : context.tr('not_recorded'),
-            ),
-            _buildHistoryRow(
-              context.tr('compliance_score'),
-              '${(patient.complianceRate * 100).toInt()}%',
-              icon: LucideIcons.checkCircle,
-            ),
-          ]),
-          const SizedBox(height: 24),
-          _buildPlanSection(context.tr('chronic_conditions_section'), [
-            if (conditions.isEmpty)
-              _buildHistoryRow(context.tr('condition_field'), context.tr('none_reported'))
-            else
-              ...conditions.map((c) => _buildHistoryRow(context.tr('condition_field'), c, icon: LucideIcons.heartPulse)),
-          ]),
-          const SizedBox(height: 24),
-          _buildPlanSection(context.tr('medication_history_section'), [
-            _buildHistoryRow(
-              patient.lastDispensingDate == null
-                  ? context.tr('prescribed_dose_plan')
-                  : context.tr('active_prescription'),
-              context.mounjaroDoseLabel(patient.currentDose),
-              icon: LucideIcons.pill,
-            ),
-            _buildHistoryRow(
-              context.tr('last_dispense_date'),
-              patient.lastDispensingDate ?? context.tr('never_dispensed'),
-              icon: LucideIcons.package,
-            ),
-            if (patient.lastDispensingCenterId != null)
-              _buildHistoryRow(
-                context.tr('last_dispensing_facility'),
-                provider.dispensingFacilityLabel(context, patient.lastDispensingCenterId),
-                icon: LucideIcons.building2,
-              ),
-            if (patient.dispenseRecords.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              ...patient.dispenseRecords.reversed.map((r) {
-                return _buildHistoryRow(
-                  context.tr('dispensing_facility'),
-                  context.tr('dispense_record_line', {
-                    'date': r.date,
-                    'dose': context.mounjaroDoseLabel(r.dose),
-                    'facility': provider.dispensingFacilityLabel(context, r.centerId),
-                  }),
-                  icon: LucideIcons.package,
-                );
-              }),
-            ],
-            _buildHistoryRow(
-              context.tr('next_dispense_eligible'),
-              patient.nextEligibleDate ?? context.tr('now'),
-            ),
-            _buildHistoryRow(
-              context.tr('dose_history'),
-              patient.doseHistory.isNotEmpty
-                  ? patient.doseHistory.join(' → ')
-                  : context.tr('no_dispense_history'),
-            ),
-            if (plan != null)
-              _buildHistoryRow(
-                context.tr('injection_interval'),
-                context.tr('every_n_days', {'n': '${plan.medicationFrequencyDays}'}),
-              ),
-            if (plan?.assignedCenterId != null)
-              _buildHistoryRow(
-                context.tr('therapy_center'),
-                provider.therapyCenterLabel(context, plan!.assignedCenterId),
-                icon: LucideIcons.mapPin,
-              ),
-          ]),
-          const SizedBox(height: 24),
-          if (exercises.isNotEmpty) ...[
-            _buildExerciseListSection(context, exercises),
             const SizedBox(height: 24),
-          ],
-          if (patient.clinicalAttachments.isNotEmpty)
-            _buildPlanSection(
-              context.tr('lab_documents_section'),
-              patient.clinicalAttachments.map((doc) {
-                return _buildHistoryRow(
-                  doc.isPdf ? context.tr('document_pdf') : context.tr('document_image'),
-                  doc.fileName,
-                  icon: LucideIcons.fileText,
-                );
-              }).toList(),
+            _buildInfoSection(
+              title: context.tr('clinical_assessment'),
+              icon: LucideIcons.stethoscope,
+              accent: AppColors.error,
+              items: [
+                _InfoItem(context.tr('weight'), '${patient.weight.toStringAsFixed(1)} kg', LucideIcons.scale),
+                _InfoItem(context.tr('height_cm'), '${patient.height.toStringAsFixed(0)} cm', LucideIcons.ruler),
+                _InfoItem(context.tr('col_bmi'), patient.bmi.toStringAsFixed(1), LucideIcons.activity),
+                _InfoItem(
+                  context.tr('has_chronic_disease'),
+                  patient.hasChronicDisease ? context.tr('yes') : context.tr('no'),
+                  LucideIcons.heartPulse,
+                ),
+                _InfoItem(
+                  context.tr('hba1c_label'),
+                  patient.hba1cPercent != null
+                      ? '${patient.hba1cPercent!.toStringAsFixed(1)}%'
+                      : context.tr('not_recorded'),
+                  LucideIcons.droplets,
+                ),
+                _InfoItem(
+                  context.tr('fasting_glucose_label'),
+                  patient.fastingGlucoseMgDl != null
+                      ? '${patient.fastingGlucoseMgDl!.toStringAsFixed(0)} mg/dL'
+                      : context.tr('not_recorded'),
+                  LucideIcons.activity,
+                ),
+                _InfoItem(
+                  context.tr('compliance_score'),
+                  '${(patient.complianceRate * 100).toInt()}%',
+                  LucideIcons.checkCircle,
+                ),
+              ],
             ),
-        ],
+            const SizedBox(height: 20),
+            _buildInfoSection(
+              title: context.tr('chronic_conditions_section'),
+              icon: LucideIcons.heartPulse,
+              accent: AppColors.warning,
+              items: conditions.isEmpty
+                  ? [_InfoItem(context.tr('condition_field'), context.tr('none_reported'), LucideIcons.circle)]
+                  : conditions.map((c) => _InfoItem(context.tr('condition_field'), c, LucideIcons.circle)).toList(),
+            ),
+            const SizedBox(height: 20),
+            _buildInfoSection(
+              title: context.tr('medication_history_section'),
+              icon: LucideIcons.pill,
+              accent: AppColors.navy,
+              items: [
+                _InfoItem(
+                  patient.lastDispensingDate == null
+                      ? context.tr('prescribed_dose_plan')
+                      : context.tr('active_prescription'),
+                  context.mounjaroDoseLabel(patient.currentDose),
+                  LucideIcons.pill,
+                ),
+                _InfoItem(
+                  context.tr('last_dispense_date'),
+                  patient.lastDispensingDate ?? context.tr('never_dispensed'),
+                  LucideIcons.calendar,
+                ),
+                if (patient.lastDispensingCenterId != null)
+                  _InfoItem(
+                    context.tr('last_dispensing_facility'),
+                    provider.dispensingFacilityLabel(context, patient.lastDispensingCenterId),
+                    LucideIcons.building2,
+                  ),
+                _InfoItem(
+                  context.tr('next_dispense_eligible'),
+                  patient.nextEligibleDate ?? context.tr('now'),
+                  LucideIcons.clock,
+                ),
+                _InfoItem(
+                  context.tr('dose_history'),
+                  patient.doseHistory.isNotEmpty
+                      ? patient.doseHistory.join(' → ')
+                      : context.tr('no_dispense_history'),
+                  LucideIcons.history,
+                ),
+                if (plan != null)
+                  _InfoItem(
+                    context.tr('injection_interval'),
+                    context.tr('every_n_days', {'n': '${plan.medicationFrequencyDays}'}),
+                    LucideIcons.syringe,
+                  ),
+                ...patient.dispenseRecords.reversed.take(4).map((r) {
+                  return _InfoItem(
+                    context.tr('dispensing_facility'),
+                    context.tr('dispense_record_line', {
+                      'date': r.date,
+                      'dose': context.mounjaroDoseLabel(r.dose),
+                      'facility': provider.dispensingFacilityLabel(context, r.centerId),
+                    }),
+                    LucideIcons.package,
+                  );
+                }),
+              ],
+            ),
+            if (patient.weightHistory.length >= 2) ...[
+              const SizedBox(height: 20),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final wide = constraints.maxWidth >= 900;
+                  if (wide) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _buildTrendChartSection(context, patient, showBmi: false)),
+                        const SizedBox(width: 20),
+                        Expanded(child: _buildTrendChartSection(context, patient, showBmi: true)),
+                      ],
+                    );
+                  }
+                  return Column(
+                    children: [
+                      _buildTrendChartSection(context, patient, showBmi: false),
+                      const SizedBox(height: 20),
+                      _buildTrendChartSection(context, patient, showBmi: true),
+                    ],
+                  );
+                },
+              ),
+            ],
+            if (patient.clinicalAttachments.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              _buildInfoSection(
+                title: context.tr('lab_documents_section'),
+                icon: LucideIcons.fileText,
+                accent: AppColors.primary,
+                items: patient.clinicalAttachments
+                    .map(
+                      (doc) => _InfoItem(
+                        doc.isPdf ? context.tr('document_pdf') : context.tr('document_image'),
+                        doc.fileName,
+                        LucideIcons.fileText,
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -683,4 +1023,12 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
       ),
     );
   }
+}
+
+class _InfoItem {
+  final String label;
+  final String value;
+  final IconData? icon;
+
+  const _InfoItem(this.label, this.value, [this.icon]);
 }

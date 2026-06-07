@@ -19,7 +19,7 @@ class PatientJourneyTimeline extends StatelessWidget {
             Icon(LucideIcons.history, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
             Text(
-              context.tr('no_activity_logs') ?? 'No journey events yet',
+              context.tr('no_activity_logs'),
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
             ),
           ],
@@ -41,11 +41,11 @@ class PatientJourneyTimeline extends StatelessWidget {
   Widget _buildTimelineItem(BuildContext context, ActivityLog log, bool isLast) {
     final kind = log.eventKind;
     final (Color color, IconData icon, String typeLabel) = switch (kind) {
-      'dispense' => (AppColors.success, LucideIcons.package, context.tr('log_type_dispense') ?? 'Dispensing'),
-      'care_plan' => (AppColors.primary, LucideIcons.clipboardList, context.tr('log_type_care_plan') ?? 'Care Plan'),
-      'registration' => (AppColors.textPrimary, LucideIcons.userPlus, context.tr('log_type_registration') ?? 'Registration'),
-      'clinical_review' => (AppColors.warning, LucideIcons.stethoscope, context.tr('log_type_clinical_review') ?? 'Clinical Review'),
-      _ => (AppColors.textSecondary, LucideIcons.activity, context.tr('log_type_other') ?? 'Other'),
+      'dispense' => (AppColors.success, LucideIcons.package, context.tr('log_type_dispense')),
+      'care_plan' => (AppColors.primary, LucideIcons.clipboardList, context.tr('log_type_care_plan')),
+      'registration' => (AppColors.textPrimary, LucideIcons.userPlus, context.tr('log_type_registration')),
+      'clinical_review' => (AppColors.warning, LucideIcons.stethoscope, context.tr('log_type_clinical_review')),
+      _ => (AppColors.textSecondary, LucideIcons.activity, context.tr('log_type_other')),
     };
 
     final isCarePlan = kind == 'care_plan';
@@ -68,7 +68,7 @@ class PatientJourneyTimeline extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                     border: Border.all(color: color, width: 2),
                   ),
@@ -97,7 +97,7 @@ class PatientJourneyTimeline extends StatelessWidget {
                   border: Border.all(color: AppColors.border),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -111,7 +111,7 @@ class PatientJourneyTimeline extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.1),
+                            color: color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -128,7 +128,7 @@ class PatientJourneyTimeline extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.1),
+                              color: statusColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -164,7 +164,7 @@ class PatientJourneyTimeline extends StatelessWidget {
                     if (isCarePlan) ...[
                       const SizedBox(height: 4),
                       Text(
-                        context.tr('log_not_dispense_hint') ?? 'Care plan update without dispensing',
+                        context.tr('log_not_dispense_hint'),
                         style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                       ),
                     ],

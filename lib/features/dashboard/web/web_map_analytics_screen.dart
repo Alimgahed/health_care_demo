@@ -17,7 +17,7 @@ class WebMapAnalyticsScreen extends StatefulWidget {
 class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
   String _selectedCategory = 'All'; // All, Patients, Pharmacies, Physical Therapy
   String _selectedEmirate = 'All';
-  String _selectedRisk = 'All';
+  final String _selectedRisk = 'All';
   String _searchQuery = '';
 
   dynamic selectedEntity; // Can be Patient, DispensingCenter, or PhysicalTherapyCenter
@@ -71,7 +71,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
       if (_searchQuery.isNotEmpty &&
           (!p.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) && 
            !p.fullNameAr.toLowerCase().contains(_searchQuery.toLowerCase())) &&
-          !p.id.toLowerCase().contains(_searchQuery.toLowerCase())) return false;
+          !p.id.toLowerCase().contains(_searchQuery.toLowerCase())) {
+        return false;
+      }
       return true;
     }).toList();
     if (filteredPatients.length > 35) {
@@ -93,7 +95,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
       if (_searchQuery.isNotEmpty &&
           (!c.name.toLowerCase().contains(_searchQuery.toLowerCase()) && 
            !c.nameAr.toLowerCase().contains(_searchQuery.toLowerCase())) &&
-          !c.id.toLowerCase().contains(_searchQuery.toLowerCase())) return false;
+          !c.id.toLowerCase().contains(_searchQuery.toLowerCase())) {
+        return false;
+      }
       return true;
     }).toList();
 
@@ -106,7 +110,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
       if (_searchQuery.isNotEmpty &&
           (!tc.name.toLowerCase().contains(_searchQuery.toLowerCase()) && 
            !tc.nameAr.toLowerCase().contains(_searchQuery.toLowerCase())) &&
-          !tc.id.toLowerCase().contains(_searchQuery.toLowerCase())) return false;
+          !tc.id.toLowerCase().contains(_searchQuery.toLowerCase())) {
+        return false;
+      }
       return true;
     }).toList();
 

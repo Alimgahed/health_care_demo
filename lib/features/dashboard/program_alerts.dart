@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../core/constants/mock_data.dart';
+import '../../core/models/activity_log.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 
@@ -91,13 +92,13 @@ class ProgramAlert {
 List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
   final tr = context.tr;
   final alerts = <ProgramAlert>[];
-  int _idCounter = 1;
+  int idCounter = 1;
 
   final readyCount = dp.countPatientsReadyToDispense();
   if (readyCount > 0) {
     alerts.add(
       ProgramAlert(
-        id: _idCounter++,
+        id: idCounter++,
         message: tr('alert_ready_dispense', {'count': '$readyCount'}),
         icon: LucideIcons.pill,
         color: AppColors.success,
@@ -114,7 +115,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
   if (pendingReviews > 0) {
     alerts.add(
       ProgramAlert(
-        id: _idCounter++,
+        id: idCounter++,
         message: tr('alert_pending_reviews', {'count': '$pendingReviews'}),
         icon: LucideIcons.stethoscope,
         color: AppColors.warning,
@@ -132,7 +133,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
       if (units > 10) return;
       alerts.add(
         ProgramAlert(
-        id: _idCounter++,
+        id: idCounter++,
           message: tr('inventory_low_msg', {
             'center': center.getLocalizedName(context),
             'dose': dose,
@@ -155,28 +156,34 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
     low('10 mg', center.inventory10mg);
   }
 
-  for (final log in dp.logs.where((l) => l.status == 'Overridden').take(8)) {
+  for (final log in dp.misusePreventionLogs) {
+    final isOverride = log.status == 'Overridden';
     alerts.add(
       ProgramAlert(
-        id: _idCounter++,
+        id: idCounter++,
         message: tr('fraud_log_entry', {
           'patient': log.getLocalizedPatientName(context),
           'id': log.patientId,
           'action': log.getLocalizedAction(context),
           'center': log.getLocalizedCenterName(context),
         }),
-        icon: LucideIcons.shieldCheck,
-        color: AppColors.warning,
-        time: tr('today'),
-        kind: ProgramAlertKind.override,
-        severity: 2,
-        action: tr('review_plan'),
-        actionIcon: Icons.find_in_page_outlined,
+        icon: isOverride ? LucideIcons.shieldCheck : LucideIcons.shieldAlert,
+        color: isOverride ? AppColors.warning : AppColors.error,
+        time: log.formatTimestamp(context),
+        kind: isOverride ? ProgramAlertKind.override : ProgramAlertKind.flagged,
+        severity: isOverride ? 2 : 3,
+        action: isOverride ? tr('review_plan') : tr('freeze_account'),
+        actionIcon: isOverride ? Icons.find_in_page_outlined : Icons.lock_outline,
+        metadata: {
+          'logId': log.id,
+          'patientId': log.patientId,
+          'center': log.getLocalizedCenterName(context),
+        },
       ),
     );
   }
 
-  // --- NEW AI DRIVEN ALERTS ---
+  // --- AI-driven supply / clinical alerts ---
   
   // 1. Supply Crisis (Critical Shortage)
   for (final center in dp.centers) {
@@ -184,7 +191,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
       if (units == 0) {
         alerts.insert(0,
           ProgramAlert(
-        id: _idCounter++,
+        id: idCounter++,
             message: tr('alert_critical_shortage', {
               'center': center.getLocalizedName(context),
               'dose': dose,
@@ -212,36 +219,16 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
     checkShortage('10.0 mg', center.inventory10mg);
   }
 
-  // 2. Fraud & Compliance & Clinical
+  // Clinical / compliance (derived from patient records)
   for (final patient in dp.patients) {
     final patientName = Localizations.localeOf(context).languageCode == 'ar' ? patient.fullNameAr : patient.fullName;
-    
-    // Fraud Attempt (Mock logic: if patient has override logs, assume they tried double dispense)
-    if (dp.logs.any((l) => l.patientId == patient.id && l.status == 'Overridden')) {
-      alerts.insert(0,
-        ProgramAlert(
-        id: _idCounter++,
-          message: tr('alert_fraud_attempt', {'name': patientName}),
-          icon: LucideIcons.shieldAlert,
-          color: AppColors.error,
-          time: tr('today'),
-          kind: ProgramAlertKind.fraudAttempt,
-          severity: 3,
-          action: tr('freeze_account'),
-          actionIcon: Icons.lock_outline,
-          metadata: {
-            'patientName': patientName,
-            'emiratesId': patient.emiratesId,
-          },
-        ),
-      );
-    }
 
-    // Clinical Ineffective (Mock logic: if weight loss is < 1kg and they are on a high dose)
-    if (patient.weightHistory.isNotEmpty && (patient.weightHistory.first - patient.weight < 1.0) && (patient.currentDose == '10 mg' || patient.currentDose == '10.0 mg' || patient.currentDose == '7.5 mg')) {
+    if (patient.weightHistory.isNotEmpty &&
+        (patient.weightHistory.first - patient.weight < 1.0) &&
+        (patient.currentDose == '10 mg' || patient.currentDose == '10.0 mg' || patient.currentDose == '7.5 mg')) {
       alerts.add(
         ProgramAlert(
-        id: _idCounter++,
+        id: idCounter++,
           message: tr('alert_clinical_ineffective', {'name': patientName}),
           icon: LucideIcons.activity,
           color: AppColors.accent,
@@ -269,7 +256,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
         if (diff > 7) {
           alerts.add(
             ProgramAlert(
-        id: _idCounter++,
+        id: idCounter++,
               message: tr('alert_non_compliance', {
                 'name': patientName,
                 'days': '$diff',
@@ -293,31 +280,10 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
     }
   }
 
-  for (final log in dp.logs.where((l) => l.status == 'Flagged').take(5)) {
-    alerts.add(
-      ProgramAlert(
-        id: _idCounter++,
-        message: tr('fraud_log_entry', {
-          'patient': log.getLocalizedPatientName(context),
-          'id': log.patientId,
-          'action': log.getLocalizedAction(context),
-          'center': log.getLocalizedCenterName(context),
-        }),
-        icon: LucideIcons.shieldAlert,
-        color: AppColors.error,
-        time: tr('today'),
-        kind: ProgramAlertKind.flagged,
-        severity: 2,
-        action: tr('review_plan'),
-        actionIcon: Icons.find_in_page_outlined,
-      ),
-    );
-  }
-
   if (alerts.isEmpty) {
     alerts.add(
       ProgramAlert(
-        id: _idCounter++,
+        id: idCounter++,
         message: tr('inventory_stable'),
         icon: Icons.check_circle_outline,
         color: AppColors.success,
@@ -349,7 +315,32 @@ List<ProgramAlert> fraudProgramAlerts(BuildContext context, DataProvider dp) {
       .where(
         (a) =>
             a.kind == ProgramAlertKind.override ||
-            a.kind == ProgramAlertKind.flagged,
+            a.kind == ProgramAlertKind.flagged ||
+            a.kind == ProgramAlertKind.fraudAttempt,
       )
       .toList();
+}
+
+/// Maps a national activity log entry to an alert feed category.
+AlertCategory alertCategoryForActivityLog(ActivityLog log) {
+  if (log.status == 'Flagged' || log.status == 'Overridden') {
+    return AlertCategory.fraud;
+  }
+  switch (log.eventType) {
+    case ActivityEventType.clinicalReview:
+    case ActivityEventType.carePlan:
+      return AlertCategory.clinical;
+    case ActivityEventType.inventoryReplenish:
+    case ActivityEventType.dispense:
+      return AlertCategory.supply;
+    default:
+      return AlertCategory.info;
+  }
+}
+
+String activityFeedMessage(BuildContext context, ActivityLog log) {
+  if (log.patientId == 'SYS' || log.patientId == 'ADM') {
+    return log.getLocalizedAction(context);
+  }
+  return '${log.getLocalizedAction(context)} · ${log.getLocalizedPatientName(context)} (${log.patientId})';
 }

@@ -82,7 +82,7 @@ class SkeletonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.04),
+      shadowColor: Colors.black.withValues(alpha: 0.04),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: const Padding(
         padding: EdgeInsets.all(20.0),

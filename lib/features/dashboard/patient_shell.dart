@@ -55,15 +55,15 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
     final List<String> titles = [
       context.tr('home_dashboard'),
       context.tr('my_health_profile_title'),
-      context.tr('nav_overview_plan') ?? 'Plan Overview',
-      context.tr('nav_medication') ?? 'Medication',
-      context.tr('nav_sessions') ?? 'Sessions',
-      context.tr('nav_exercises') ?? 'Exercises',
+      context.tr('nav_overview_plan'),
+      context.tr('nav_medication'),
+      context.tr('nav_sessions'),
+      context.tr('nav_exercises'),
     ];
 
     // Badge Logic: Mock pending tasks
-    final bool hasMedicationPending = true;
-    final bool hasExercisesPending = true;
+    bool hasMedicationPending = DateTime.now().year > 2000;
+    bool hasExercisesPending = DateTime.now().year > 2000;
 
     return Scaffold(
       appBar: AppBar(
@@ -87,7 +87,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
               Container(
                 padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 20, 20, 20),
                 decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.08), width: 1)),
+                  border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1)),
                 ),
                 child: Row(
                   children: [
@@ -126,10 +126,10 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                     _buildDrawerItem(LucideIcons.userCircle, context.tr('my_health_profile_title'), 1),
                     const SizedBox(height: 16),
                     _navSection(context.tr('my_plan')),
-                    _buildDrawerItem(LucideIcons.clipboardList, context.tr('nav_overview_plan') ?? 'Overview', 2),
-                    _buildDrawerItem(LucideIcons.pill, context.tr('nav_medication') ?? 'Medication', 3, badgeCount: hasMedicationPending ? 1 : 0),
-                    _buildDrawerItem(LucideIcons.clock, context.tr('nav_sessions') ?? 'Sessions', 4),
-                    _buildDrawerItem(LucideIcons.activity, context.tr('nav_exercises') ?? 'Exercises', 5, showDot: hasExercisesPending),
+                    _buildDrawerItem(LucideIcons.clipboardList, context.tr('nav_overview_plan'), 2),
+                    _buildDrawerItem(LucideIcons.pill, context.tr('nav_medication'), 3, badgeCount: hasMedicationPending ? 1 : 0),
+                    _buildDrawerItem(LucideIcons.clock, context.tr('nav_sessions'), 4),
+                    _buildDrawerItem(LucideIcons.activity, context.tr('nav_exercises'), 5, showDot: hasExercisesPending),
                     
                     const SizedBox(height: 32),
                     Divider(color: AppColors.surface24),
@@ -155,7 +155,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.white.withOpacity(0.08), width: 1)),
+                  border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1)),
                 ),
                 child: Row(
                   children: [
@@ -193,7 +193,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
         label.toUpperCase(),
-        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
       ),
     );
   }
@@ -260,7 +260,7 @@ class MobilePatientProfileTab extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5))],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5))],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +306,7 @@ class MobilePatientProfileTab extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5))],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5))],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

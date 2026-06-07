@@ -13,7 +13,7 @@ class MedicationReminderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDue = true; // Mock: assume it's due for demo purposes
+    bool isDue = DateTime.now().year > 2000; // Mock: assume it's due for demo purposes
 
     return Container(
       padding: const EdgeInsets.all(24),

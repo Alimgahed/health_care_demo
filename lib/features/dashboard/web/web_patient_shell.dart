@@ -129,7 +129,7 @@ class _WebPatientShellState extends State<WebPatientShell>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                context.tr('patient_portal_title') ?? 'Patient Portal',
+                context.tr('patient_portal_title'),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -141,8 +141,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                       'name': patient
                           .getLocalizedFullName(context)
                           .split(' ')[0],
-                    }) ??
-                    'Welcome back, ${patient.getLocalizedFullName(context).split(' ')[0]}',
+                    }),
                 style: TextStyle(
                   fontSize: 11,
                   color: AppColors.textSecondary,
@@ -160,8 +159,8 @@ class _WebPatientShellState extends State<WebPatientShell>
             ),
             label: Text(
               localeProvider.locale.languageCode == 'en'
-                  ? (context.tr('arabic') ?? 'Arabic')
-                  : (context.tr('english') ?? 'English'),
+                  ? (context.tr('arabic'))
+                  : (context.tr('english')),
               style: TextStyle(
                 fontSize: 12,
                 color: AppColors.textPrimary,
@@ -243,7 +242,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.tr('ncc_brand') ?? 'NCC',
+                        context.tr('ncc_brand'),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -252,7 +251,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                         ),
                       ),
                       Text(
-                        context.tr('patient_portal_title') ?? 'Patient Portal',
+                        context.tr('patient_portal_title'),
                         style: const TextStyle(
                           color: AppColors.accent,
                           fontSize: 11,
@@ -271,36 +270,36 @@ class _WebPatientShellState extends State<WebPatientShell>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _navSection(context.tr('nav_overview') ?? 'Overview'),
+                  _navSection(context.tr('nav_overview')),
                   _buildSidebarItem(
                     LucideIcons.home,
-                    context.tr('home_dashboard') ?? 'Dashboard',
+                    context.tr('home_dashboard'),
                     0,
                   ),
                   _buildSidebarItem(
                     LucideIcons.userCircle,
-                    context.tr('my_health_profile_title') ?? 'My Profile',
+                    context.tr('my_health_profile_title'),
                     1,
                   ),
-                  _navSection(context.tr('my_plan') ?? 'My Plan'),
+                  _navSection(context.tr('my_plan')),
                   _buildSidebarItem(
                     LucideIcons.clipboardList,
-                    context.tr('nav_overview_plan') ?? 'Overview',
+                    context.tr('nav_overview_plan'),
                     2,
                   ),
                   _buildSidebarItem(
                     LucideIcons.pill,
-                    context.tr('nav_medication') ?? 'Medication',
+                    context.tr('nav_medication'),
                     3,
                   ),
                   _buildSidebarItem(
                     LucideIcons.clock,
-                    context.tr('nav_sessions') ?? 'Sessions',
+                    context.tr('nav_sessions'),
                     4,
                   ),
                   _buildSidebarItem(
                     LucideIcons.activity,
-                    context.tr('nav_exercises') ?? 'Exercises',
+                    context.tr('nav_exercises'),
                     5,
                   ),
                 ],
@@ -357,7 +356,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        context.tr('beneficiary_role') ?? 'Patient',
+                        context.tr('beneficiary_role'),
                         style: TextStyle(
                           color: AppColors.surface54,
                           fontSize: 11,
@@ -479,10 +478,10 @@ class _WebPatientShellState extends State<WebPatientShell>
     final int totalSessions = plan?.totalSessions ?? 0;
     final hour = DateTime.now().hour;
     final greeting = hour < 12
-        ? '🌅 ' + context.tr('good_morning_comma')
+        ? '🌅 ${context.tr('good_morning_comma')}'
         : hour < 17
-        ? '☀️ ' + context.tr('good_afternoon_comma')
-        : '🌙 ' + context.tr('good_evening_comma');
+        ? '☀️ ${context.tr('good_afternoon_comma')}'
+        : '🌙 ${context.tr('good_evening_comma')}';
 
     final shadow = BoxShadow(
       color: Colors.black.withValues(alpha: 0.05),
@@ -640,8 +639,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                       Text(
                                         context.tr('prescribed_dose_line', {
                                               'dose': patient.currentDose,
-                                            }) ??
-                                            'Prescribed dose: ${patient.currentDose}',
+                                            }),
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
@@ -720,8 +718,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        context.tr('next_injection_reminder') ??
-                                            'Next Injection Reminder',
+                                        context.tr('next_injection_reminder'),
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 24,
@@ -1318,8 +1315,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.tr('weight_loss_journey') ??
-                            'Weight Loss Journey',
+                        context.tr('weight_loss_journey'),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -1328,8 +1324,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        context.tr('weight_journey_sub') ??
-                            'Your progress over time',
+                        context.tr('weight_journey_sub'),
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 14,
@@ -1380,8 +1375,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                                       return Text(
                                         context.tr('check_reading', {
                                               'n': '${idx + 1}',
-                                            }) ??
-                                            'Check ${idx + 1}',
+                                            }),
                                         style: TextStyle(
                                           fontSize: 11,
                                           color: AppColors.textSecondary,
@@ -1608,7 +1602,7 @@ class _WebPatientShellState extends State<WebPatientShell>
 
           // ── Row 5: Achievements — 3 equal-width badge cards ───────────────
           Text(
-            context.tr('earned_badges_title') ?? 'Earned Badges',
+            context.tr('earned_badges_title'),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -1621,8 +1615,8 @@ class _WebPatientShellState extends State<WebPatientShell>
               _buildBadgeCard(
                 context,
                 LucideIcons.medal,
-                context.tr('badge_month_streak') ?? 'Monthly Streak',
-                context.tr('badge_month_streak_sub') ?? '1 month streak',
+                context.tr('badge_month_streak'),
+                context.tr('badge_month_streak_sub'),
                 AppColors.accent,
                 shadow,
               ),
@@ -1630,8 +1624,8 @@ class _WebPatientShellState extends State<WebPatientShell>
               _buildBadgeCard(
                 context,
                 LucideIcons.flame,
-                context.tr('badge_weight_reduction') ?? 'Weight Reduction',
-                context.tr('badge_weight_reduction_sub') ?? 'Lost 5kg',
+                context.tr('badge_weight_reduction'),
+                context.tr('badge_weight_reduction_sub'),
                 AppColors.error,
                 shadow,
               ),
@@ -1639,9 +1633,8 @@ class _WebPatientShellState extends State<WebPatientShell>
               _buildBadgeCard(
                 context,
                 LucideIcons.award,
-                context.tr('badge_clinical_compliance') ??
-                    'Clinical Compliance',
-                context.tr('badge_clinical_compliance_sub') ?? '100% compliant',
+                context.tr('badge_clinical_compliance'),
+                context.tr('badge_clinical_compliance_sub'),
                 AppColors.primary,
                 shadow,
               ),
@@ -2014,8 +2007,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               ),
                               const SizedBox(width: 14),
                               Text(
-                                context.tr('demographics') ??
-                                    context.tr('demographics'),
+                                context.tr('demographics') ,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -2089,8 +2081,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              context.tr('emirates_id') ??
-                                  context.tr('emirates_id'),
+                              context.tr('emirates_id') ,
                               style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 13,
@@ -2171,8 +2162,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                           ),
                           const SizedBox(width: 14),
                           Text(
-                            context.tr('gov_subsidy_details') ??
-                                context.tr('gov_subsidy_details'),
+                            context.tr('gov_subsidy_details') ,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -2187,8 +2177,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                       ),
                       _buildPremiumRow(
                         context,
-                        context.tr('base_medication_price') ??
-                            context.tr('base_medication_price'),
+                        context.tr('base_medication_price') ,
                         '1,000.00 AED',
                       ),
 
@@ -2201,8 +2190,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  context.tr('coverage_rate') ??
-                                      context.tr('coverage_rate'),
+                                  context.tr('coverage_rate') ,
                                   style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 13,
@@ -2238,8 +2226,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                       const SizedBox(height: 8),
                       _buildPremiumRow(
                         context,
-                        context.tr('govt_contribution') ??
-                            context.tr('govt_contribution'),
+                        context.tr('govt_contribution') ,
                         '${govtPays.toStringAsFixed(2)} AED',
                         color: AppColors.success,
                       ),
@@ -2265,8 +2252,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  context.tr('your_copay_per_checkin') ??
-                                      context.tr('your_copay_per_checkin'),
+                                  context.tr('your_copay_per_checkin') ,
                                   style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 11,
@@ -2336,8 +2322,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.tr('my_health_profile') ??
-                      context.tr('my_health_profile'),
+                  context.tr('my_health_profile') ,
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -2440,16 +2425,16 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
               const SizedBox(width: 20),
               _diagnosticSummaryBlock(
                 context.tr('active_dose'),
-                '5 mg / ' + context.tr('frequency_weekly'),
-                'Mounjaro • ' + context.tr('eligible_mounjaro'),
+                '5 mg / ${context.tr('frequency_weekly')}',
+                'Mounjaro • ${context.tr('eligible_mounjaro')}',
                 LucideIcons.droplet,
                 AppColors.primaryLight,
               ),
               const SizedBox(width: 20),
               _diagnosticSummaryBlock(
                 context.tr('last_vital_scan'),
-                context.tr('last_dispense_date') + ': ' + context.tr('every_n_days').replaceAll('{n}', '14'),
-                'HbA1c: 5.8% • ' + context.tr('dashboard_improving'),
+                '${context.tr('last_dispense_date')}: ${context.tr('every_n_days').replaceAll('{n}', '14')}',
+                'HbA1c: 5.8% • ${context.tr('dashboard_improving')}',
                 LucideIcons.clipboardCheck,
                 AppColors.success,
               ),

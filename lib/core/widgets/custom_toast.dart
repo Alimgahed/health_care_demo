@@ -126,10 +126,10 @@ class _CustomToastState extends State<CustomToast>
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: widget.color.withOpacity(0.2)),
+            border: Border.all(color: widget.color.withValues(alpha: 0.2)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -141,7 +141,7 @@ class _CustomToastState extends State<CustomToast>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: widget.color.withOpacity(0.08),
+                  color: widget.color.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(widget.icon, color: widget.color, size: 20),
