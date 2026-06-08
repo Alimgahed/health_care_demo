@@ -37,14 +37,14 @@ const Map<String, String> translationsEn = {
   'login_subtitle': 'UNITED ARAB EMIRATES · MINISTRY OF HEALTH',
   'select_role': 'Select Access Role',
   'choose_portal': 'Choose your authorized portal to continue',
-  'ministry_executive': 'Admin\nPortal',
+  'ministry_executive': 'System',
   'doctor_physician': 'Treating\nPhysician',
   'dispensing_center': 'Dispensing\nFacility',
   'patient_portal': 'Patient\nPortal',
   'access_portal': 'Enter Portal',
   'demo_cred_admin': 'Demo access: National Executive (admin@moh.gov.ae)',
   'demo_cred_clinical': 'Demo access: Physician Portal (clinical@moh.gov.ae)',
-  'demo_cred_pharmacy': 'Demo access: Pharmacy (pharmacy@moh.gov.ae)',
+  'demo_cred_distribution outlet': 'Demo access: Distribution Outlet (distribution outlet@moh.gov.ae)',
   'demo_cred_patient':
       'Demo access: Patient (patient@mounjaro.ae · Ahmed Al Mansoori)',
 
@@ -103,7 +103,7 @@ const Map<String, String> translationsEn = {
       'Highlight the map and cohort metrics before switching roles.',
   'demo_step_2_title': 'Registry & national inventory',
   'demo_step_2_body':
-      'Review patient registry and stock levels at authorized pharmacies.',
+      'Review patient registry and stock levels at authorized distribution outlets.',
   'demo_step_2_tip':
       'Search Ahmed (P001) or filter flagged cases for the ministry narrative.',
   'demo_step_3_title': 'Physician portal — care plan & eligibility',
@@ -136,7 +136,7 @@ const Map<String, String> translationsEn = {
       'Close with compliance trail, overrides, and emirate-level reporting.',
   'demo_step_8_tip': 'Tie back to ministry KPIs shown in step 1.',
   'demo_start_cycle': 'Start full demo cycle',
-  'ministry_executive_user': 'Admin Portal',
+  'ministry_executive_user': 'System',
   'greeting': 'Good morning, Executive',
   'national_command_center': 'Admin Dashboard',
 
@@ -147,7 +147,7 @@ const Map<String, String> translationsEn = {
   'national_avg_bmi_cohort': 'Average BMI (Program Cohort)',
   'fraud_abuse_prevented': 'Misuse Incidents Prevented',
   'adherence_rate': 'Treatment Adherence Rate',
-  'active_dispensing_centers': 'Authorized Pharmacies',
+  'active_dispensing_centers': 'Authorized Distribution Outlets',
   'total_stock_units': 'National Stock Units',
   'obesity_index_reduction': 'Obesity Index Improvement',
   'cohort_growth': 'Cohort growth',
@@ -173,7 +173,7 @@ const Map<String, String> translationsEn = {
   'adherence_by_dose': 'Adherence by Dose Tier',
   'adherence_by_dose_sub': 'Compliance rate per approved strength',
   'center_inventory_status': 'Facility Inventory Status',
-  'center_inventory_sub': 'Real-time stock at pharmacies',
+  'center_inventory_sub': 'Real-time stock at distribution outlets',
   'active_patients_legend': 'Active patients',
   'target_limit_legend': 'Target ceiling',
   'monthly_bmi_sub': 'Monthly average BMI across enrolled patients',
@@ -198,7 +198,7 @@ const Map<String, String> translationsEn = {
 
   // Inventory admin
   'inventory_management': 'National Inventory Management',
-  'inventory_management_sub': 'Live stock levels at authorized pharmacies.',
+  'inventory_management_sub': 'Live stock levels at authorized distribution outlets.',
   'low_stock': 'Low stock',
   'stable': 'Adequate',
 
@@ -244,7 +244,7 @@ const Map<String, String> translationsEn = {
   'view_fraud_alerts': 'Review Misuse Alerts',
   'approve_subsidies': 'Approve Subsidy Requests',
   'generate_report': 'Generate Executive Report',
-  'contact_centers': 'Contact Pharmacies',
+  'contact_centers': 'Contact Distribution Outlets',
   'action_executed': 'Action initiated: {title}',
   'ministry_health': 'Ministry of Health',
 
@@ -252,7 +252,7 @@ const Map<String, String> translationsEn = {
   'geo_analytics': 'Geographic Analytics',
   'select_marker': 'Select a map marker to view facility or patient details',
   'patient_details': 'Patient Details',
-  'center_details': 'Pharmacy Details',
+  'center_details': 'Distribution Outlet Details',
   'inventory_status': 'Live Inventory Status',
   'out_of_stock': 'Out of stock',
   'low_stock_map': 'Low stock',
@@ -266,7 +266,7 @@ const Map<String, String> translationsEn = {
   'services_offered': 'Services provided',
   'filter_all': 'All',
   'filter_patients': 'Patients',
-  'filter_pharmacies': 'Dispensing facilities',
+  'filter_distribution outlets': 'Dispensing facilities',
   'filter_rehab': 'Rehabilitation',
   'filter_emirate': 'Emirate',
   'filter_risk': 'Risk / status',
@@ -328,8 +328,8 @@ const Map<String, String> translationsEn = {
   'coverage_visitor': 'No government coverage (Visitor)',
 
   // Dispensing facility
-  'dispensing_portal': 'Pharmacy Portal',
-  'pharmacist_admin': 'Licensed Pharmacist',
+  'dispensing_portal': 'Distribution Outlet Portal',
+  'dispensing officer_admin': 'Licensed Dispensing Officer',
   'select_patient': 'Select patient',
   'select_patient_sub':
       'Search Emirates ID or select an eligible patient below.',
@@ -350,7 +350,7 @@ const Map<String, String> translationsEn = {
       'Monitor Health Care pen stock and submit replenishment requests.',
   'request_restock': 'Request inventory replenishment',
   'request_restock_sub':
-      'Submit a digital replenishment request to the MoH central pharmacy depot.',
+      'Submit a digital replenishment request to the MoH central distribution outlet depot.',
   'simulate_restock': 'Simulate depot replenishment (+20 units per strength)',
   'recent_center_activity': 'Recent facility activity',
   'recent_center_activity_sub':
@@ -483,6 +483,10 @@ const Map<String, String> translationsEn = {
   'medical_history': 'Medical history',
   'activity_log': 'Activity audit log',
   'edit_plan': 'Edit care plan',
+  'edit_current_plan': 'Edit current care plan',
+  'add_new_plan': 'Add new care plan',
+  'manage_plan': 'Manage care plan',
+  'cannot_add_new_plan_error': 'Cannot add a new plan until the current one is finished.',
   'no_active_plan': 'No active care plan assigned',
   'no_activity_logs': 'No activity records found',
   'no_treatment_plan_mobile': 'No active care plan',
@@ -546,8 +550,8 @@ const Map<String, String> translationsEn = {
   'fraud_alert': 'Suspected misuse alert',
   'budget_alert': 'Budget utilization alert',
   'supply_alert': 'Supply chain alert',
-  'center_greeting': 'Welcome, licensed pharmacist',
-  'center_name': 'Central pharmacy depot',
+  'center_greeting': 'Welcome, licensed dispensing officer',
+  'center_name': 'Central distribution outlet depot',
   'dispense_mounjaro': 'Dispense Health Care',
   'verify_eligibility': 'Verify program eligibility',
   'restock_inventory': 'Replenish inventory',
@@ -626,8 +630,8 @@ const Map<String, String> translationsEn = {
   'coverage_rate': 'Coverage rate',
   'government_pays': 'Government pays',
   'your_copay': 'Patient co-payment',
-  'center_depot': 'Central pharmacy depot',
-  'pharmacist_role': 'Licensed pharmacist',
+  'center_depot': 'Central distribution outlet depot',
+  'dispensing officer_role': 'Licensed dispensing officer',
   'stock_updated': 'Stock updated',
   'stock_restock_msg':
       'Replenishment approved. Added 20 units per strength to local inventory.',
@@ -863,7 +867,7 @@ const Map<String, String> translationsEn = {
   'wizard_how_receive': 'How would you like to receive it?',
   'wizard_pickup': 'Pickup',
   'wizard_delivery': 'Delivery',
-  'wizard_avail_pharmacies': 'Available Pharmacies',
+  'wizard_avail_distribution outlets': 'Available Distribution Outlets',
   'wizard_in_stock': 'In Stock',
   'wizard_deliv_address': 'Delivery Address',
   'wizard_enter_address': 'Enter your full delivery address',
@@ -1159,7 +1163,7 @@ const Map<String, String> translationsEn = {
   'feed_msg_5': 'New shipment arrived — warehouse B',
   'feed_msg_6': 'Prescription expired — patient #2201',
   'feed_msg_7': 'Warning: oxygen stock at 20%',
-  'feed_msg_8': 'Unusual activity on pharmacist account #07',
+  'feed_msg_8': 'Unusual activity on dispensing officer account #07',
 
   'payable_at_checkin': 'Payable directly at check-in',
 
@@ -1177,7 +1181,7 @@ const Map<String, String> translationsEn = {
   'weight_loss': 'Weight Loss',
   'completed_sessions': 'Completed Sessions',
   'check_eligibility_and_request':
-      'Check clinical eligibility and request medication directly for delivery or pickup from the nearest pharmacy.',
+      'Check clinical eligibility and request medication directly for delivery or pickup from the nearest distribution outlet.',
 
   'no_records_found': 'No records found',
   'processing_payment': 'Processing Payment...',

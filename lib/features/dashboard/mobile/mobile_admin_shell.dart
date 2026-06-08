@@ -135,16 +135,11 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   children: [
-                    _buildDrawerSectionTitle(context.tr('nav_section_dashboards')),
                     _buildDrawerItem(LucideIcons.layoutDashboard, context.tr('nav_dashboard'), 0, totalLogs),
                     _buildDrawerItem(LucideIcons.stethoscope, context.tr('manage_doctors_title'), 1, totalLogs),
                     _buildDrawerItem(LucideIcons.building2, context.tr('manage_therapy_centers_title'), 2, totalLogs),
-                    const SizedBox(height: 16),
-                    _buildDrawerSectionTitle(context.tr('nav_section_operations')),
                     _buildDrawerItem(LucideIcons.map, context.tr('nav_clinical_ops'), 3, totalLogs),
                     _buildDrawerItem(LucideIcons.packageSearch, context.tr('nav_inventory'), 4, totalLogs),
-                    const SizedBox(height: 16),
-                    _buildDrawerSectionTitle(context.tr('nav_section_administration')),
                     _buildDrawerItem(LucideIcons.shieldAlert, context.tr('nav_fraud_log'), 5, totalLogs),
                     _buildDrawerItem(LucideIcons.activitySquare, context.tr('system_audit_log'), 6, totalLogs, badgeCount: unreadLogs),
                   ],

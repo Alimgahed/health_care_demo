@@ -87,30 +87,105 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                     ],
                   ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => Dialog(
-                        insetPadding: const EdgeInsets.all(24),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                        child: SizedBox(
-                          width: 900,
-                          height: 700,
-                          child: TreatmentPlanBuilder(patient: patient, existingPlan: activePlan),
+                if (activePlan == null)
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          insetPadding: const EdgeInsets.all(24),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          child: SizedBox(
+                            width: 900,
+                            height: 700,
+                            child: TreatmentPlanBuilder(patient: patient, existingPlan: null),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(LucideIcons.plusCircle),
+                    label: Text(context.tr('create_treatment_plan')),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: AppColors.textPrimary,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  )
+                else
+                  PopupMenuButton<String>(
+                    offset: const Offset(0, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            insetPadding: const EdgeInsets.all(24),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                            child: SizedBox(
+                              width: 900,
+                              height: 700,
+                              child: TreatmentPlanBuilder(patient: patient, existingPlan: activePlan),
+                            ),
+                          ),
+                        );
+                      } else if (value == 'add') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(context.tr('cannot_add_new_plan_error')),
+                            backgroundColor: AppColors.error,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.edit, size: 18, color: AppColors.primary),
+                            const SizedBox(width: 12),
+                            Text(context.tr('edit_current_plan')),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                  icon: Icon(activePlan == null ? LucideIcons.plusCircle : LucideIcons.edit),
-                  label: Text(activePlan == null ? context.tr('create_treatment_plan') : context.tr('edit_plan')),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    foregroundColor: AppColors.textPrimary,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      PopupMenuItem(
+                        value: 'add',
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.plusCircle, size: 18, color: AppColors.textSecondary),
+                            const SizedBox(width: 12),
+                            Text(context.tr('add_new_plan')),
+                          ],
+                        ),
+                      ),
+                    ],
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2)),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                           Icon(LucideIcons.settings, color: AppColors.textPrimary, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            context.tr('manage_plan'),
+                            style:  TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16),
+                          ),
+                          const SizedBox(width: 8),
+                           Icon(LucideIcons.chevronDown, color: AppColors.textPrimary, size: 18),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
               ],
             ),
           ),

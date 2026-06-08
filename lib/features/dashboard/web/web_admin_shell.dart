@@ -268,17 +268,14 @@ class _Sidebar extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _navSection(context.tr('nav_section_overview')),
                   _navItem(
                     LucideIcons.layoutDashboard,
                     context.tr('nav_dashboard'),
                     0,
                   ),
-                  _navSection(context.tr('nav_section_analytics')),
                   _navItem(LucideIcons.map, context.tr('nav_geo_analytics'), 1),
                   _navItem(LucideIcons.users, context.tr('nav_patients'), 2),
                   _navItem(LucideIcons.package, context.tr('nav_inventory'), 3),
-                  _navSection(context.tr('nav_section_intelligence')),
                   _navItem(
                     LucideIcons.bot,
                     context.tr('nav_ai_alerts'),
@@ -286,7 +283,6 @@ class _Sidebar extends StatelessWidget {
                     badge: alertBadgeCount > 0 ? '$alertBadgeCount' : null,
                     badgeDanger: alertBadgeCount > 0,
                   ),
-                  _navSubSection(context.tr('alert_os_tools')),
                   _navItem(
                     LucideIcons.radio,
                     context.tr('live_activity_feed'),
@@ -305,7 +301,6 @@ class _Sidebar extends StatelessWidget {
                     kAlertOSNavFraudLog,
                   ),
                   _navItem(LucideIcons.fileText, context.tr('nav_reports'), kAlertOSNavReports),
-                  _navSection(context.tr('nav_section_operations')),
                   _navItem(
                     LucideIcons.stethoscope,
                     context.tr('nav_clinical_ops'),
@@ -320,7 +315,6 @@ class _Sidebar extends StatelessWidget {
                         ? '$readyDispenseCount'
                         : null,
                   ),
-                  _navSection(context.tr('nav_section_administration')),
                   _navItem(
                     LucideIcons.stethoscope,
                     context.tr('nav_manage_doctors'),
