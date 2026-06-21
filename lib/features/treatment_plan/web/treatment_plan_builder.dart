@@ -147,8 +147,6 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
             ],
           ),
         ),
-        if (ineligible)
-          ClinicalEligibilityBanner(patient: livePatient),
         if (needsReviewOnSave && !ineligible)
           Container(
             width: double.infinity,
@@ -238,6 +236,51 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (Provider.of<DataProvider>(context).getPatientById(widget.patient.id)?.programEligibility.eligible ?? widget.patient.programEligibility.eligible)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.success.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.success.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              children: [
+                Icon(LucideIcons.checkCircle, color: AppColors.success, size: 24),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('medically_eligible'),
+                        style: TextStyle(
+                          color: AppColors.success,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.tr('medically_eligible_desc'),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          Container(
+            margin: const EdgeInsets.only(bottom: 24),
+            child: ClinicalEligibilityBanner(patient: Provider.of<DataProvider>(context).getPatientById(widget.patient.id) ?? widget.patient),
+          ),
         Text(context.tr('select_dose'), style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         Wrap(
@@ -258,8 +301,8 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
             );
           }).toList(),
         ),
-        const SizedBox(height: 32),
-        Text(context.tr('injection_frequency'), style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 24),
+        Text(context.tr('injection_interval'), style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 12,
@@ -397,6 +440,13 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
       children: [
         Text(context.tr('review_treatment_plan'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 24),
+        _AIPlanEvaluatorCard(
+          patient: widget.patient,
+          selectedDose: _selectedDose,
+          frequencyDays: _frequencyDays,
+          totalSessions: _selectedCenter != null ? _totalSessions : 0,
+          exercisesCount: _selectedExercises.length,
+        ),
         ListTile(
           title: Text(context.tr('medication_plan')),
           subtitle: Text(context.tr('medication_schedule_line', {
@@ -423,6 +473,122 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
           leading: const Icon(LucideIcons.activity),
         ),
       ],
+    );
+  }
+}
+
+class _AIPlanEvaluatorCard extends StatelessWidget {
+  final Patient patient;
+  final String selectedDose;
+  final int frequencyDays;
+  final int totalSessions;
+  final int exercisesCount;
+
+  const _AIPlanEvaluatorCard({
+    required this.patient,
+    required this.selectedDose,
+    required this.frequencyDays,
+    required this.totalSessions,
+    required this.exercisesCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    int successScore = 0;
+    String suggestionKey = '';
+
+    if (frequencyDays > 7) {
+      successScore = 45;
+      suggestionKey = 'ai_suggestion_poor_frequency';
+    } else if (patient.bmi > 35 && (totalSessions == 0 || exercisesCount == 0)) {
+      successScore = 60;
+      suggestionKey = 'ai_suggestion_missing_lifestyle';
+    } else if (totalSessions > 0 && totalSessions < 8) {
+      successScore = 75;
+      suggestionKey = 'ai_suggestion_insufficient_sessions';
+    } else if (totalSessions >= 8 && exercisesCount >= 2 && frequencyDays == 7) {
+      successScore = 95;
+      suggestionKey = 'ai_suggestion_optimal';
+    } else {
+      successScore = 88;
+      suggestionKey = 'ai_suggestion_optimal'; // fallback
+    }
+
+    final isOptimal = successScore >= 85;
+    final isPoor = successScore < 60;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.navy.withValues(alpha: 0.05),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.sparkles, color: AppColors.accent, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  context.tr('ai_comprehensive_evaluation'),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isOptimal ? AppColors.success : (isPoor ? AppColors.error : AppColors.warning),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${context.tr('ai_success_rate')}: $successScore%',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          LinearProgressIndicator(
+            value: successScore / 100,
+            backgroundColor: Colors.grey.shade300,
+            color: isOptimal ? AppColors.success : (isPoor ? AppColors.error : AppColors.warning),
+            minHeight: 8,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(LucideIcons.info, size: 20, color: AppColors.textSecondary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('ai_suggestion'),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.tr(suggestionKey),
+                      style: TextStyle(color: AppColors.navy, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

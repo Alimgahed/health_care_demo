@@ -1,13 +1,14 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/localization/l10n_extension.dart';
+
 import '../../../../core/constants/mock_data.dart';
+import '../../../../core/localization/l10n_extension.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../clinical/clinical_eligibility_banner.dart';
 import '../data/home_exercise_catalog.dart';
 import '../models/treatment_plan.dart';
-import '../../clinical/clinical_eligibility_banner.dart';
 import 'treatment_plan_builder.dart';
 
 class Patient360View extends StatefulWidget {
@@ -19,7 +20,8 @@ class Patient360View extends StatefulWidget {
   State<Patient360View> createState() => _Patient360ViewState();
 }
 
-class _Patient360ViewState extends State<Patient360View> with SingleTickerProviderStateMixin {
+class _Patient360ViewState extends State<Patient360View>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -28,7 +30,8 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     _tabController = TabController(length: 4, vsync: this);
   }
 
-  Patient _livePatient(DataProvider dp) => dp.getPatientById(widget.patient.id) ?? widget.patient;
+  Patient _livePatient(DataProvider dp) =>
+      dp.getPatientById(widget.patient.id) ?? widget.patient;
 
   List<HomeExercise> _patientExercises(DataProvider dp) =>
       HomeExerciseCatalog.forPatientPlans(dp.treatmentPlans, widget.patient.id);
@@ -37,10 +40,12 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
   Widget build(BuildContext context) {
     final dataProvider = Provider.of<DataProvider>(context);
     final patient = _livePatient(dataProvider);
-    final activePlan = dataProvider.treatmentPlans.cast<TreatmentPlan?>().firstWhere(
-      (p) => p?.patientId == patient.id && p?.status == 'Active',
-      orElse: () => null,
-    );
+    final activePlan = dataProvider.treatmentPlans
+        .cast<TreatmentPlan?>()
+        .firstWhere(
+          (p) => p?.patientId == patient.id && p?.status == 'Active',
+          orElse: () => null,
+        );
     final exercises = _patientExercises(dataProvider);
 
     return Container(
@@ -53,7 +58,12 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: AppColors.navy,
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -62,7 +72,11 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                   backgroundColor: AppColors.accent.withValues(alpha: 0.2),
                   child: Text(
                     patient.getLocalizedFullName(context).substring(0, 1),
-                    style: TextStyle(fontSize: 32, color: AppColors.accent, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 32,
+                      color: AppColors.accent,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 24),
@@ -72,16 +86,29 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                     children: [
                       Text(
                         patient.getLocalizedFullName(context),
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          _buildHeaderBadge(LucideIcons.hash, patient.emiratesId),
+                          _buildHeaderBadge(
+                            LucideIcons.hash,
+                            patient.emiratesId,
+                          ),
                           const SizedBox(width: 16),
-                          _buildHeaderBadge(LucideIcons.user, '${patient.age} ${context.tr('age')}'),
+                          _buildHeaderBadge(
+                            LucideIcons.user,
+                            '${patient.age} ${context.tr('age')}',
+                          ),
                           const SizedBox(width: 16),
-                          _buildHeaderBadge(LucideIcons.mapPin, patient.getLocalizedEmirate(context)),
+                          _buildHeaderBadge(
+                            LucideIcons.mapPin,
+                            patient.getLocalizedEmirate(context),
+                          ),
                         ],
                       ),
                     ],
@@ -94,11 +121,16 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                         context: context,
                         builder: (context) => Dialog(
                           insetPadding: const EdgeInsets.all(24),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
                           child: SizedBox(
                             width: 900,
                             height: 700,
-                            child: TreatmentPlanBuilder(patient: patient, existingPlan: null),
+                            child: TreatmentPlanBuilder(
+                              patient: patient,
+                              existingPlan: null,
+                            ),
                           ),
                         ),
                       );
@@ -108,83 +140,75 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accent,
                       foregroundColor: AppColors.textPrimary,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   )
                 else
-                  PopupMenuButton<String>(
-                    offset: const Offset(0, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        showDialog(
-                          context: context,
-                          builder: (context) => Dialog(
-                            insetPadding: const EdgeInsets.all(24),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            child: SizedBox(
-                              width: 900,
-                              height: 700,
-                              child: TreatmentPlanBuilder(patient: patient, existingPlan: activePlan),
-                            ),
-                          ),
-                        );
-                      } else if (value == 'add') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(context.tr('cannot_add_new_plan_error')),
-                            backgroundColor: AppColors.error,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'edit',
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                        ),
                         child: Row(
                           children: [
-                            Icon(LucideIcons.edit, size: 18, color: AppColors.primary),
-                            const SizedBox(width: 12),
-                            Text(context.tr('edit_current_plan')),
+                            const Icon(LucideIcons.calendarCheck, color: AppColors.success, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${context.tr('active_plan')} ${activePlan.createdAt.toString().split(' ')[0]}',
+                              style: const TextStyle(
+                                color: AppColors.success,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      PopupMenuItem(
-                        value: 'add',
-                        child: Row(
-                          children: [
-                            Icon(LucideIcons.plusCircle, size: 18, color: AppColors.textSecondary),
-                            const SizedBox(width: 12),
-                            Text(context.tr('add_new_plan')),
-                          ],
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => Dialog(
+                              insetPadding: const EdgeInsets.all(24),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: SizedBox(
+                                width: 900,
+                                height: 700,
+                                child: TreatmentPlanBuilder(
+                                  patient: patient,
+                                  existingPlan: activePlan,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(LucideIcons.edit3, size: 18),
+                        label: Text(context.tr('modify')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accent,
+                          foregroundColor: AppColors.textPrimary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ],
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2)),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                           Icon(LucideIcons.settings, color: AppColors.textPrimary, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            context.tr('manage_plan'),
-                            style:  TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 16),
-                          ),
-                          const SizedBox(width: 8),
-                           Icon(LucideIcons.chevronDown, color: AppColors.textPrimary, size: 18),
-                        ],
-                      ),
-                    ),
                   ),
               ],
             ),
@@ -200,8 +224,14 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.primary,
               indicatorWeight: 3,
-              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 15,
+              ),
               tabs: [
                 Tab(text: context.tr('overview')),
                 Tab(text: context.tr('treatment_plan')),
@@ -218,7 +248,12 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               children: [
                 _buildOverviewTab(context, patient, exercises),
                 _buildTreatmentPlanTab(context, activePlan, dataProvider),
-                _buildMedicalHistoryTab(context, patient, dataProvider, exercises),
+                _buildMedicalHistoryTab(
+                  context,
+                  patient,
+                  dataProvider,
+                  exercises,
+                ),
                 _buildActivityLogTab(context, dataProvider, patient),
               ],
             ),
@@ -246,7 +281,11 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     );
   }
 
-  Widget _buildOverviewTab(BuildContext context, Patient patient, List<HomeExercise> exercises) {
+  Widget _buildOverviewTab(
+    BuildContext context,
+    Patient patient,
+    List<HomeExercise> exercises,
+  ) {
     final provider = Provider.of<DataProvider>(context, listen: false);
     final dispenseStatus = provider.dispensingUiStatus(patient);
 
@@ -259,7 +298,11 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
           children: [
             Text(
               context.tr('patient_overview_snapshot'),
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
             ),
             const SizedBox(height: 14),
             Wrap(
@@ -279,7 +322,9 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                   AppColors.navy,
                 ),
                 _buildSnapshotChip(
-                  patient.programEligibility.eligible ? context.tr('eligible_dispensation') : context.tr('status_program_ineligible'),
+                  patient.programEligibility.eligible
+                      ? context.tr('eligible_dispensation')
+                      : context.tr('status_program_ineligible'),
                   _dispensingStatusLabel(context, provider, patient),
                   LucideIcons.package,
                   _dispensingStatusColor(dispenseStatus),
@@ -308,15 +353,50 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                   icon: LucideIcons.userCircle,
                   accent: AppColors.primary,
                   items: [
-                    _InfoItem(context.tr('full_name'), patient.getLocalizedFullName(context), LucideIcons.user),
-                    _InfoItem(context.tr('full_name_en'), patient.fullName, LucideIcons.languages),
-                    _InfoItem(context.tr('full_name_ar'), patient.fullNameAr, LucideIcons.languages),
-                    _InfoItem(context.tr('emirates_id'), patient.emiratesId, LucideIcons.hash),
-                    _InfoItem(context.tr('col_id'), patient.id, LucideIcons.badgeCheck),
-                    _InfoItem('${context.tr('age')} / ${context.tr('gender')}', '${patient.age} · ${patient.getLocalizedGender(context)}'),
-                    _InfoItem(context.tr('nationality'), patient.getLocalizedNationality(context), LucideIcons.globe),
-                    _InfoItem(context.tr('residency_status'), patient.getLocalizedResidency(context), LucideIcons.home),
-                    _InfoItem(context.tr('region'), patient.getLocalizedEmirate(context), LucideIcons.mapPin),
+                    _InfoItem(
+                      context.tr('full_name'),
+                      patient.getLocalizedFullName(context),
+                      LucideIcons.user,
+                    ),
+                    _InfoItem(
+                      context.tr('full_name_en'),
+                      patient.fullName,
+                      LucideIcons.languages,
+                    ),
+                    _InfoItem(
+                      context.tr('full_name_ar'),
+                      patient.fullNameAr,
+                      LucideIcons.languages,
+                    ),
+                    _InfoItem(
+                      context.tr('emirates_id'),
+                      patient.emiratesId,
+                      LucideIcons.hash,
+                    ),
+                    _InfoItem(
+                      context.tr('col_id'),
+                      patient.id,
+                      LucideIcons.badgeCheck,
+                    ),
+                    _InfoItem(
+                      '${context.tr('age')} / ${context.tr('gender')}',
+                      '${patient.age} · ${patient.getLocalizedGender(context)}',
+                    ),
+                    _InfoItem(
+                      context.tr('nationality'),
+                      patient.getLocalizedNationality(context),
+                      LucideIcons.globe,
+                    ),
+                    _InfoItem(
+                      context.tr('residency_status'),
+                      patient.getLocalizedResidency(context),
+                      LucideIcons.home,
+                    ),
+                    _InfoItem(
+                      context.tr('region'),
+                      patient.getLocalizedEmirate(context),
+                      LucideIcons.mapPin,
+                    ),
                   ],
                 );
                 final program = _buildInfoSection(
@@ -331,7 +411,8 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                     ),
                     _InfoItem(
                       context.tr('last_dispense_date'),
-                      patient.lastDispensingDate ?? context.tr('never_dispensed'),
+                      patient.lastDispensingDate ??
+                          context.tr('never_dispensed'),
                       LucideIcons.calendar,
                     ),
                     _InfoItem(
@@ -342,7 +423,10 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                     if (patient.lastDispensingCenterId != null)
                       _InfoItem(
                         context.tr('last_dispensing_facility'),
-                        provider.dispensingFacilityLabel(context, patient.lastDispensingCenterId),
+                        provider.dispensingFacilityLabel(
+                          context,
+                          patient.lastDispensingCenterId,
+                        ),
                         LucideIcons.building2,
                       ),
                     _InfoItem(
@@ -369,11 +453,7 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                   );
                 }
                 return Column(
-                  children: [
-                    demographics,
-                    const SizedBox(height: 20),
-                    program,
-                  ],
+                  children: [demographics, const SizedBox(height: 20), program],
                 );
               },
             ),
@@ -383,7 +463,11 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     );
   }
 
-  String _dispensingStatusLabel(BuildContext context, DataProvider provider, Patient patient) {
+  String _dispensingStatusLabel(
+    BuildContext context,
+    DataProvider provider,
+    Patient patient,
+  ) {
     switch (provider.dispensingUiStatus(patient)) {
       case DispensingUiStatus.eligible:
         return context.tr('eligible_dispensation');
@@ -411,7 +495,12 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     }
   }
 
-  Widget _buildSnapshotChip(String label, String value, IconData icon, Color color) {
+  Widget _buildSnapshotChip(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       constraints: const BoxConstraints(minWidth: 180),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -419,7 +508,13 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -437,11 +532,22 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -466,7 +572,13 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,7 +588,9 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.06),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(17),
+              ),
               border: Border(bottom: BorderSide(color: AppColors.border)),
             ),
             child: Row(
@@ -490,7 +604,14 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                   child: Icon(icon, size: 20, color: accent),
                 ),
                 const SizedBox(width: 12),
-                Text(title, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -508,12 +629,13 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: items.length,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: cols,
-                              mainAxisExtent: 72,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 12,
-                            ),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: cols,
+                                  mainAxisExtent: 72,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 12,
+                                ),
                             itemBuilder: (_, i) => _buildInfoCell(items[i]),
                           );
                         },
@@ -549,11 +671,22 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(item.label, style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                Text(
+                  item.label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   item.value,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -565,8 +698,14 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     );
   }
 
-  Widget _buildTrendChartSection(BuildContext context, Patient patient, {required bool showBmi}) {
-    final title = showBmi ? context.tr('bmi_trend') : context.tr('weight_trend');
+  Widget _buildTrendChartSection(
+    BuildContext context,
+    Patient patient, {
+    required bool showBmi,
+  }) {
+    final title = showBmi
+        ? context.tr('bmi_trend')
+        : context.tr('weight_trend');
     final spots = patient.weightHistory.asMap().entries.map((e) {
       final y = showBmi
           ? e.value / ((patient.height / 100) * (patient.height / 100))
@@ -580,7 +719,13 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -590,7 +735,9 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.06),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(17),
+              ),
               border: Border(bottom: BorderSide(color: AppColors.border)),
             ),
             child: Row(
@@ -601,10 +748,21 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                     color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(LucideIcons.lineChart, size: 20, color: AppColors.primary),
+                  child: Icon(
+                    LucideIcons.lineChart,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(width: 12),
-                Text(title, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -614,10 +772,18 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               height: 260,
               child: LineChart(
                 LineChartData(
-                  gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: showBmi ? 1 : 2),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: showBmi ? 1 : 2,
+                  ),
                   titlesData: const FlTitlesData(
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   borderData: FlBorderData(show: false),
                   lineBarsData: [
@@ -643,7 +809,11 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     );
   }
 
-  Widget _buildTreatmentPlanTab(BuildContext context, TreatmentPlan? plan, DataProvider provider) {
+  Widget _buildTreatmentPlanTab(
+    BuildContext context,
+    TreatmentPlan? plan,
+    DataProvider provider,
+  ) {
     if (plan == null) {
       return Center(
         child: Column(
@@ -651,7 +821,14 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
           children: [
             Icon(LucideIcons.clipboardList, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
-            Text(context.tr('no_active_plan'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            Text(
+              context.tr('no_active_plan'),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textSecondary,
+              ),
+            ),
           ],
         ),
       );
@@ -670,7 +847,9 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               decoration: BoxDecoration(
                 color: AppColors.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.warning.withValues(alpha: 0.35)),
+                border: Border.all(
+                  color: AppColors.warning.withValues(alpha: 0.35),
+                ),
               ),
               child: Row(
                 children: [
@@ -679,15 +858,28 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                   Expanded(
                     child: Text(
                       context.tr('care_plan_status_pending'),
-                      style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.warning),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.warning,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           _buildPlanSection(context.tr('medication_plan'), [
-            _buildPlanRow(LucideIcons.pill, context.tr('select_dose'), context.mounjaroDoseLabel(plan.medicationDose)),
-            _buildPlanRow(LucideIcons.clock, context.tr('injection_frequency'), context.tr('every_n_days', {'n': '${plan.medicationFrequencyDays}'})),
+            _buildPlanRow(
+              LucideIcons.pill,
+              context.tr('select_dose'),
+              context.mounjaroDoseLabel(plan.medicationDose),
+            ),
+            _buildPlanRow(
+              LucideIcons.clock,
+              context.tr('injection_frequency'),
+              context.tr('every_n_days', {
+                'n': '${plan.medicationFrequencyDays}',
+              }),
+            ),
           ]),
           const SizedBox(height: 32),
           _buildPlanSection(context.tr('therapy_plan'), [
@@ -702,7 +894,10 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               _buildPlanRow(
                 LucideIcons.map,
                 context.tr('region'),
-                provider.getTherapyCenterById(plan.assignedCenterId)?.getLocalizedEmirate(context) ?? '',
+                provider
+                        .getTherapyCenterById(plan.assignedCenterId)
+                        ?.getLocalizedEmirate(context) ??
+                    '',
               ),
             _buildPlanRow(
               LucideIcons.calendar,
@@ -738,12 +933,25 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 16),
@@ -760,8 +968,20 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         children: [
           Icon(icon, size: 20, color: AppColors.textSecondary),
           const SizedBox(width: 16),
-          Expanded(child: Text(label, style: TextStyle(fontSize: 16, color: AppColors.textSecondary))),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
         ],
       ),
     );
@@ -774,9 +994,9 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     List<HomeExercise> exercises,
   ) {
     final plan = provider.treatmentPlans.cast<TreatmentPlan?>().firstWhere(
-          (p) => p?.patientId == patient.id && p?.status == 'Active',
-          orElse: () => null,
-        );
+      (p) => p?.patientId == patient.id && p?.status == 'Active',
+      orElse: () => null,
+    );
     final conditions = patient.getLocalizedMedicalConditions(context);
     final weightLoss = patient.weightHistory.length >= 2
         ? (patient.weightHistory.first - patient.weight).toStringAsFixed(1)
@@ -828,12 +1048,26 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               icon: LucideIcons.stethoscope,
               accent: AppColors.error,
               items: [
-                _InfoItem(context.tr('weight'), '${patient.weight.toStringAsFixed(1)} kg', LucideIcons.scale),
-                _InfoItem(context.tr('height_cm'), '${patient.height.toStringAsFixed(0)} cm', LucideIcons.ruler),
-                _InfoItem(context.tr('col_bmi'), patient.bmi.toStringAsFixed(1), LucideIcons.activity),
+                _InfoItem(
+                  context.tr('weight'),
+                  '${patient.weight.toStringAsFixed(1)} kg',
+                  LucideIcons.scale,
+                ),
+                _InfoItem(
+                  context.tr('height_cm'),
+                  '${patient.height.toStringAsFixed(0)} cm',
+                  LucideIcons.ruler,
+                ),
+                _InfoItem(
+                  context.tr('col_bmi'),
+                  patient.bmi.toStringAsFixed(1),
+                  LucideIcons.activity,
+                ),
                 _InfoItem(
                   context.tr('has_chronic_disease'),
-                  patient.hasChronicDisease ? context.tr('yes') : context.tr('no'),
+                  patient.hasChronicDisease
+                      ? context.tr('yes')
+                      : context.tr('no'),
                   LucideIcons.heartPulse,
                 ),
                 _InfoItem(
@@ -863,8 +1097,22 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
               icon: LucideIcons.heartPulse,
               accent: AppColors.warning,
               items: conditions.isEmpty
-                  ? [_InfoItem(context.tr('condition_field'), context.tr('none_reported'), LucideIcons.circle)]
-                  : conditions.map((c) => _InfoItem(context.tr('condition_field'), c, LucideIcons.circle)).toList(),
+                  ? [
+                      _InfoItem(
+                        context.tr('condition_field'),
+                        context.tr('none_reported'),
+                        LucideIcons.circle,
+                      ),
+                    ]
+                  : conditions
+                        .map(
+                          (c) => _InfoItem(
+                            context.tr('condition_field'),
+                            c,
+                            LucideIcons.circle,
+                          ),
+                        )
+                        .toList(),
             ),
             const SizedBox(height: 20),
             _buildInfoSection(
@@ -887,7 +1135,10 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                 if (patient.lastDispensingCenterId != null)
                   _InfoItem(
                     context.tr('last_dispensing_facility'),
-                    provider.dispensingFacilityLabel(context, patient.lastDispensingCenterId),
+                    provider.dispensingFacilityLabel(
+                      context,
+                      patient.lastDispensingCenterId,
+                    ),
                     LucideIcons.building2,
                   ),
                 _InfoItem(
@@ -905,7 +1156,9 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                 if (plan != null)
                   _InfoItem(
                     context.tr('injection_interval'),
-                    context.tr('every_n_days', {'n': '${plan.medicationFrequencyDays}'}),
+                    context.tr('every_n_days', {
+                      'n': '${plan.medicationFrequencyDays}',
+                    }),
                     LucideIcons.syringe,
                   ),
                 ...patient.dispenseRecords.reversed.take(4).map((r) {
@@ -914,7 +1167,10 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                     context.tr('dispense_record_line', {
                       'date': r.date,
                       'dose': context.mounjaroDoseLabel(r.dose),
-                      'facility': provider.dispensingFacilityLabel(context, r.centerId),
+                      'facility': provider.dispensingFacilityLabel(
+                        context,
+                        r.centerId,
+                      ),
                     }),
                     LucideIcons.package,
                   );
@@ -930,9 +1186,21 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: _buildTrendChartSection(context, patient, showBmi: false)),
+                        Expanded(
+                          child: _buildTrendChartSection(
+                            context,
+                            patient,
+                            showBmi: false,
+                          ),
+                        ),
                         const SizedBox(width: 20),
-                        Expanded(child: _buildTrendChartSection(context, patient, showBmi: true)),
+                        Expanded(
+                          child: _buildTrendChartSection(
+                            context,
+                            patient,
+                            showBmi: true,
+                          ),
+                        ),
                       ],
                     );
                   }
@@ -955,7 +1223,9 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                 items: patient.clinicalAttachments
                     .map(
                       (doc) => _InfoItem(
-                        doc.isPdf ? context.tr('document_pdf') : context.tr('document_image'),
+                        doc.isPdf
+                            ? context.tr('document_pdf')
+                            : context.tr('document_image'),
                         doc.fileName,
                         LucideIcons.fileText,
                       ),
@@ -969,9 +1239,15 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
     );
   }
 
-  Widget _buildActivityLogTab(BuildContext context, DataProvider provider, Patient patient) {
-    final patientLogs = provider.logs.where((l) => l.patientId == patient.id).toList();
-    
+  Widget _buildActivityLogTab(
+    BuildContext context,
+    DataProvider provider,
+    Patient patient,
+  ) {
+    final patientLogs = provider.logs
+        .where((l) => l.patientId == patient.id)
+        .toList();
+
     if (patientLogs.isEmpty) {
       return Center(
         child: Column(
@@ -979,7 +1255,14 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
           children: [
             Icon(LucideIcons.history, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
-            Text(context.tr('no_activity_logs'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            Text(
+              context.tr('no_activity_logs'),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textSecondary,
+              ),
+            ),
           ],
         ),
       );
@@ -992,19 +1275,39 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
         final log = patientLogs[index];
         final kind = log.eventKind;
         final (Color color, IconData icon, String typeLabel) = switch (kind) {
-          'dispense' => (AppColors.success, LucideIcons.package, context.tr('log_type_dispense')),
-          'care_plan' => (AppColors.primary, LucideIcons.clipboardList, context.tr('log_type_care_plan')),
-          'registration' => (AppColors.textPrimary, LucideIcons.userPlus, context.tr('log_type_registration')),
-          'clinical_review' => (AppColors.warning, LucideIcons.stethoscope, context.tr('log_type_clinical_review')),
-          _ => (AppColors.textSecondary, LucideIcons.activity, context.tr('log_type_other')),
+          'dispense' => (
+            AppColors.success,
+            LucideIcons.package,
+            context.tr('log_type_dispense'),
+          ),
+          'care_plan' => (
+            AppColors.primary,
+            LucideIcons.clipboardList,
+            context.tr('log_type_care_plan'),
+          ),
+          'registration' => (
+            AppColors.textPrimary,
+            LucideIcons.userPlus,
+            context.tr('log_type_registration'),
+          ),
+          'clinical_review' => (
+            AppColors.warning,
+            LucideIcons.stethoscope,
+            context.tr('log_type_clinical_review'),
+          ),
+          _ => (
+            AppColors.textSecondary,
+            LucideIcons.activity,
+            context.tr('log_type_other'),
+          ),
         };
 
         final isCarePlan = kind == 'care_plan';
         final statusColor = log.status == 'Pending'
             ? AppColors.warning
             : log.status == 'Overridden'
-                ? AppColors.error
-                : AppColors.success;
+            ? AppColors.error
+            : AppColors.success;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
@@ -1012,7 +1315,13 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.border),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -1040,19 +1349,31 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                         children: [
                           _logTypeChip(typeLabel, color),
                           if (log.status != 'Success')
-                            _logTypeChip(log.getLocalizedStatus(context), statusColor),
+                            _logTypeChip(
+                              log.getLocalizedStatus(context),
+                              statusColor,
+                            ),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Text(
                         log.getLocalizedAction(context),
-                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 15),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                          fontSize: 15,
+                        ),
                       ),
                       if (isCarePlan) ...[
                         const SizedBox(height: 4),
                         Text(
                           context.tr('log_not_dispense_hint'),
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary.withValues(alpha: 0.9)),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary.withValues(
+                              alpha: 0.9,
+                            ),
+                          ),
                         ),
                       ],
                       const SizedBox(height: 8),
@@ -1063,9 +1384,13 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                               })
                             : '${context.tr('recorded_by')}: ${log.getLocalizedCenterName(context)}',
                         style: TextStyle(
-                          color: kind == 'dispense' ? AppColors.primary : AppColors.textSecondary,
+                          color: kind == 'dispense'
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
                           fontSize: 13,
-                          fontWeight: kind == 'dispense' ? FontWeight.w600 : FontWeight.normal,
+                          fontWeight: kind == 'dispense'
+                              ? FontWeight.w600
+                              : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -1074,7 +1399,11 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
                 const SizedBox(width: 12),
                 Text(
                   log.formatTimestamp(context),
-                  style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 13),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                  ),
                   textAlign: TextAlign.end,
                 ),
               ],
@@ -1094,7 +1423,11 @@ class _Patient360ViewState extends State<Patient360View> with SingleTickerProvid
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
       ),
     );
   }

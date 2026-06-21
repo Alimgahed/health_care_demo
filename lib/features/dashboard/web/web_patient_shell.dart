@@ -97,6 +97,20 @@ class _WebPatientShellState extends State<WebPatientShell>
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => const _AIHealthAssistantDialog(),
+          );
+        },
+        backgroundColor: AppColors.accent,
+        icon: const Icon(LucideIcons.sparkles, color: Colors.white),
+        label: Text(
+          context.tr('ai_patient_fab'),
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 
@@ -1314,6 +1328,31 @@ class _WebPatientShellState extends State<WebPatientShell>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.accent.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.sparkles, color: AppColors.accent, size: 20),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(context.tr('ai_weight_prediction_title'), style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent, fontSize: 14)),
+                                  const SizedBox(height: 2),
+                                  Text(context.tr('ai_weight_prediction_desc', {'target': targetWeight.toStringAsFixed(0)}), style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       Text(
                         context.tr('weight_loss_journey'),
                         style: TextStyle(
@@ -1381,12 +1420,29 @@ class _WebPatientShellState extends State<WebPatientShell>
                                           color: AppColors.textSecondary,
                                         ),
                                       );
+                                    } else if (idx == patient.weightHistory.length + 2) {
+                                      return Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(LucideIcons.sparkles, size: 10, color: AppColors.accent),
+                                          const SizedBox(width: 2),
+                                          Text(
+                                            'Target',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.accent,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      );
                                     }
                                     return const Text('');
                                   },
                                 ),
                               ),
                             ),
+                            maxX: patient.weightHistory.length + 2.0,
                             borderData: FlBorderData(show: false),
                             lineBarsData: [
                               LineChartBarData(
@@ -1427,6 +1483,32 @@ class _WebPatientShellState extends State<WebPatientShell>
                                     end: Alignment.bottomCenter,
                                   ),
                                 ),
+                              ),
+                              LineChartBarData(
+                                spots: [
+                                  FlSpot((patient.weightHistory.length - 1).toDouble(), patient.weightHistory.last),
+                                  FlSpot((patient.weightHistory.length + 2).toDouble(), targetWeight),
+                                ],
+                                isCurved: false,
+                                color: AppColors.accent,
+                                barWidth: 3,
+                                dashArray: [8, 4],
+                                shadow: Shadow(
+                                  color: AppColors.accent.withValues(alpha: 0.4),
+                                  blurRadius: 6,
+                                ),
+                                dotData: FlDotData(
+                                  show: true,
+                                  checkToShowDot: (spot, data) => spot.x == (patient.weightHistory.length + 2).toDouble(),
+                                  getDotPainter: (spot, percent, bar, index) =>
+                                      FlDotCirclePainter(
+                                        radius: 5,
+                                        color: AppColors.accent,
+                                        strokeWidth: 2,
+                                        strokeColor: Colors.white,
+                                      ),
+                                ),
+                                belowBarData: BarAreaData(show: false),
                               ),
                             ],
                           ),
@@ -2509,6 +2591,206 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AIHealthAssistantDialog extends StatefulWidget {
+  const _AIHealthAssistantDialog();
+
+  @override
+  State<_AIHealthAssistantDialog> createState() => _AIHealthAssistantDialogState();
+}
+
+class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
+  final List<Map<String, dynamic>> _messages = [];
+  bool _isTyping = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _messages.add({
+      'isUser': false,
+      'text': 'مرحباً! أنا مساعدك الصحي الذكي. كيف يمكنني مساعدتك اليوم؟',
+    });
+  }
+
+  void _handlePrompt(int index, String promptKey, String responseKey) async {
+    setState(() {
+      _messages.add({'isUser': true, 'text': context.tr(promptKey)});
+      _isTyping = true;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    if (!mounted) return;
+
+    setState(() {
+      _isTyping = false;
+      _messages.add({'isUser': false, 'text': context.tr(responseKey)});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        width: 450,
+        height: 600,
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                border: Border(bottom: BorderSide(color: AppColors.border)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(LucideIcons.sparkles, color: AppColors.accent, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('ai_patient_chat_title'),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy),
+                        ),
+                        Text(
+                          'Online',
+                          style: TextStyle(color: AppColors.success, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(LucideIcons.x, color: AppColors.textSecondary),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Messages Area
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: _messages.length + (_isTyping ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == _messages.length) {
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const SizedBox(
+                          width: 24,
+                          height: 12,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    );
+                  }
+                  
+                  final msg = _messages[index];
+                  final isUser = msg['isUser'];
+                  return Align(
+                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isUser ? AppColors.primary : AppColors.surface,
+                        borderRadius: BorderRadius.circular(16).copyWith(
+                          bottomRight: isUser ? const Radius.circular(4) : null,
+                          bottomLeft: !isUser ? const Radius.circular(4) : null,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        msg['text'],
+                        style: TextStyle(
+                          color: isUser ? Colors.white : AppColors.textPrimary,
+                          fontSize: 14,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            
+            // Prompts Area
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                border: Border(top: BorderSide(color: AppColors.border)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildPromptChip(context, 1, 'ai_patient_prompt_1', 'ai_patient_response_1'),
+                  const SizedBox(height: 8),
+                  _buildPromptChip(context, 2, 'ai_patient_prompt_2', 'ai_patient_response_2'),
+                  const SizedBox(height: 8),
+                  _buildPromptChip(context, 3, 'ai_patient_prompt_3', 'ai_patient_response_3'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPromptChip(BuildContext context, int index, String promptKey, String responseKey) {
+    return InkWell(
+      onTap: _isTyping ? null : () => _handlePrompt(index, promptKey, responseKey),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.accent.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          context.tr(promptKey),
+          style: const TextStyle(
+            color: AppColors.accent,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
         ),
       ),
     );

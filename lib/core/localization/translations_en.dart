@@ -1339,4 +1339,90 @@ const Map<String, String> translationsEn = {
   'sessions_in_row_n': '{n} Sessions in a row',
   'kg_per_session': 'kg/session',
   'session_history': 'Session History',
+
+  // AI Plan Evaluator
+  'ai_comprehensive_evaluation': 'Comprehensive AI Evaluation',
+  'ai_success_rate': 'Predicted Success Rate',
+  'ai_suggestion': 'AI Suggestion',
+  'ai_suggestion_poor_frequency': 'Mounjaro is most effective when taken weekly. Adjust the injection frequency to 7 days.',
+  'ai_suggestion_missing_lifestyle': 'For a BMI over 35, medication alone is insufficient. Adding physical therapy and home exercises increases success significantly.',
+  'ai_suggestion_insufficient_sessions': 'Increasing therapy sessions to at least 8 is recommended to ensure proper monitoring.',
+  'ai_suggestion_optimal': 'Highly optimized comprehensive plan. It perfectly balances medical and lifestyle interventions.',
+
+  // --- AI Mega-Update ---
+  
+  // 1. Fraud Detection
+  'ai_fraud_risk': 'AI Fraud Risk',
+  'ai_fraud_safe': 'Safe to Dispense',
+  'ai_fraud_warning': 'Suspicious Activity',
+  'ai_fraud_critical': 'Duplicate Attempt',
+  'ai_fraud_detail_safe': 'No unusual patterns detected. Patient is compliant with schedule.',
+  'ai_fraud_detail_critical': 'Patient attempted to dispense from another center recently. AI has automatically blocked this transaction.',
+  
+  // 2. AI Eligibility
+  'ai_eligibility_prediction': 'AI Success Prediction',
+  'ai_eligibility_high': 'High Probability of Success',
+  'ai_eligibility_medium': 'Moderate Probability',
+  'ai_eligibility_low': 'Low Probability',
+  'ai_eligibility_detail': 'Based on AI analysis of similar profiles (BMI: {bmi}), the probability of reaching the target weight is {score}%.',
+
+  // 3 & 4. Smart AlertOS & Chat Assistant
+  'ai_chat_fab': 'AI Admin Assistant',
+  'ai_chat_title': 'AI Command Center',
+  'ai_chat_prompt_1': 'Patients not losing weight',
+  'ai_chat_prompt_2': 'Next quarter budget forecast',
+  'ai_chat_prompt_3': 'Predicted inventory shortages',
+  'ai_chat_response_1': 'There are 12 patients with no weight change in the last 8 weeks. I recommend alerting their physicians to review dosages (mostly on 5mg).',
+  'ai_chat_response_2': 'Based on recent growth rates, we project a 2.3 Million AED subsidy requirement for the upcoming quarter.',
+  'ai_chat_response_3': 'Inventory analysis indicates Sharjah center will deplete 10mg doses in 4 days. Recommend transferring surplus from Dubai.',
+  'ai_alert_badge': 'AI Analysis',
+  'ai_alert_predictive': 'Predictive Alert',
+
+  // 5. Weight Prediction
+  'ai_weight_prediction_title': 'AI Future Prediction',
+  'ai_weight_prediction_desc': 'Based on 90% adherence, you will reach your target weight ({target} kg) in 12 weeks.',
+
+  // 6. Inventory Forecasting
+  'ai_inventory_depletion': 'AI Depletion Est.',
+  'ai_inventory_days': '{days} Days',
+  'ai_inventory_safe': 'Safe',
+  
+  // 10. Patient Health Chatbot
+  'ai_patient_fab': 'AI Health Assistant',
+  'ai_patient_chat_title': 'Your Health Assistant',
+  'ai_patient_prompt_1': 'When is my next dose?',
+  'ai_patient_prompt_2': 'I feel a bit nauseous',
+  'ai_patient_prompt_3': 'Can I change my injection day?',
+  'ai_patient_response_1': 'Your next dose is on Thursday. 2 days remaining! Remember to take it at the same time for maximum effectiveness.',
+  'ai_patient_response_2': 'Nausea is a very common side effect of Mounjaro, especially in the first weeks. Try eating smaller meals and staying hydrated. If it persists, consult your doctor.',
+  'ai_patient_response_3': 'Yes, you can change the day as long as there are at least 72 hours between doses. Would you like to update your schedule?',
+
+  'ai_nav_risk': ' (AI Risk)',
+  'ai_nav_forecast': ' (AI Forecast)',
+  'ai_nav_fraud': ' (AI Fraud)',
+  'ai_nav_log': ' (AI)',
+
+  'ai_predictions_title': 'AI National Predictions',
+  'ai_predictions_live': 'Live Model: Active',
+  'ai_pred_inventory_title': 'Inventory Depletion (Mounjaro 5mg)',
+  'ai_pred_inventory_value': 'Sharjah Region: 4 Days',
+  'ai_pred_clinical_title': 'Clinical Success Rate (Target BMI)',
+  'ai_pred_clinical_value': '82% High Probability',
+  'ai_pred_fraud_title': 'Fraud & Misuse Risk',
+  'ai_pred_fraud_value': '2 High Risk Cases Detected',
+
+  'ai_need_prediction_title': 'AI Needs Prediction',
+  'monthly_need': 'Monthly Need',
+  'yearly_need': 'Yearly Need',
+  'in_cooldown': 'Awaiting Date',
+  'active_plan': 'Active Plan:',
+  'modify': 'Modify',
+
+  'ai_kpi_new_obesity_cases': 'AI: New Obesity Cases',
+  'ai_kpi_recovered_patients': 'AI: Recovered Patients',
+  'ai_kpi_yearly_meds': 'AI: Yearly Meds Usage',
+  'ai_kpi_new_centers': 'AI: Needed Centers Contracts',
+
+  'medically_eligible': 'Medically Eligible',
+  'medically_eligible_desc': 'Patient meets all clinical criteria to receive this medication.',
 };

@@ -1282,4 +1282,90 @@ const Map<String, String> translationsAr = {
   'sessions_in_row_n': '{n} جلسات متتالية',
   'kg_per_session': 'كجم/جلسة',
   'session_history': 'سجل الجلسات',
+
+  // AI Plan Evaluator
+  'ai_comprehensive_evaluation': 'تقييم الذكاء الاصطناعي الشامل',
+  'ai_success_rate': 'نسبة النجاح المتوقعة',
+  'ai_suggestion': 'اقتراح الذكاء الاصطناعي',
+  'ai_suggestion_poor_frequency': 'Mounjaro يعطي أفضل النتائج عند استخدامه بشكل أسبوعي. يُرجى تعديل التردد لـ 7 أيام.',
+  'ai_suggestion_missing_lifestyle': 'للمرضى فوق مؤشر كتلة ٣٥، الدواء وحده لا يكفي. إضافة جلسات متابعة وتمارين منزلية يرفع نسبة النجاح بشكل ملحوظ.',
+  'ai_suggestion_insufficient_sessions': 'يُنصح بزيادة عدد الجلسات إلى ٨ على الأقل لضمان المتابعة المستمرة.',
+  'ai_suggestion_optimal': 'خطة شاملة ومثالية. توازن ممتاز بين العلاج الدوائي وتغيير نمط الحياة.',
+
+  // --- AI Mega-Update ---
+  
+  // 1. Fraud Detection
+  'ai_fraud_risk': 'مؤشر الاحتيال (AI)',
+  'ai_fraud_safe': 'آمن للصرف',
+  'ai_fraud_warning': 'شبهة تلاعب',
+  'ai_fraud_critical': 'محاولة صرف مكرر',
+  'ai_fraud_detail_safe': 'لا توجد أنماط غير اعتيادية. المريض ملتزم بالجدول.',
+  'ai_fraud_detail_critical': 'المريض حاول الصرف من مركز آخر منذ أيام قليلة. الصرف مرفوض تلقائياً من الـ AI.',
+  
+  // 2. AI Eligibility
+  'ai_eligibility_prediction': 'توقع نجاح العلاج (AI)',
+  'ai_eligibility_high': 'فرصة نجاح عالية جداً',
+  'ai_eligibility_medium': 'فرصة نجاح متوسطة',
+  'ai_eligibility_low': 'فرصة نجاح ضعيفة',
+  'ai_eligibility_detail': 'بناءً على الذكاء الاصطناعي وتحليل حالات مشابهة في نفس الفئة العمرية (BMI: {bmi})، نسبة الوصول للوزن المستهدف هي {score}%.',
+
+  // 3 & 4. Smart AlertOS & Chat Assistant
+  'ai_chat_fab': 'المساعد الذكي للإدارة',
+  'ai_chat_title': 'AI Command Center',
+  'ai_chat_prompt_1': 'مرضى وزنهم ثابت',
+  'ai_chat_prompt_2': 'توقع ميزانية الربع القادم',
+  'ai_chat_prompt_3': 'نواقص المخزون المتوقعة',
+  'ai_chat_response_1': 'يوجد 12 مريض لم يتغير وزنهم خلال آخر 8 أسابيع. أوصي بتنبيه أطبائهم لمراجعة الجرعات الحالية (أغلبهم على تركيز 5mg).',
+  'ai_chat_response_2': 'بناءً على معدل النمو الأخير، نتوقع استهلاك 2.3 مليون درهم في الربع القادم لدعم المواطنين والمقيمين.',
+  'ai_chat_response_3': 'تحليل المخزون يظهر أن مركز الشارقة سيستنفد جرعة 10mg خلال 4 أيام. اقترح نقل فائض من دبي.',
+  'ai_alert_badge': 'تحليل AI',
+  'ai_alert_predictive': 'توقع استباقي',
+
+  // 5. Weight Prediction
+  'ai_weight_prediction_title': 'التوقع المستقبلي (AI)',
+  'ai_weight_prediction_desc': 'بناءً على التزامك 90%، ستصل للوزن المستهدف ({target} كجم) خلال 12 أسبوع.',
+
+  // 6. Inventory Forecasting
+  'ai_inventory_depletion': 'توقع النفاد (AI)',
+  'ai_inventory_days': '{days} أيام',
+  'ai_inventory_safe': 'آمن',
+  
+  // 10. Patient Health Chatbot
+  'ai_patient_fab': 'المساعد الصحي (AI)',
+  'ai_patient_chat_title': 'مساعدك الصحي',
+  'ai_patient_prompt_1': 'إمتى جرعتي الجاية؟',
+  'ai_patient_prompt_2': 'حاسس بغثيان بسيط',
+  'ai_patient_prompt_3': 'أقدر أغير ميعاد الحقنة؟',
+  'ai_patient_response_1': 'جرعتك القادمة يوم الخميس. متبقي يومين! تذكر استخدامها في نفس الموعد لضمان الفاعلية.',
+  'ai_patient_response_2': 'الغثيان عرض جانبي شائع جداً مع Mounjaro، خاصة في الأسابيع الأولى. أنصحك بتقسيم وجباتك وشرب ماء كثير. لو استمر، تواصل مع طبيبك.',
+  'ai_patient_response_3': 'نعم، يمكنك تغيير الموعد بشرط أن يمر 72 ساعة على الأقل بين الجرعتين. هل ترغب في تحديث خطتك؟',
+
+  'ai_nav_risk': ' (مخاطر AI)',
+  'ai_nav_forecast': ' (توقع AI)',
+  'ai_nav_fraud': ' (احتيال AI)',
+  'ai_nav_log': ' (AI)',
+
+  'ai_predictions_title': 'تنبؤات الذكاء الاصطناعي الوطنية',
+  'ai_predictions_live': 'النموذج المباشر: نشط',
+  'ai_pred_inventory_title': 'نفاذ المخزون (مونجارو 5مجم)',
+  'ai_pred_inventory_value': 'منطقة الشارقة: 4 أيام',
+  'ai_pred_clinical_title': 'معدل النجاح السريري (الوزن المستهدف)',
+  'ai_pred_clinical_value': 'احتمالية عالية 82%',
+  'ai_pred_fraud_title': 'خطر الاحتيال وسوء الاستخدام',
+  'ai_pred_fraud_value': 'تم اكتشاف حالتين عالية الخطورة',
+
+  'ai_need_prediction_title': 'توقع الاحتياج المستقبلي (الذكاء الاصطناعي)',
+  'monthly_need': 'الاحتياج الشهري',
+  'yearly_need': 'الاحتياج السنوي',
+  'in_cooldown': 'لم يحن موعد الصرف',
+  'active_plan': 'الخطة النشطة:',
+  'modify': 'تعديل',
+
+  'ai_kpi_new_obesity_cases': 'تنبؤ: حالات السمنة المتوقعة',
+  'ai_kpi_recovered_patients': 'تنبؤ: حالات الشفاء',
+  'ai_kpi_yearly_meds': 'تنبؤ: الاستهلاك السنوي للأدوية',
+  'ai_kpi_new_centers': 'تنبؤ: منافذ التوزيع المطلوبة',
+
+  'medically_eligible': 'مؤهل طبياً (Eligible Medical)',
+  'medically_eligible_desc': 'المريض مؤهل طبياً ويستوفي جميع الشروط لأخذ هذا الدواء.',
 };

@@ -113,6 +113,7 @@ class PatientDispensingDetails extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             ClinicalEligibilityBanner(patient: p),
             if (!canDispense && uiStatus != DispensingUiStatus.clinicalIneligible)
               Container(

@@ -1087,7 +1087,7 @@ class MockData {
         hasChronicDisease: true,
         hba1cPercent: 6.8,
         fastingGlucoseMgDl: 118,
-        lastDispensingDate: '2026-05-10',
+        lastDispensingDate: '2026-06-10',
         nextEligibleDate: '2026-06-10',
         currentDose: '5 mg',
         latitude: 24.4539,
@@ -1119,7 +1119,7 @@ class MockData {
         hasChronicDisease: true,
         hba1cPercent: 9.4,
         fastingGlucoseMgDl: 212,
-        lastDispensingDate: '2026-06-03',
+        lastDispensingDate: '2026-06-15',
         nextEligibleDate: '2026-07-03',
         currentDose: '2.5 mg',
         latitude: 25.2048,
@@ -1180,7 +1180,7 @@ class MockData {
         height: 160.0,
         medicalConditions: ['Obesity', 'Pre-diabetes'],
         medicalConditionsAr: ['السمنة', 'مرحلة ما قبل السكري'],
-        lastDispensingDate: '2026-04-15',
+        lastDispensingDate: '2026-05-20',
         nextEligibleDate: '2026-05-15',
         currentDose: '7.5 mg',
         latitude: 24.1873,
@@ -1209,7 +1209,7 @@ class MockData {
         height: 178.0,
         medicalConditions: ['Obesity'],
         medicalConditionsAr: ['السمنة'],
-        lastDispensingDate: '2026-05-20',
+        lastDispensingDate: '2026-06-05',
         nextEligibleDate: '2026-06-20',
         currentDose: '5 mg',
         latitude: 25.4052,
@@ -1383,7 +1383,7 @@ class DataProvider extends ChangeNotifier {
       height: 175.0,
       medicalConditions: ['Type 2 Diabetes'],
       medicalConditionsAr: ['النوع الثاني من السكري'],
-      lastDispensingDate: '2026-05-15',
+      lastDispensingDate: '2026-06-12',
       nextEligibleDate: '2026-06-15',
       currentDose: '10 mg',
       latitude: 25.2048,
@@ -1737,13 +1737,6 @@ class DataProvider extends ChangeNotifier {
       out.add((patient: p, reviewType: 'care_plan'));
     }
 
-    for (final id in _earlyDispenseReviewQueue) {
-      if (seen.contains(id) || _dispenseAuthorizations.contains(id)) continue;
-      final p = getPatientById(id);
-      if (p == null) continue;
-      seen.add(id);
-      out.add((patient: p, reviewType: 'early_dispense'));
-    }
     return out;
   }
 

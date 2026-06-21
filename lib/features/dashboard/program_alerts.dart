@@ -17,6 +17,7 @@ enum ProgramAlertKind {
   clinicalIneffective,
   criticalShortage,
   nonCompliance,
+  aiPredictive,
 }
 
 enum AlertCategory { fraud, clinical, supply, info }
@@ -59,6 +60,7 @@ class ProgramAlert {
       case ProgramAlertKind.inventory:
       case ProgramAlertKind.criticalShortage:
       case ProgramAlertKind.readyDispense:
+      case ProgramAlertKind.aiPredictive:
         return AlertCategory.supply;
       case ProgramAlertKind.allClear:
         return AlertCategory.info;
@@ -66,6 +68,7 @@ class ProgramAlert {
   }
 
   String localizedKindLabel(BuildContext context) {
+    if (kind == ProgramAlertKind.aiPredictive) return context.tr('ai_alert_predictive');
     switch (category) {
       case AlertCategory.fraud:
         return context.tr('alert_category_fraud');
@@ -295,6 +298,22 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
       ),
     );
   }
+
+  // Inject a mock AI Predictive Alert for Feature 3
+  alerts.insert(
+    0,
+    ProgramAlert(
+      id: idCounter++,
+      message: tr('ai_chat_response_3'),
+      icon: LucideIcons.sparkles,
+      color: AppColors.accent,
+      time: tr('now'),
+      kind: ProgramAlertKind.aiPredictive,
+      severity: 2,
+      action: 'Auto-Transfer Stock',
+      actionIcon: LucideIcons.packagePlus,
+    ),
+  );
 
   return alerts;
 }

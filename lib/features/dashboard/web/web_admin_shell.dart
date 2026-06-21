@@ -1,5 +1,3 @@
-import '../admin_views/alert_os_dashboard.dart';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -14,6 +12,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../auth/login_screen.dart';
 import '../admin_views/activity_feed_ticker.dart';
+import '../admin_views/alert_os_dashboard.dart';
 import '../admin_views/regional_analytics.dart';
 import '../admin_views/system_audit_log_view.dart';
 import '../program_alerts.dart';
@@ -63,7 +62,8 @@ class _WebAdminShellState extends State<WebAdminShell> {
   }
 
   Widget _buildAlertOSView(int totalLogs) {
-    final section = alertOSSectionFromNavIndex(_selectedIndex) ?? AlertOSSection.overview;
+    final section =
+        alertOSSectionFromNavIndex(_selectedIndex) ?? AlertOSSection.overview;
     return AlertOSDashboard(
       section: section,
       onSectionNavigate: (s) => _navigateAlertSection(s, totalLogs),
@@ -300,7 +300,11 @@ class _Sidebar extends StatelessWidget {
                     context.tr('nav_fraud_log'),
                     kAlertOSNavFraudLog,
                   ),
-                  _navItem(LucideIcons.fileText, context.tr('nav_reports'), kAlertOSNavReports),
+                  _navItem(
+                    LucideIcons.fileText,
+                    context.tr('nav_reports'),
+                    kAlertOSNavReports,
+                  ),
                   _navItem(
                     LucideIcons.stethoscope,
                     context.tr('nav_clinical_ops'),
@@ -701,6 +705,7 @@ class _OverviewDashboard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               // ── AI Cost & ROI Index ───────────────────────────────────────
               _buildAiRoiBanner(context),
               const SizedBox(height: 24),
@@ -793,21 +798,59 @@ class _OverviewDashboard extends StatelessWidget {
                       accentColor: AppColors.warning,
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // ── AI Predictions KPI Row ───────────────────────────────────────
+              Row(
+                children: [
+                  Expanded(
+                    child: _KpiCard(
+                      icon: LucideIcons.users,
+                      value: '1,240',
+                      label: tr('ai_kpi_new_obesity_cases'),
+                      trend: '+12% ${tr('monthly_need')}',
+                      trendUp: false,
+                      accentColor: AppColors.warning,
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: _KpiCard(
-                      icon: LucideIcons.trendingUp,
-                      value: '${obesityReduction.toStringAsFixed(0)}%',
-                      label: tr('obesity_index_reduction'),
-                      trend: tr('vs_baseline_2023'),
+                      icon: LucideIcons.heartPulse,
+                      value: '8,500',
+                      label: tr('ai_kpi_recovered_patients'),
+                      trend: '+8% ${tr('monthly_need')}',
                       trendUp: true,
                       accentColor: AppColors.success,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _KpiCard(
+                      icon: LucideIcons.package,
+                      value: '120K',
+                      label: tr('ai_kpi_yearly_meds'),
+                      trend: tr('yearly_need'),
+                      trendUp: null,
+                      accentColor: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _KpiCard(
+                      icon: LucideIcons.building,
+                      value: '14',
+                      label: tr('ai_kpi_new_centers'),
+                      trend: tr('yearly_need'),
+                      trendUp: null,
+                      accentColor: AppColors.navy,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-
               // ── Activity Log (AI Ticker) ──────────────────────────────────
               const ActivityFeedTicker(),
               const SizedBox(height: 24),
@@ -1007,9 +1050,7 @@ class _OverviewDashboard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -1139,7 +1180,10 @@ class _KpiCard extends StatelessWidget {
               const SizedBox(width: 8),
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: trendBg,
                     borderRadius: BorderRadius.circular(20),
@@ -1254,10 +1298,14 @@ class _ChartCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: (pillColor ?? AppColors.success).withValues(alpha: 0.1),
+                    color: (pillColor ?? AppColors.success).withValues(
+                      alpha: 0.1,
+                    ),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: (pillColor ?? AppColors.success).withValues(alpha: 0.25),
+                      color: (pillColor ?? AppColors.success).withValues(
+                        alpha: 0.25,
+                      ),
                     ),
                   ),
                   child: Text(
@@ -1634,10 +1682,7 @@ class _AdherenceBarChart extends StatelessWidget {
               getTooltipItem: (group, groupIndex, rod, rodIndex) =>
                   BarTooltipItem(
                     '${rod.toY.toStringAsFixed(0)}%',
-                    TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
                   ),
             ),
           ),
@@ -2114,7 +2159,9 @@ class _PatientsViewState extends State<_PatientsView> {
                     selected: _filter == f,
                     selectedColor: AppColors.primary,
                     labelStyle: TextStyle(
-                      color: _filter == f  ? Colors.white : AppColors.textPrimary,
+                      color: _filter == f
+                          ? Colors.white
+                          : AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -2367,7 +2414,10 @@ class _PatientsViewState extends State<_PatientsView> {
                                 context.tr('current_treatment_plan'),
                                 LucideIcons.fileText,
                               ),
-                              _infoRow(context.tr('current_treatment_plan'), p.currentDose),
+                              _infoRow(
+                                context.tr('current_treatment_plan'),
+                                p.currentDose,
+                              ),
                               _infoRow(
                                 '${context.tr('last_dispense_date')}:',
                                 p.lastDispensingDate ?? 'غير متوفر',
@@ -3120,6 +3170,75 @@ class _InventoryCardState extends State<_InventoryCard> {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+
+            // AI Needs Forecast
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.accent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.accent.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(LucideIcons.sparkles, color: AppColors.accent),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('ai_need_prediction_title'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              '${context.tr('monthly_need')}: ',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              '${(c.totalAvailable * 1.5).ceil()} Units',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Text(
+                              '${context.tr('yearly_need')}: ',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              '${(c.totalAvailable * 1.5 * 12).ceil()} Units',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 24),
 
             // DOSAGE BREAKDOWN TABLE
@@ -3193,17 +3312,33 @@ class _InventoryCardState extends State<_InventoryCard> {
                       ],
                     ),
                   ),
-                  _buildDosageRow('2.5 mg', c.inventory2_5mg, c.dispensed2_5mg),
+                  _buildDosageRow(
+                    '2.5 mg',
+                    c.inventory2_5mg,
+                    c.dispensed2_5mg,
+                    estimatedDays: (c.inventory2_5mg / 2.0).ceil() + 2,
+                  ),
                   Divider(height: 1, color: AppColors.border),
-                  _buildDosageRow('5.0 mg', c.inventory5mg, c.dispensed5mg),
+                  _buildDosageRow(
+                    '5.0 mg',
+                    c.inventory5mg,
+                    c.dispensed5mg,
+                    estimatedDays: (c.inventory5mg / 1.5).ceil() + 1,
+                  ),
                   Divider(height: 1, color: AppColors.border),
-                  _buildDosageRow('7.5 mg', c.inventory7_5mg, c.dispensed7_5mg),
+                  _buildDosageRow(
+                    '7.5 mg',
+                    c.inventory7_5mg,
+                    c.dispensed7_5mg,
+                    estimatedDays: (c.inventory7_5mg / 1.2).ceil() + 3,
+                  ),
                   Divider(height: 1, color: AppColors.border),
                   _buildDosageRow(
                     '10.0 mg',
                     c.inventory10mg,
                     c.dispensed10mg,
                     isLast: true,
+                    estimatedDays: (c.inventory10mg / 1.0).ceil() + 4,
                   ),
                 ],
               ),
@@ -3303,6 +3438,7 @@ class _InventoryCardState extends State<_InventoryCard> {
     int available,
     int dispensed, {
     bool isLast = false,
+    int? estimatedDays,
   }) {
     final total = available + dispensed;
     final dispensedPct = total == 0 ? 0.0 : (dispensed / total);
@@ -3334,6 +3470,49 @@ class _InventoryCardState extends State<_InventoryCard> {
                     color: AppColors.textPrimary,
                   ),
                 ),
+                if (estimatedDays != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: estimatedDays <= 7
+                          ? AppColors.error.withValues(alpha: 0.1)
+                          : AppColors.accent.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: estimatedDays <= 7
+                            ? AppColors.error.withValues(alpha: 0.3)
+                            : AppColors.accent.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          LucideIcons.sparkles,
+                          size: 10,
+                          color: estimatedDays <= 7
+                              ? AppColors.error
+                              : AppColors.accent,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${estimatedDays}d',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: estimatedDays <= 7
+                                ? AppColors.error
+                                : AppColors.accent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -3631,7 +3810,10 @@ Widget _buildDoseInputRow(String label, void Function(String?) onSaved) {
         flex: 2,
         child: Text(
           'Dosage $label Stock Up:',
-          style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
         ),
       ),
       Expanded(
@@ -3725,7 +3907,9 @@ class _FraudAuditView extends StatelessWidget {
                       itemBuilder: (context, i) {
                         final log = logs[i];
                         final isOverride = log.status == 'Overridden';
-                        final color = isOverride ? AppColors.warning : AppColors.error;
+                        final color = isOverride
+                            ? AppColors.warning
+                            : AppColors.error;
                         return ListTile(
                           leading: Container(
                             width: 40,
@@ -3735,7 +3919,9 @@ class _FraudAuditView extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
-                              isOverride ? LucideIcons.shieldCheck : LucideIcons.shieldAlert,
+                              isOverride
+                                  ? LucideIcons.shieldCheck
+                                  : LucideIcons.shieldAlert,
                               color: color,
                               size: 20,
                             ),
@@ -3780,8 +3966,6 @@ class _FraudAuditView extends StatelessWidget {
     );
   }
 }
-
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SHARED UTILITY
@@ -3901,7 +4085,9 @@ class _ManageDoctorsView extends StatelessWidget {
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.1,
+                        ),
                         child: Icon(
                           LucideIcons.stethoscope,
                           color: AppColors.primary,
@@ -4181,7 +4367,9 @@ class _ManageCentersView extends StatelessWidget {
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.accent.withValues(alpha: 0.1),
+                        backgroundColor: AppColors.accent.withValues(
+                          alpha: 0.1,
+                        ),
                         child: Icon(
                           LucideIcons.building,
                           color: AppColors.textPrimary,
@@ -4356,3 +4544,4 @@ class _ManageCentersView extends StatelessWidget {
     );
   }
 }
+
