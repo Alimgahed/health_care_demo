@@ -1,10 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/demo_metrics.dart';
 import '../../../core/constants/mock_data.dart';
+import '../../../core/auth/access_control.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
@@ -13,12 +14,16 @@ import '../../../core/theme/theme_provider.dart';
 import '../../auth/login_screen.dart';
 import '../admin_views/activity_feed_ticker.dart';
 import '../admin_views/alert_os_dashboard.dart';
-import '../admin_views/regional_analytics.dart';
+import '../admin_views/reports_command_center.dart';
 import '../admin_views/system_audit_log_view.dart';
 import '../program_alerts.dart';
 import 'web_center_shell.dart';
 import 'web_doctor_shell.dart';
+import 'web_patient_shell.dart';
 import 'web_map_analytics_screen.dart';
+import '../../patients/patient_registry_view.dart';
+import '../../treatment_plan/web/patient_360_view.dart';
+import '../../journey/journey_provider.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  MOUNJARO NCC — Optimized Admin Dashboard
@@ -35,6 +40,8 @@ class WebAdminShell extends StatefulWidget {
 class _WebAdminShellState extends State<WebAdminShell> {
   int _selectedIndex = 0;
   int _lastSeenLogsCount = -1;
+  Patient? _detailsPatient;
+  int _detailsTab = 0;
 
   @override
   void initState() {
@@ -143,7 +150,18 @@ class _WebAdminShellState extends State<WebAdminShell> {
       case 1:
         return const WebMapAnalyticsScreen();
       case 2:
-        return _PatientsView(t: t);
+        return _detailsPatient == null
+            ? PatientRegistryView(
+                onOpenPatient: (patient, tabIndex) => setState(() {
+                  _detailsPatient = patient;
+                  _detailsTab = tabIndex;
+                }),
+              )
+            : Patient360View(
+                patient: _detailsPatient!,
+                initialTabIndex: _detailsTab,
+                onBack: () => setState(() => _detailsPatient = null),
+              );
       case 3:
         return InventoryView();
       case 4:
@@ -153,20 +171,60 @@ class _WebAdminShellState extends State<WebAdminShell> {
       case 7:
         return _FraudAuditView(t: t);
       case 8:
-        return const RegionalAnalytics();
+        return const ProgramReportsCenter();
       case 9:
-        return const WebDoctorShell(embeddedInAdmin: true);
+        return const OperationalPortalPreview(
+          role: AppRole.doctor,
+          child: WebDoctorShell(embeddedInAdmin: true),
+        );
       case 10:
-        return const WebCenterShell(embeddedInAdmin: true);
+        return const OperationalPortalPreview(
+          role: AppRole.pharmacist,
+          child: WebCenterShell(embeddedInAdmin: true),
+        );
       case 11:
         return _ManageDoctorsView(t: t);
       case 12:
         return _ManageCentersView(t: t);
       case 13:
         return SystemAuditLogView(t: t);
+      case 14:
+        return const OperationalPortalPreview(
+          role: AppRole.patient,
+          child: WebPatientShell(embeddedInAdmin: true),
+        );
       default:
         return _OverviewDashboard(t: t);
     }
+  }
+}
+
+/// Creates a scoped operational role for an embedded portal preview.
+/// The outer admin session remains an admin, while clinical actions inside the
+/// preview are evaluated using the role being demonstrated.
+class OperationalPortalPreview extends StatelessWidget {
+  final AppRole role;
+  final Widget child;
+
+  const OperationalPortalPreview({
+    super.key,
+    required this.role,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final data = context.read<DataProvider>();
+    final access = AccessControlProvider(initialRole: role);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AccessControlProvider>.value(value: access),
+        ChangeNotifierProvider<JourneyProvider>(
+          create: (_) => JourneyProvider(dataProvider: data, access: access),
+        ),
+      ],
+      child: child,
+    );
   }
 }
 
@@ -320,6 +378,11 @@ class _Sidebar extends StatelessWidget {
                         : null,
                   ),
                   _navItem(
+                    LucideIcons.userRound,
+                    context.tr('patient_portal_title'),
+                    14,
+                  ),
+                  _navItem(
                     LucideIcons.stethoscope,
                     context.tr('nav_manage_doctors'),
                     11,
@@ -403,35 +466,6 @@ class _Sidebar extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _navSection(String label) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 16, 8, 6),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.35),
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.0,
-        ),
-      ),
-    );
-  }
-
-  Widget _navSubSection(String label) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 8, 4),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.28),
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-        ),
       ),
     );
   }
@@ -573,13 +607,18 @@ class _Topbar extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           // Notifications
-          _iconBtn(LucideIcons.bell, hasAlert: true, onTap: () {}),
-          const SizedBox(width: 8),
-          // Export
-          _primaryBtn(
-            context.tr('export_report'),
-            LucideIcons.download,
-            onTap: () {},
+          _iconBtn(
+            LucideIcons.bell,
+            hasAlert: true,
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  context.isArabic
+                      ? 'راجع مركز التنبيهات من القائمة.'
+                      : 'Open the Alerts Center from the navigation.',
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 8),
           // Logout
@@ -653,31 +692,6 @@ class _Topbar extends StatelessWidget {
     final n = DateTime.now();
     return '${n.hour.toString().padLeft(2, '0')}:${n.minute.toString().padLeft(2, '0')}';
   }
-
-  Widget _primaryBtn(
-    String label,
-    IconData icon, {
-    required VoidCallback onTap,
-  }) {
-    return ElevatedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 14, color: Colors.white),
-      label: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -698,16 +712,14 @@ class _OverviewDashboard extends StatelessWidget {
         final fraudPrevented = dp.fraudIncidentsPrevented;
         final adherence = DemoMetrics.formatPercent(dp.averageCompliance);
         final bmiDrop = dp.nationalAverageBmiDrop;
-        final obesityReduction = dp.obesityIndexReductionPercent;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // ── AI Cost & ROI Index ───────────────────────────────────────
-              _buildAiRoiBanner(context),
+              _buildProgramStatusBanner(context, dp),
               const SizedBox(height: 24),
 
               // ── KPI Row ─────────────────────────────────────────────────────
@@ -716,9 +728,7 @@ class _OverviewDashboard extends StatelessWidget {
                   Expanded(
                     child: _KpiCard(
                       icon: LucideIcons.users,
-                      value: DemoMetrics.formatCount(
-                        DemoMetrics.nationalEnrolled,
-                      ),
+                      value: DemoMetrics.formatCount(dp.totalPatientCount),
                       label: tr('registered_patients_national'),
                       trend: '${tr('demo_cohort')}: ${dp.totalActivePatients}',
                       trendUp: null,
@@ -731,7 +741,7 @@ class _OverviewDashboard extends StatelessWidget {
                       icon: LucideIcons.wallet,
                       value: _fmtSubsidy(dp.totalGovtSubsidyDisbursed),
                       label: tr('govt_subsidy_expenditure'),
-                      trend: tr('q2_budget'),
+                      trend: tr('cumulative'),
                       trendUp: null,
                       accentColor: AppColors.accent,
                     ),
@@ -743,7 +753,7 @@ class _OverviewDashboard extends StatelessWidget {
                       value: avgBmi.toStringAsFixed(1),
                       label: tr('national_avg_bmi_cohort'),
                       trend:
-                          '↓ ${bmiDrop.toStringAsFixed(1)} ${tr('vs_baseline_2023')}',
+                          '↓ ${bmiDrop.toStringAsFixed(1)} ${tr('cohort_average')}',
                       trendUp: true,
                       accentColor: AppColors.success,
                     ),
@@ -753,8 +763,12 @@ class _OverviewDashboard extends StatelessWidget {
                     child: _KpiCard(
                       icon: LucideIcons.shieldAlert,
                       value: fraudPrevented.toString(),
-                      label: tr('fraud_abuse_prevented'),
-                      trend: tr('cases_blocked'),
+                      label: context.isArabic
+                          ? 'أحداث مراجعة السلامة'
+                          : 'Safety review events',
+                      trend: context.isArabic
+                          ? 'معلّمة أو متجاوزة'
+                          : 'Flagged or overridden',
                       trendUp: true,
                       accentColor: AppColors.error,
                     ),
@@ -802,55 +816,6 @@ class _OverviewDashboard extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // ── AI Predictions KPI Row ───────────────────────────────────────
-              Row(
-                children: [
-                  Expanded(
-                    child: _KpiCard(
-                      icon: LucideIcons.users,
-                      value: '1,240',
-                      label: tr('ai_kpi_new_obesity_cases'),
-                      trend: '+12% ${tr('monthly_need')}',
-                      trendUp: false,
-                      accentColor: AppColors.warning,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _KpiCard(
-                      icon: LucideIcons.heartPulse,
-                      value: '8,500',
-                      label: tr('ai_kpi_recovered_patients'),
-                      trend: '+8% ${tr('monthly_need')}',
-                      trendUp: true,
-                      accentColor: AppColors.success,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _KpiCard(
-                      icon: LucideIcons.package,
-                      value: '120K',
-                      label: tr('ai_kpi_yearly_meds'),
-                      trend: tr('yearly_need'),
-                      trendUp: null,
-                      accentColor: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _KpiCard(
-                      icon: LucideIcons.building,
-                      value: '14',
-                      label: tr('ai_kpi_new_centers'),
-                      trend: tr('yearly_need'),
-                      trendUp: null,
-                      accentColor: AppColors.navy,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
               // ── Activity Log (AI Ticker) ──────────────────────────────────
               const ActivityFeedTicker(),
               const SizedBox(height: 24),
@@ -865,18 +830,23 @@ class _OverviewDashboard extends StatelessWidget {
                     child: Column(
                       children: [
                         _ChartCard(
-                          title: tr('obesity_index_title'),
-                          subtitle: tr('monthly_bmi_sub'),
-                          pill: tr('on_track'),
-                          pillColor: AppColors.success,
+                          title: context.isArabic
+                              ? 'توزيع مؤشر كتلة الجسم'
+                              : 'BMI distribution',
+                          subtitle: context.isArabic
+                              ? 'عدد المرضى حسب الفئة الحالية'
+                              : 'Current patients by BMI range',
                           height: 300,
-                          child: const _ObesityLineChart(),
+                          child: _BmiDistributionView(dp: dp),
                         ),
                         const SizedBox(height: 20),
                         _ChartCard(
-                          title: tr('dispensing_vs_goals'),
-                          subtitle:
-                              '${tr('actual_dispensed')} vs ${tr('ministry_target')}',
+                          title: context.isArabic
+                              ? 'المرضى حسب الجرعة'
+                              : 'Patients by current dose',
+                          subtitle: context.isArabic
+                              ? 'الجرعة المسجلة في ملف المريض'
+                              : 'Dose recorded in patient profiles',
                           height: 280,
                           child: _ConsumptionBarChart(t: t, dp: dp),
                         ),
@@ -932,165 +902,89 @@ class _OverviewDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildAiRoiBanner(BuildContext context) {
+  Widget _buildProgramStatusBanner(BuildContext context, DataProvider dp) {
+    final ready = dp.pharmacyRequests
+        .where((request) => request.status == PharmacyRequestStatus.ready)
+        .length;
+    final pending = dp.pendingClinicalReviews.length;
+    final dispensed = dp.pharmacyRequests
+        .where((request) => request.status == PharmacyRequestStatus.dispensed)
+        .length;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.navy, AppColors.navy.withValues(alpha: 0.8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppColors.navy,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+              color: AppColors.accent.withValues(alpha: .14),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              LucideIcons.brainCircuit,
-              color: AppColors.accent,
-              size: 48,
-            ),
+            child: const Icon(LucideIcons.activity, color: AppColors.accent),
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 18),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.tr('ai_roi_title'),
+                  context.isArabic
+                      ? 'حالة البرنامج الآن'
+                      : 'Programme status now',
                   style: const TextStyle(
-                    color: AppColors.accent,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      '45.2',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 40,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      context.tr('ai_roi_millions_aed'),
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: AppColors.success.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            LucideIcons.trendingUp,
-                            color: AppColors.success,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            context.tr('ai_roi_savings_label'),
-                            style: const TextStyle(
-                              color: AppColors.success,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 5),
                 Text(
-                  context.tr('ai_roi_description'),
+                  context.isArabic
+                      ? 'مؤشرات تشغيلية من الطلبات وسجلات الصرف الحالية'
+                      : 'Operational counts from current requests and dispensing records',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 13,
+                    color: Colors.white.withValues(alpha: .72),
+                    fontSize: 12,
                   ),
                 ),
               ],
             ),
+          ),
+          _statusMetric(
+            context.isArabic ? 'بانتظار المراجعة' : 'Awaiting review',
+            pending,
           ),
           const SizedBox(width: 24),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  context.tr('ai_roi_complication_reduction'),
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '22%',
-                  style: TextStyle(
-                    color: AppColors.success,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: 150,
-                  child: LinearProgressIndicator(
-                    value: 0.22,
-                    backgroundColor: AppColors.background.withValues(
-                      alpha: 0.1,
-                    ),
-                    color: AppColors.success,
-                    minHeight: 6,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ],
-            ),
+          _statusMetric(
+            context.isArabic ? 'جاهز للصرف' : 'Ready to dispense',
+            ready,
           ),
+          const SizedBox(width: 24),
+          _statusMetric(context.isArabic ? 'تم صرفها' : 'Dispensed', dispensed),
         ],
       ),
     );
   }
+
+  Widget _statusMetric(String label, int value) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        '$value',
+        style: const TextStyle(
+          color: AppColors.accentLight,
+          fontSize: 27,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      Text(label, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+    ],
+  );
 
   static String _fmtSubsidy(double amt) => DemoMetrics.formatAed(amt);
 
@@ -1230,16 +1124,12 @@ class _KpiCard extends StatelessWidget {
 class _ChartCard extends StatelessWidget {
   final String title;
   final String? subtitle;
-  final String? pill;
-  final Color? pillColor;
   final double height;
   final Widget child;
 
   const _ChartCard({
     required this.title,
     this.subtitle,
-    this.pill,
-    this.pillColor,
     required this.height,
     required this.child,
   });
@@ -1291,32 +1181,6 @@ class _ChartCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (pill != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (pillColor ?? AppColors.success).withValues(
-                      alpha: 0.1,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: (pillColor ?? AppColors.success).withValues(
-                        alpha: 0.25,
-                      ),
-                    ),
-                  ),
-                  child: Text(
-                    pill!,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: pillColor ?? AppColors.success,
-                    ),
-                  ),
-                ),
             ],
           ),
           const SizedBox(height: 18),
@@ -1331,124 +1195,72 @@ class _ChartCard extends StatelessWidget {
 //  CHARTS
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _ObesityLineChart extends StatelessWidget {
-  const _ObesityLineChart();
+class _BmiDistributionView extends StatelessWidget {
+  final DataProvider dp;
+  const _BmiDistributionView({required this.dp});
 
   @override
   Widget build(BuildContext context) {
-    const bmiLevels = [33.5, 33.1, 32.7, 32.2, 31.8, 31.2, 30.8, 30.2, 29.8];
-    const targetLine = [28.0, 28.0, 28.0, 28.0, 28.0, 28.0, 28.0, 28.0, 28.0];
-    const months = [
-      'Oct',
-      'Nov',
-      'Dec',
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
+    final ranges = [
+      ('< 30', (Patient p) => p.bmi < 30),
+      ('30–34.9', (Patient p) => p.bmi >= 30 && p.bmi < 35),
+      ('35–39.9', (Patient p) => p.bmi >= 35 && p.bmi < 40),
+      ('≥ 40', (Patient p) => p.bmi >= 40),
     ];
-
-    return RepaintBoundary(
-      child: LineChart(
-        duration: Duration.zero,
-        LineChartData(
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            getDrawingHorizontalLine: (_) => FlLine(
-              color: AppColors.border.withValues(alpha: 0.6),
-              strokeWidth: 1,
-            ),
-          ),
-          titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 28,
-                getTitlesWidget: (v, _) {
-                  int i = v.toInt();
-                  if (i >= 0 && i < months.length) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 6),
+    final counts = ranges
+        .map((range) => dp.patients.where(range.$2).length)
+        .toList();
+    final maximum = counts.fold<int>(
+      1,
+      (max, value) => value > max ? value : max,
+    );
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 620),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < ranges.length; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 72,
                       child: Text(
-                        months[i],
+                        ranges[i].$1,
                         style: TextStyle(
-                          fontSize: 11,
                           color: AppColors.textSecondary,
+                          fontSize: 12,
                         ),
                       ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 36,
-                interval: 1,
-                getTitlesWidget: _leftTitle,
-              ),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          minX: 0,
-          maxX: 8,
-          minY: 26,
-          maxY: 35,
-          lineBarsData: [
-            LineChartBarData(
-              spots: List.generate(
-                bmiLevels.length,
-                (i) => FlSpot(i.toDouble(), bmiLevels[i]),
-              ),
-              isCurved: true,
-              color: AppColors.primary,
-              barWidth: 3,
-              isStrokeCapRound: true,
-              dotData: FlDotData(
-                show: true,
-                getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
-                  radius: 3.5,
-                  color: AppColors.primary,
-                  strokeWidth: 2,
-                  strokeColor: Colors.white,
-                ),
-              ),
-              belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withValues(alpha: 0.18),
-                    Colors.transparent,
+                    ),
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: counts[i] / maximum,
+                          minHeight: 18,
+                          backgroundColor: AppColors.border,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    SizedBox(
+                      width: 32,
+                      child: Text(
+                        '${counts[i]}',
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
                   ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
                 ),
               ),
-            ),
-            LineChartBarData(
-              spots: List.generate(
-                targetLine.length,
-                (i) => FlSpot(i.toDouble(), targetLine[i]),
-              ),
-              isCurved: false,
-              color: AppColors.accent.withValues(alpha: 0.7),
-              barWidth: 1.5,
-              isStrokeCapRound: false,
-              dashArray: [5, 4],
-              dotData: const FlDotData(show: false),
-              belowBarData: BarAreaData(show: false),
-            ),
           ],
         ),
       ),
@@ -1474,8 +1286,11 @@ class _ConsumptionBarChart extends StatelessWidget {
       dp.patients.where((p) => p.currentDose == '7.5 mg').length.toDouble(),
       dp.patients.where((p) => p.currentDose == '10 mg').length.toDouble(),
     ];
-    final targets = [30.0, 35.0, 25.0, 20.0];
     final labels = ['2.5 mg', '5 mg', '7.5 mg', '10 mg'];
+    final maxCount = counts.fold<double>(
+      1,
+      (max, value) => value > max ? value : max,
+    );
 
     return Column(
       children: [
@@ -1485,7 +1300,7 @@ class _ConsumptionBarChart extends StatelessWidget {
               duration: Duration.zero,
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
-                maxY: 45,
+                maxY: maxCount + 5,
                 barTouchData: BarTouchData(
                   enabled: true,
                   touchTooltipData: BarTouchTooltipData(
@@ -1558,29 +1373,12 @@ class _ConsumptionBarChart extends StatelessWidget {
                           top: Radius.circular(5),
                         ),
                       ),
-                      BarChartRodData(
-                        toY: targets[i],
-                        color: AppColors.accent.withValues(alpha: 0.7),
-                        width: 20,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(5),
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _Legend(AppColors.primary, context.tr('active_patients_legend')),
-            const SizedBox(width: 20),
-            _Legend(AppColors.accent, context.tr('target_limit_legend')),
-          ],
         ),
       ],
     );
@@ -1664,7 +1462,7 @@ class _AdherenceBarChart extends StatelessWidget {
     const labels = ['2.5 mg', '5 mg', '7.5 mg', '10 mg'];
     final adherence = labels.map((dose) {
       final cohort = dp.patients.where((p) => p.currentDose == dose).toList();
-      if (cohort.isEmpty) return 85.0;
+      if (cohort.isEmpty) return 0.0;
       return cohort.map((p) => p.complianceRate).reduce((a, b) => a + b) /
           cohort.length *
           100;
@@ -2785,7 +2583,16 @@ class InventoryView extends StatelessWidget {
                 Row(
                   children: [
                     OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: () =>
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                context.isArabic
+                                    ? 'تم تجهيز ملف CSV التجريبي.'
+                                    : 'Demo CSV export prepared.',
+                              ),
+                            ),
+                          ),
                       icon: const Icon(Icons.download_rounded, size: 18),
                       label: Text(context.tr('export_csv')),
                       style: OutlinedButton.styleFrom(
@@ -2802,7 +2609,16 @@ class InventoryView extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () =>
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                context.isArabic
+                                    ? 'تمت مزامنة جميع عقد العرض.'
+                                    : 'All demo nodes synchronized.',
+                              ),
+                            ),
+                          ),
                       icon: const Icon(Icons.refresh_rounded, size: 18),
                       label: Text(context.tr('sync_all_nodes')),
                       style: ElevatedButton.styleFrom(
@@ -2975,9 +2791,6 @@ class _InventoryCardState extends State<_InventoryCard> {
         c.inventory7_5mg <= 10 ||
         c.inventory10mg <= 10;
 
-    // Pseudo-random last dispensed time based on ID length/hash
-    final mockMinsAgo = (c.id.hashCode % 59) + 1;
-
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -3055,39 +2868,14 @@ class _InventoryCardState extends State<_InventoryCard> {
                         ],
                       ),
                       const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          const Icon(
-                            LucideIcons.activity,
-                            size: 14,
-                            color: AppColors.success,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            context.tr('active_global_sync'),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Icon(
-                            LucideIcons.clock,
-                            size: 14,
-                            color: AppColors.textSecondary,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            context
-                                .tr('last_dispensed_ago')
-                                .replaceAll('{time}', '$mockMinsAgo'),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        context.isArabic
+                            ? 'رصيد المخزون الحالي'
+                            : 'Current inventory balance',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -3171,75 +2959,6 @@ class _InventoryCardState extends State<_InventoryCard> {
               ],
             ),
             const SizedBox(height: 12),
-
-            // AI Needs Forecast
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.accent.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(LucideIcons.sparkles, color: AppColors.accent),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.tr('ai_need_prediction_title'),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              '${context.tr('monthly_need')}: ',
-                              style: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              '${(c.totalAvailable * 1.5).ceil()} Units',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              '${context.tr('yearly_need')}: ',
-                              style: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              '${(c.totalAvailable * 1.5 * 12).ceil()} Units',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
 
             // DOSAGE BREAKDOWN TABLE
             Container(
@@ -4544,4 +4263,3 @@ class _ManageCentersView extends StatelessWidget {
     );
   }
 }
-

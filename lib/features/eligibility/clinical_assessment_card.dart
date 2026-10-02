@@ -3,15 +3,12 @@ import '../../core/constants/mock_data.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/status_badge.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ClinicalAssessmentCard extends StatelessWidget {
   final Patient patient;
 
-  const ClinicalAssessmentCard({
-    super.key,
-    required this.patient,
-  });
+  const ClinicalAssessmentCard({super.key, required this.patient});
 
   String _obesityClassification(BuildContext context) {
     final bmi = patient.bmi;
@@ -26,7 +23,9 @@ class ClinicalAssessmentCard extends StatelessWidget {
   BadgeStatus get _recommendationStatus {
     final bmi = patient.bmi;
     if (bmi >= 30) return BadgeStatus.success;
-    if (bmi >= 27 && patient.medicalConditions.isNotEmpty) return BadgeStatus.success;
+    if (bmi >= 27 && patient.medicalConditions.isNotEmpty) {
+      return BadgeStatus.success;
+    }
     if (bmi >= 27) return BadgeStatus.warning;
     return BadgeStatus.error;
   }
@@ -92,10 +91,7 @@ class ClinicalAssessmentCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    LucideIcons.stethoscope,
-                    color: AppColors.primary,
-                  ),
+                  Icon(LucideIcons.stethoscope, color: AppColors.primary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -107,9 +103,8 @@ class ClinicalAssessmentCard extends StatelessWidget {
                         ),
                         Text(
                           _obesityClassification(context),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.primary,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(color: AppColors.primary),
                         ),
                       ],
                     ),
@@ -123,7 +118,12 @@ class ClinicalAssessmentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMetric(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildMetric(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
     return Row(
       children: [
         Container(
@@ -138,14 +138,8 @@ class ClinicalAssessmentCard extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Text(label, style: Theme.of(context).textTheme.bodyMedium),
+            Text(value, style: Theme.of(context).textTheme.headlineMedium),
           ],
         ),
       ],

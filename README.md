@@ -17,7 +17,7 @@ Recommended demo path: **Ministry Executive** role on web (≥1100px width) for 
 - Ministry Executive — `admin@moh.gov.ae`
 - Clinician — `clinical@moh.gov.ae`
 - Dispensing Center — `pharmacy@moh.gov.ae`
-- Patient — `patient@mounjaro.ae` (Ahmed Al Mansoori, P001)
+- Patient — select Patient in the access screen (Ahmed Al Mansoori, P999)
 
 ## Performance notes
 

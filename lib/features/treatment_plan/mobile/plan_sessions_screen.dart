@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/l10n_extension.dart';
@@ -29,8 +29,10 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
       duration: const Duration(milliseconds: 700),
       vsync: this,
     );
-    _fadeAnimation =
-        CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    );
     _fadeController.forward();
   }
 
@@ -82,9 +84,20 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
           children: [
             _buildHeader(context, isDark),
             const SizedBox(height: 20),
-            _buildProgressSummary(context, isDark, plan, attendedSessions.length),
+            _buildProgressSummary(
+              context,
+              isDark,
+              plan,
+              attendedSessions.length,
+            ),
             const SizedBox(height: 20),
-            _buildUpcomingHeroCard(context, isDark, plan, upcomingSession, centerName),
+            _buildUpcomingHeroCard(
+              context,
+              isDark,
+              plan,
+              upcomingSession,
+              centerName,
+            ),
             const SizedBox(height: 20),
             _buildStreakCard(context, isDark, attendedSessions.length),
             const SizedBox(height: 20),
@@ -92,9 +105,9 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             const SizedBox(height: 20),
             _buildFilterBar(context, isDark, plan),
             const SizedBox(height: 16),
-            ...filteredSessions
-                .map((s) => _buildEnhancedSessionCard(context, isDark, s, plan))
-                ,
+            ...filteredSessions.map(
+              (s) => _buildEnhancedSessionCard(context, isDark, s, plan),
+            ),
           ],
         ),
       ),
@@ -113,14 +126,16 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
               color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(LucideIcons.calendarX2,
-                size: 36, color: AppColors.primary),
+            child: Icon(
+              LucideIcons.calendarX2,
+              size: 36,
+              color: AppColors.primary,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
             context.tr('no_treatment_plan_mobile'),
-            style:
-                TextStyle(color: AppColors.textSecondary, fontSize: 16),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
           ),
         ],
       ),
@@ -167,15 +182,22 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
           ),
-          child: Icon(LucideIcons.calendarDays,
-              size: 20, color: AppColors.primary),
+          child: Icon(
+            LucideIcons.calendarDays,
+            size: 20,
+            color: AppColors.primary,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildProgressSummary(BuildContext context, bool isDark,
-      dynamic plan, int attended) {
+  Widget _buildProgressSummary(
+    BuildContext context,
+    bool isDark,
+    dynamic plan,
+    int attended,
+  ) {
     final double progress = attended / plan.totalSessions;
     final cardBg = isDark ? AppColors.darkSurface : Colors.white;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
@@ -211,11 +233,15 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                 ),
               ),
               Text(
-                context.tr('session_completed', {'completed': '$attended', 'total': '${plan.totalSessions}'}),
+                context.tr('session_completed', {
+                  'completed': '$attended',
+                  'total': '${plan.totalSessions}',
+                }),
                 style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500),
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -224,10 +250,8 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor:
-                  isDark ? AppColors.darkBorder : AppColors.border,
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(AppColors.primary),
+              backgroundColor: isDark ? AppColors.darkBorder : AppColors.border,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 10,
             ),
           ),
@@ -236,18 +260,24 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                context.tr('percent_complete', {'percent': '${(progress * 100).toStringAsFixed(0)}'}),
+                context.tr('percent_complete', {
+                  'percent': (progress * 100).toStringAsFixed(0),
+                }),
                 style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700),
+                  fontSize: 12,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               Text(
-                context.tr('sessions_remaining', {'remaining': '${plan.totalSessions - attended}'}),
+                context.tr('sessions_remaining', {
+                  'remaining': '${plan.totalSessions - attended}',
+                }),
                 style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500),
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -256,8 +286,13 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
     );
   }
 
-  Widget _buildUpcomingHeroCard(BuildContext context, bool isDark, dynamic plan,
-      TherapySession upcomingSession, String centerName) {
+  Widget _buildUpcomingHeroCard(
+    BuildContext context,
+    bool isDark,
+    dynamic plan,
+    TherapySession upcomingSession,
+    String centerName,
+  ) {
     final isCompleted = upcomingSession.isAttended;
 
     return Container(
@@ -315,8 +350,11 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                         color: AppColors.surface.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(LucideIcons.calendarCheck,
-                          color: AppColors.surface, size: 24),
+                      child: Icon(
+                        LucideIcons.calendarCheck,
+                        color: AppColors.surface,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -326,16 +364,17 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                           Text(
                             context.tr('next_session'),
                             style: TextStyle(
-                                color: AppColors.surface70,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5),
+                              color: AppColors.surface70,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             context.tr('session_n_of_total', {
                               'n': '${upcomingSession.sessionNumber}',
-                              'total': '${plan.totalSessions}'
+                              'total': '${plan.totalSessions}',
                             }),
                             style: TextStyle(
                               color: AppColors.surface,
@@ -348,7 +387,9 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: isCompleted
                             ? AppColors.success.withValues(alpha: 0.25)
@@ -361,7 +402,9 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                         ),
                       ),
                       child: Text(
-                        isCompleted ? context.tr('filter_completed') : context.tr('upcoming_status'),
+                        isCompleted
+                            ? context.tr('filter_completed')
+                            : context.tr('upcoming_status'),
                         style: TextStyle(
                           color: isCompleted
                               ? AppColors.success
@@ -390,13 +433,16 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                       ),
                       const SizedBox(height: 10),
                       _buildHeroInfoRow(
-                          LucideIcons.mapPin, 'Center', centerName),
+                        LucideIcons.mapPin,
+                        'Center',
+                        centerName,
+                      ),
                       const SizedBox(height: 10),
                       _buildHeroInfoRow(
-                          LucideIcons.clock, 'Time', '10:00 AM'),
-                      const SizedBox(height: 10),
-                      _buildHeroInfoRow(
-                          LucideIcons.userCheck, 'Doctor', 'Dr. Ahmed Khalil'),
+                        LucideIcons.clock,
+                        'Time',
+                        '${upcomingSession.scheduledDate.hour.toString().padLeft(2, '0')}:${upcomingSession.scheduledDate.minute.toString().padLeft(2, '0')}',
+                      ),
                     ],
                   ),
                 ),
@@ -411,14 +457,14 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                               context,
                               MaterialPageRoute(
                                 builder: (context) => SessionCheckinScreen(
-                                    plan: plan, session: upcomingSession),
+                                  plan: plan,
+                                  session: upcomingSession,
+                                ),
                               ),
                             );
                           },
                     icon: Icon(
-                      isCompleted
-                          ? LucideIcons.checkCircle
-                          : LucideIcons.logIn,
+                      isCompleted ? LucideIcons.checkCircle : LucideIcons.logIn,
                       size: 18,
                     ),
                     label: Text(
@@ -435,7 +481,8 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
@@ -452,14 +499,19 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
       children: [
         Icon(icon, color: Colors.white60, size: 15),
         const SizedBox(width: 8),
-        Text(label,
-            style: const TextStyle(color: Colors.white60, fontSize: 12)),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white60, fontSize: 12),
+        ),
         const Spacer(),
-        Text(value,
-            style: TextStyle(
-                color: AppColors.surface,
-                fontSize: 12,
-                fontWeight: FontWeight.w700)),
+        Text(
+          value,
+          style: TextStyle(
+            color: AppColors.surface,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ],
     );
   }
@@ -527,12 +579,13 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             ),
           ),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: AppColors.accent.withValues(alpha: 0.3),
+              ),
             ),
             child: Text(
               '🔥 $attended',
@@ -548,17 +601,19 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
     );
   }
 
-  Widget _buildSessionStats(BuildContext context, bool isDark, dynamic plan,
-      List<TherapySession> attended) {
+  Widget _buildSessionStats(
+    BuildContext context,
+    bool isDark,
+    dynamic plan,
+    List<TherapySession> attended,
+  ) {
     final avgWeight = attended.isEmpty
         ? '--'
         : (attended
-                    .where((s) => s.weightAfter != null)
-                    .fold<double>(
-                        0,
-                        (sum, s) => sum + (s.weightAfter ?? 0)) /
-                attended.where((s) => s.weightAfter != null).length)
-            .toStringAsFixed(1);
+                      .where((s) => s.weightAfter != null)
+                      .fold<double>(0, (sum, s) => sum + (s.weightAfter ?? 0)) /
+                  attended.where((s) => s.weightAfter != null).length)
+              .toStringAsFixed(1);
 
     return Row(
       children: [
@@ -577,7 +632,10 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
           child: _buildStatBox(
             isDark,
             icon: LucideIcons.calendarClock,
-            label: context.tr('sessions_remaining', {'remaining': ''}).replaceAll('متبقي', '').trim(),
+            label: context
+                .tr('sessions_remaining', {'remaining': ''})
+                .replaceAll('متبقي', '')
+                .trim(),
             value: '${plan.totalSessions - attended.length}',
             sub: context.tr('sessions_label'),
             color: AppColors.info,
@@ -598,12 +656,14 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
     );
   }
 
-  Widget _buildStatBox(bool isDark,
-      {required IconData icon,
-      required String label,
-      required String value,
-      required String sub,
-      required Color color}) {
+  Widget _buildStatBox(
+    bool isDark, {
+    required IconData icon,
+    required String label,
+    required String value,
+    required String sub,
+    required Color color,
+  }) {
     final cardBg = isDark ? AppColors.darkSurface : Colors.white;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -642,21 +702,30 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
               letterSpacing: -0.5,
             ),
           ),
-          Text(sub,
-              style: TextStyle(
-                  fontSize: 10, color: color, fontWeight: FontWeight.w600)),
+          Text(
+            sub,
+            style: TextStyle(
+              fontSize: 10,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 10, color: AppColors.textSecondary)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterBar(
-      BuildContext context, bool isDark, dynamic plan) {
-    final tabs = [context.tr('filter_all'), context.tr('filter_completed'), context.tr('upcoming_status')];
+  Widget _buildFilterBar(BuildContext context, bool isDark, dynamic plan) {
+    final tabs = [
+      context.tr('filter_all'),
+      context.tr('filter_completed'),
+      context.tr('upcoming_status'),
+    ];
     final cardBg = isDark ? AppColors.darkSurface : Colors.white;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -668,8 +737,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color:
-                isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -704,8 +772,8 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                         color: isSelected
                             ? Colors.white
                             : (isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.textSecondary),
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.textSecondary),
                       ),
                     ),
                   ),
@@ -718,8 +786,12 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
     );
   }
 
-  Widget _buildEnhancedSessionCard(BuildContext context, bool isDark,
-      TherapySession session, dynamic plan) {
+  Widget _buildEnhancedSessionCard(
+    BuildContext context,
+    bool isDark,
+    TherapySession session,
+    dynamic plan,
+  ) {
     final isAttended = session.isAttended;
     final cardBg = isDark ? AppColors.darkSurface : Colors.white;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
@@ -782,7 +854,7 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                       Text(
                         context.tr('session_n_of_total', {
                           'n': '${session.sessionNumber}',
-                          'total': '${plan.totalSessions}'
+                          'total': '${plan.totalSessions}',
                         }),
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
@@ -794,7 +866,9 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: isAttended
                               ? AppColors.success.withValues(alpha: 0.1)
@@ -802,7 +876,9 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          isAttended ? context.tr('attended_status') : context.tr('scheduled_status'),
+                          isAttended
+                              ? context.tr('attended_status')
+                              : context.tr('scheduled_status'),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -817,27 +893,35 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      Icon(LucideIcons.calendar,
-                          size: 12, color: AppColors.textSecondary),
+                      Icon(
+                        LucideIcons.calendar,
+                        size: 12,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${session.scheduledDate.day}/${session.scheduledDate.month}/${session.scheduledDate.year}',
                         style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500),
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       if (isAttended && session.weightAfter != null) ...[
                         const SizedBox(width: 12),
-                        Icon(LucideIcons.scale,
-                            size: 12, color: AppColors.textSecondary),
+                        Icon(
+                          LucideIcons.scale,
+                          size: 12,
+                          color: AppColors.textSecondary,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           "${session.weightAfter} ${context.tr('kg_label')}",
                           style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500),
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ],
@@ -847,8 +931,11 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
             ),
             if (isAttended) ...[
               const SizedBox(width: 8),
-              Icon(LucideIcons.chevronRight,
-                  size: 18, color: AppColors.textSecondary),
+              Icon(
+                LucideIcons.chevronRight,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
             ],
           ],
         ),
@@ -857,7 +944,10 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
   }
 
   void _showSessionDetailsSheet(
-      BuildContext context, bool isDark, TherapySession session) {
+    BuildContext context,
+    bool isDark,
+    TherapySession session,
+  ) {
     final sheetBg = isDark ? AppColors.darkSurface : Colors.white;
 
     showModalBottomSheet(
@@ -894,8 +984,11 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                       color: AppColors.success.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(LucideIcons.checkCircle2,
-                        color: AppColors.success, size: 22),
+                    child: const Icon(
+                      LucideIcons.checkCircle2,
+                      color: AppColors.success,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Column(
@@ -914,39 +1007,53 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                       Text(
                         context.tr('filter_completed'),
                         style: TextStyle(
-                            color: AppColors.success,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600),
+                          color: AppColors.success,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-              _buildSheetRow(context, isDark,
-                  icon: LucideIcons.calendar,
-                  label: context.tr('date_label'),
-                  value:
-                      '${session.scheduledDate.day}/${session.scheduledDate.month}/${session.scheduledDate.year}',
-                  color: AppColors.primary),
+              _buildSheetRow(
+                context,
+                isDark,
+                icon: LucideIcons.calendar,
+                label: context.tr('date_label'),
+                value:
+                    '${session.scheduledDate.day}/${session.scheduledDate.month}/${session.scheduledDate.year}',
+                color: AppColors.primary,
+              ),
               const SizedBox(height: 12),
-              _buildSheetRow(context, isDark,
-                  icon: LucideIcons.scale,
-                  label: context.tr('weight_after'),
-                  value: "${session.weightAfter ?? '--'} ${context.tr('kg_label')}",
-                  color: AppColors.info),
+              _buildSheetRow(
+                context,
+                isDark,
+                icon: LucideIcons.scale,
+                label: context.tr('weight_after'),
+                value:
+                    "${session.weightAfter ?? '--'} ${context.tr('kg_label')}",
+                color: AppColors.info,
+              ),
               const SizedBox(height: 12),
-              _buildSheetRow(context, isDark,
-                  icon: LucideIcons.clock,
-                  label: 'Duration',
-                  value: '45 minutes',
-                  color: AppColors.accent),
+              _buildSheetRow(
+                context,
+                isDark,
+                icon: LucideIcons.clock,
+                label: 'Duration',
+                value: '45 minutes',
+                color: AppColors.accent,
+              ),
               const SizedBox(height: 12),
-              _buildSheetRow(context, isDark,
-                  icon: LucideIcons.userCheck,
-                  label: context.tr('doctor_label'),
-                  value: 'Dr. Ahmed Khalil',
-                  color: AppColors.success),
+              _buildSheetRow(
+                context,
+                isDark,
+                icon: LucideIcons.userCheck,
+                label: context.tr('doctor_label'),
+                value: 'Dr. Ahmed Khalil',
+                color: AppColors.success,
+              ),
               if (session.notes != null && session.notes!.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 Text(
@@ -969,9 +1076,8 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                         : AppColors.background,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: isDark
-                            ? AppColors.darkBorder
-                            : AppColors.border),
+                      color: isDark ? AppColors.darkBorder : AppColors.border,
+                    ),
                   ),
                   child: Text(
                     session.notes ?? '--',
@@ -996,7 +1102,8 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   child: Text(
                     context.tr('close'),
@@ -1011,11 +1118,14 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
     );
   }
 
-  Widget _buildSheetRow(BuildContext context, bool isDark,
-      {required IconData icon,
-      required String label,
-      required String value,
-      required Color color}) {
+  Widget _buildSheetRow(
+    BuildContext context,
+    bool isDark, {
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
     return Row(
       children: [
         Container(
@@ -1028,19 +1138,23 @@ class _PlanSessionsScreenState extends State<PlanSessionsScreen>
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(label,
-              style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500)),
-        ),
-        Text(value,
+          child: Text(
+            label,
             style: TextStyle(
-              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
               fontSize: 13,
-              color:
-                  isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-            )),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+          ),
+        ),
       ],
     );
   }

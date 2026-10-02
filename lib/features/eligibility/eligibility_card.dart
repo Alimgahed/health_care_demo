@@ -72,11 +72,7 @@ class EligibilityCard extends StatelessWidget {
                     AppColors.success,
                   ),
                 ),
-                Container(
-                  height: 40,
-                  width: 1,
-                  color: AppColors.border,
-                ),
+                Container(height: 40, width: 1, color: AppColors.border),
                 Expanded(
                   child: _buildCostColumn(
                     context,
@@ -101,7 +97,12 @@ class EligibilityCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCostColumn(BuildContext context, String label, String value, Color color) {
+  Widget _buildCostColumn(
+    BuildContext context,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Column(
       children: [
         Text(
@@ -112,9 +113,9 @@ class EligibilityCard extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           value,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: color,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(color: color),
           textAlign: TextAlign.center,
         ),
       ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/activity_log.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -20,7 +20,11 @@ class PatientJourneyTimeline extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               context.tr('no_activity_logs'),
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -38,22 +42,46 @@ class PatientJourneyTimeline extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineItem(BuildContext context, ActivityLog log, bool isLast) {
+  Widget _buildTimelineItem(
+    BuildContext context,
+    ActivityLog log,
+    bool isLast,
+  ) {
     final kind = log.eventKind;
     final (Color color, IconData icon, String typeLabel) = switch (kind) {
-      'dispense' => (AppColors.success, LucideIcons.package, context.tr('log_type_dispense')),
-      'care_plan' => (AppColors.primary, LucideIcons.clipboardList, context.tr('log_type_care_plan')),
-      'registration' => (AppColors.textPrimary, LucideIcons.userPlus, context.tr('log_type_registration')),
-      'clinical_review' => (AppColors.warning, LucideIcons.stethoscope, context.tr('log_type_clinical_review')),
-      _ => (AppColors.textSecondary, LucideIcons.activity, context.tr('log_type_other')),
+      'dispense' => (
+        AppColors.success,
+        LucideIcons.package,
+        context.tr('log_type_dispense'),
+      ),
+      'care_plan' => (
+        AppColors.primary,
+        LucideIcons.clipboardList,
+        context.tr('log_type_care_plan'),
+      ),
+      'registration' => (
+        AppColors.textPrimary,
+        LucideIcons.userPlus,
+        context.tr('log_type_registration'),
+      ),
+      'clinical_review' => (
+        AppColors.warning,
+        LucideIcons.stethoscope,
+        context.tr('log_type_clinical_review'),
+      ),
+      _ => (
+        AppColors.textSecondary,
+        LucideIcons.activity,
+        context.tr('log_type_other'),
+      ),
     };
 
     final isCarePlan = kind == 'care_plan';
     final statusColor = log.status == 'Pending'
         ? AppColors.warning
         : log.status == 'Overridden'
-            ? AppColors.error
-            : AppColors.success;
+        ? AppColors.error
+        : AppColors.success;
 
     return IntrinsicHeight(
       child: Row(
@@ -75,12 +103,7 @@ class PatientJourneyTimeline extends StatelessWidget {
                   child: Icon(icon, size: 16, color: color),
                 ),
                 if (!isLast)
-                  Expanded(
-                    child: Container(
-                      width: 2,
-                      color: AppColors.border,
-                    ),
-                  ),
+                  Expanded(child: Container(width: 2, color: AppColors.border)),
               ],
             ),
           ),
@@ -109,7 +132,10 @@ class PatientJourneyTimeline extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
@@ -126,7 +152,10 @@ class PatientJourneyTimeline extends StatelessWidget {
                         if (log.status != 'Success') ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: statusColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
@@ -165,17 +194,27 @@ class PatientJourneyTimeline extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         context.tr('log_not_dispense_hint'),
-                        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(LucideIcons.mapPin, size: 14, color: AppColors.textSecondary),
+                        Icon(
+                          LucideIcons.mapPin,
+                          size: 14,
+                          color: AppColors.textSecondary,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           log.getLocalizedCenterName(context),
-                          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),

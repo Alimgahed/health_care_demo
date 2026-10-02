@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/constants/mock_data.dart';
-import '../../patient_app/medication_order/medication_order_wizard.dart' as mounjaro_demo;
+import '../../patient_app/medication_order/medication_order_wizard.dart'
+    as mounjaro_demo;
 import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'medication_reminder_widget.dart';
@@ -104,19 +105,12 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              LucideIcons.pill,
-              size: 36,
-              color: AppColors.primary,
-            ),
+            child: Icon(LucideIcons.pill, size: 36, color: AppColors.primary),
           ),
           const SizedBox(height: 16),
           Text(
             context.tr('no_treatment_plan_mobile'),
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
           ),
         ],
       ),
@@ -159,7 +153,9 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
           decoration: BoxDecoration(
             color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.25),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -245,8 +241,8 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               height: 70 + (_pulseAnimation.value * 12),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.surface.withValues(alpha: 
-                                  0.06 * (1 - _pulseAnimation.value),
+                                color: AppColors.surface.withValues(
+                                  alpha: 0.06 * (1 - _pulseAnimation.value),
                                 ),
                               ),
                             ),
@@ -255,7 +251,9 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                               height: 64,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.surface.withValues(alpha: 0.15),
+                                color: AppColors.surface.withValues(
+                                  alpha: 0.15,
+                                ),
                               ),
                               child: Icon(
                                 LucideIcons.syringe,
@@ -370,58 +368,38 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
   }
 
   Widget _buildAdherenceCard(BuildContext context, bool isDark) {
-    final cardBg = isDark ? AppColors.darkSurface : Colors.white;
-    final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
-
+    final now = DateTime.now();
+    final events = context
+        .watch<DataProvider>()
+        .medicationEventsFor(widget.patient.id)
+        .where(
+          (event) =>
+              event.recordedAt.year == now.year &&
+              event.recordedAt.month == now.month,
+        )
+        .toList();
+    final taken = events
+        .where((event) => event.status == MedicationDoseStatus.taken)
+        .length;
+    final missed = events
+        .where((event) => event.status == MedicationDoseStatus.missed)
+        .length;
+    final rate = events.isEmpty ? null : taken / events.length;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cardBg,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.border,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.tr('adherence_overview'),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.textPrimary,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  context.tr('excellent'),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.success,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            context.tr('adherence_overview'),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           Row(
@@ -429,7 +407,9 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               Expanded(
                 child: _buildAdherenceStat(
                   isDark,
-                  value: '100%',
+                  value: rate == null
+                      ? '—'
+                      : '${(rate * 100).toStringAsFixed(0)}%',
                   label: context.tr('this_month'),
                   color: AppColors.success,
                   icon: LucideIcons.checkCircle2,
@@ -439,7 +419,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               Expanded(
                 child: _buildAdherenceStat(
                   isDark,
-                  value: '4/4',
+                  value: '$taken/${events.length}',
                   label: context.tr('doses_taken'),
                   color: AppColors.primary,
                   icon: LucideIcons.pill,
@@ -449,7 +429,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               Expanded(
                 child: _buildAdherenceStat(
                   isDark,
-                  value: '0',
+                  value: '$missed',
                   label: context.tr('missed'),
                   color: AppColors.info,
                   icon: LucideIcons.x,
@@ -457,46 +437,15 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: List.generate(4, (week) {
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.success.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColors.success.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            LucideIcons.check,
-                            size: 14,
-                            color: AppColors.success,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        context.tr('week_n', {'n': '${week + 1}'}),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
+          if (events.isEmpty) ...[
+            const SizedBox(height: 14),
+            Text(
+              context.isArabic
+                  ? 'لا توجد جرعات موثقة هذا الشهر.'
+                  : 'No dose events recorded this month.',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ],
         ],
       ),
     );
@@ -715,7 +664,11 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
   }
 
   Widget _buildTabBar(BuildContext context, bool isDark) {
-    final tabs = [context.tr('tab_history'), context.tr('tab_schedule'), context.tr('tab_side_effects')];
+    final tabs = [
+      context.tr('tab_history'),
+      context.tr('tab_schedule'),
+      context.tr('tab_side_effects'),
+    ];
     final cardBg = isDark ? AppColors.darkSurface : Colors.white;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -1120,7 +1073,9 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                     : AppColors.background,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: color.withValues(alpha: isNext || isEscalation ? 0.3 : 0.15),
+                  color: color.withValues(
+                    alpha: isNext || isEscalation ? 0.3 : 0.15,
+                  ),
                   width: isNext || isEscalation ? 1.5 : 1,
                 ),
               ),
@@ -1296,7 +1251,15 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      context.isArabic
+                          ? 'تم فتح نموذج تسجيل الأعراض التجريبي.'
+                          : 'Demo symptom log opened.',
+                    ),
+                  ),
+                ),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -1306,7 +1269,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child:  Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
@@ -1466,7 +1429,9 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: 0.4,
-                    backgroundColor: AppColors.background.withValues(alpha: 0.15),
+                    backgroundColor: AppColors.background.withValues(
+                      alpha: 0.15,
+                    ),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       AppColors.accent,
                     ),
@@ -1482,7 +1447,8 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const mounjaro_demo.MedicationOrderWizard(),
+                  builder: (context) =>
+                      const mounjaro_demo.MedicationOrderWizard(),
                 ),
               );
             },

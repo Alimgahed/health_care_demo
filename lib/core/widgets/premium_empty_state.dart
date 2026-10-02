@@ -28,20 +28,17 @@ class PremiumEmptyState extends StatelessWidget {
               child: Image.asset(
                 imageAsset,
                 fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.inbox,
-                  size: 120,
-                  color: AppColors.border,
-                ),
+                errorBuilder: (context, error, stackTrace) =>
+                    Icon(Icons.inbox, size: 120, color: AppColors.border),
               ),
             ),
             const SizedBox(height: 32),
             Text(
               title,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.navy,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: AppColors.navy,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -60,7 +57,7 @@ class PremiumEmptyState extends StatelessWidget {
             if (actionButton != null) ...[
               const SizedBox(height: 32),
               actionButton!,
-            ]
+            ],
           ],
         ),
       ),

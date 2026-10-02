@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -23,11 +23,19 @@ class SystemAuditLogView extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(LucideIcons.activitySquare, size: 28, color: AppColors.primary),
+              Icon(
+                LucideIcons.activitySquare,
+                size: 28,
+                color: AppColors.primary,
+              ),
               const SizedBox(width: 12),
               Text(
                 t.translate('system_audit_log'),
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ],
           ),
@@ -113,18 +121,42 @@ class SystemAuditLogView extends StatelessWidget {
                 children: [
                   Text(
                     action,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(LucideIcons.user, size: 14, color: AppColors.textSecondary),
+                      Icon(
+                        LucideIcons.user,
+                        size: 14,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(width: 4),
-                      Text(patient, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                      Text(
+                        patient,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(width: 16),
-                      Icon(LucideIcons.building, size: 14, color: AppColors.textSecondary),
+                      Icon(
+                        LucideIcons.building,
+                        size: 14,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(width: 4),
-                      Text(center, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                      Text(
+                        center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -133,8 +165,21 @@ class SystemAuditLogView extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(timeStr.split(' · ')[0], style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                Text(timeStr.split(' · ')[1], style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text(
+                  timeStr.split(' · ')[0],
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  timeStr.split(' · ')[1],
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
               ],
             ),
           ],

@@ -8,6 +8,7 @@ enum ActivityEventType {
   carePlan,
   registration,
   clinicalReview,
+  medicationAdherence,
   weightUpdate,
   doseChange,
   documentUpload,
@@ -31,6 +32,10 @@ class ActivityLog {
   final DateTime timestamp;
   final String status;
   final String statusAr;
+  final String? requestId;
+  final String? actorId;
+  final String? actorRole;
+  final String notes;
 
   ActivityLog({
     required this.id,
@@ -45,28 +50,37 @@ class ActivityLog {
     required this.timestamp,
     required this.status,
     required this.statusAr,
+    this.requestId,
+    this.actorId,
+    this.actorRole,
+    this.notes = '',
   });
 
   bool _isAr(BuildContext context) =>
-      Provider.of<LocaleProvider>(context, listen: false).locale.languageCode == 'ar';
+      Provider.of<LocaleProvider>(context, listen: false).locale.languageCode ==
+      'ar';
 
   String getLocalizedPatientName(BuildContext context) =>
       _isAr(context) ? patientNameAr : patientName;
-  String getLocalizedAction(BuildContext context) => _isAr(context) ? actionAr : action;
-  String getLocalizedCenterName(BuildContext context) => _isAr(context) ? centerNameAr : centerName;
-  String getLocalizedStatus(BuildContext context) => _isAr(context) ? statusAr : status;
+  String getLocalizedAction(BuildContext context) =>
+      _isAr(context) ? actionAr : action;
+  String getLocalizedCenterName(BuildContext context) =>
+      _isAr(context) ? centerNameAr : centerName;
+  String getLocalizedStatus(BuildContext context) =>
+      _isAr(context) ? statusAr : status;
 
   /// UI switch key (dispense | care_plan | …).
   String get eventKind => switch (eventType) {
-        ActivityEventType.dispense => 'dispense',
-        ActivityEventType.carePlan => 'care_plan',
-        ActivityEventType.registration => 'registration',
-        ActivityEventType.clinicalReview => 'clinical_review',
-        ActivityEventType.inventoryReplenish => 'inventory_replenish',
-        ActivityEventType.adminAction => 'admin_action',
-        ActivityEventType.misusePrevented => 'misuse_prevented',
-        _ => 'other',
-      };
+    ActivityEventType.dispense => 'dispense',
+    ActivityEventType.carePlan => 'care_plan',
+    ActivityEventType.registration => 'registration',
+    ActivityEventType.clinicalReview => 'clinical_review',
+    ActivityEventType.medicationAdherence => 'medication_adherence',
+    ActivityEventType.inventoryReplenish => 'inventory_replenish',
+    ActivityEventType.adminAction => 'admin_action',
+    ActivityEventType.misusePrevented => 'misuse_prevented',
+    _ => 'other',
+  };
 
   static String _pad2(int n) => n.toString().padLeft(2, '0');
 
@@ -96,6 +110,10 @@ class ActivityLog {
     String status = 'Success',
     String statusAr = 'ناجح',
     bool isOverride = false,
+    String? requestId,
+    String? actorId,
+    String? actorRole,
+    String notes = '',
   }) {
     final d = DoseUtils.toInventoryDose(dose);
     return ActivityLog(
@@ -111,6 +129,10 @@ class ActivityLog {
       timestamp: timestamp,
       status: isOverride ? 'Overridden' : status,
       statusAr: isOverride ? 'تم التجاوز' : statusAr,
+      requestId: requestId,
+      actorId: actorId,
+      actorRole: actorRole,
+      notes: notes,
     );
   }
 
@@ -247,7 +269,11 @@ class PatientRef {
   final String id;
   final String name;
   final String nameAr;
-  const PatientRef({required this.id, required this.name, required this.nameAr});
+  const PatientRef({
+    required this.id,
+    required this.name,
+    required this.nameAr,
+  });
 }
 
 class CenterRef {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/l10n_extension.dart';
 import '../data/home_exercise_catalog.dart';
@@ -21,8 +21,10 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    
-    final filtered = _allExercises.where((e) => _categoryFilter == 'All' || e.category == _categoryFilter).toList();
+
+    final filtered = _allExercises
+        .where((e) => _categoryFilter == 'All' || e.category == _categoryFilter)
+        .toList();
 
     return Column(
       children: [
@@ -32,8 +34,18 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.tr('home_exercises'), style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              IconButton(icon: const Icon(LucideIcons.x, color: Colors.white), onPressed: () => Navigator.pop(context)),
+              Text(
+                context.tr('home_exercises'),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(LucideIcons.x, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
             ],
           ),
         ),
@@ -41,14 +53,19 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           color: AppColors.surface,
           child: Row(
-            children: ['All', 'Cardio', 'Strength', 'Flexibility'].map((cat) => Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ChoiceChip(
-                label: Text(_categoryLabel(context, cat)),
-                selected: _categoryFilter == cat,
-                onSelected: (val) => setState(() => _categoryFilter = cat),
-              ),
-            )).toList(),
+            children: ['All', 'Cardio', 'Strength', 'Flexibility']
+                .map(
+                  (cat) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(_categoryLabel(context, cat)),
+                      selected: _categoryFilter == cat,
+                      onSelected: (val) =>
+                          setState(() => _categoryFilter = cat),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ),
         Expanded(
@@ -62,7 +79,9 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
                 margin: const EdgeInsets.only(bottom: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: isSelected ? AppColors.primary : AppColors.border),
+                  side: BorderSide(
+                    color: isSelected ? AppColors.primary : AppColors.border,
+                  ),
                 ),
                 child: CheckboxListTile(
                   value: isSelected,
@@ -79,7 +98,10 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
                     backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     child: Icon(LucideIcons.activity, color: AppColors.primary),
                   ),
-                  title: Text(isAr ? ex.nameAr : ex.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(
+                    isAr ? ex.nameAr : ex.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(
                     [
                       context.tr('exercise_duration_format', {
@@ -104,14 +126,25 @@ class _HomeExerciseLibraryState extends State<HomeExerciseLibrary> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.tr('exercises_picked_count', {'count': '${_selected.length}'}), style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                context.tr('exercises_picked_count', {
+                  'count': '${_selected.length}',
+                }),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               Row(
                 children: [
-                  TextButton(onPressed: () => Navigator.pop(context), child: Text(context.tr('cancel'))),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(context.tr('cancel')),
+                  ),
                   const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context, _selected),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
                     child: Text(context.tr('add_to_plan')),
                   ),
                 ],

@@ -8,19 +8,21 @@ class ThemeProvider extends ChangeNotifier {
   ThemeProvider() {
     _syncAppColors();
     // Listen to platform brightness changes if in system mode
-    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged = () {
-      if (_themeMode == ThemeMode.system) {
-        _syncAppColors();
-        notifyListeners();
-      }
-    };
+    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
+        () {
+          if (_themeMode == ThemeMode.system) {
+            _syncAppColors();
+            notifyListeners();
+          }
+        };
   }
 
   ThemeMode get themeMode => _themeMode;
 
   bool get isDarkMode {
     if (_themeMode == ThemeMode.system) {
-      final brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+      final brightness =
+          WidgetsBinding.instance.platformDispatcher.platformBrightness;
       return brightness == Brightness.dark;
     }
     return _themeMode == ThemeMode.dark;

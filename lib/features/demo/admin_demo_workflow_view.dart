@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/mock_data.dart';
 import '../../core/localization/l10n_extension.dart';
@@ -29,12 +29,20 @@ class AdminDemoWorkflowView extends StatelessWidget {
         children: [
           Text(
             context.tr('demo_workflow_title'),
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             context.tr('demo_workflow_subtitle'),
-            style: TextStyle(fontSize: 16, color: AppColors.textSecondary, height: 1.45),
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.textSecondary,
+              height: 1.45,
+            ),
           ),
           const SizedBox(height: 24),
           _FlowDiagram(completed: flow.completedSteps),
@@ -53,7 +61,11 @@ class AdminDemoWorkflowView extends StatelessWidget {
             children: [
               Text(
                 context.tr('demo_steps_heading'),
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const Spacer(),
               TextButton.icon(
@@ -83,9 +95,14 @@ class AdminDemoWorkflowView extends StatelessWidget {
     );
   }
 
-  void _launchStep(BuildContext context, DemoWorkflowStep step, ValueChanged<int> onAdminNavigate) {
+  void _launchStep(
+    BuildContext context,
+    DemoWorkflowStep step,
+    ValueChanged<int> onAdminNavigate,
+  ) {
     final flow = context.read<DemoFlowProvider>();
-    final patientId = step.patientId ?? step.scenarioPatientId ?? flow.focusPatientId;
+    final patientId =
+        step.patientId ?? step.scenarioPatientId ?? flow.focusPatientId;
 
     switch (step.role) {
       case DemoPortalRole.admin:
@@ -96,39 +113,45 @@ class AdminDemoWorkflowView extends StatelessWidget {
         break;
       case DemoPortalRole.doctor:
         flow.beginPortalStep(step.index);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => DemoPortalScaffold(
-              stepIndex: step.index,
-              child: DoctorShell(
-                initialPatientId: patientId,
-                initialTabIndex: step.doctorTabIndex,
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (_) => DemoPortalScaffold(
+                  stepIndex: step.index,
+                  child: DoctorShell(
+                    initialPatientId: patientId,
+                    initialTabIndex: step.doctorTabIndex,
+                  ),
+                ),
               ),
-            ),
-          ),
-        ).then((_) => flow.endPortal());
+            )
+            .then((_) => flow.endPortal());
         break;
       case DemoPortalRole.center:
         flow.beginPortalStep(step.index);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => DemoPortalScaffold(
-              stepIndex: step.index,
-              child: CenterShell(initialPatientId: patientId),
-            ),
-          ),
-        ).then((_) => flow.endPortal());
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (_) => DemoPortalScaffold(
+                  stepIndex: step.index,
+                  child: CenterShell(initialPatientId: patientId),
+                ),
+              ),
+            )
+            .then((_) => flow.endPortal());
         break;
       case DemoPortalRole.patient:
         flow.beginPortalStep(step.index);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => DemoPortalScaffold(
-              stepIndex: step.index,
-              child: const PatientShell(),
-            ),
-          ),
-        ).then((_) => flow.endPortal());
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (_) => DemoPortalScaffold(
+                  stepIndex: step.index,
+                  child: const PatientShell(),
+                ),
+              ),
+            )
+            .then((_) => flow.endPortal());
         break;
     }
   }
@@ -162,10 +185,15 @@ class _FlowDiagram extends StatelessWidget {
                     _FlowNode(
                       icon: nodes[i].$1,
                       label: nodes[i].$2,
-                      done: i < 2 ? completed.contains(i) : completed.contains(i + 1),
+                      done: i < 2
+                          ? completed.contains(i)
+                          : completed.contains(i + 1),
                     ),
                     if (i < nodes.length - 1)
-                      Icon(LucideIcons.arrowDown, color: AppColors.primary.withValues(alpha: 0.5)),
+                      Icon(
+                        LucideIcons.arrowDown,
+                        color: AppColors.primary.withValues(alpha: 0.5),
+                      ),
                   ],
                 ],
               );
@@ -181,7 +209,11 @@ class _FlowDiagram extends StatelessWidget {
                     ),
                   ),
                   if (i < nodes.length - 1)
-                    Icon(LucideIcons.chevronRight, color: AppColors.primary.withValues(alpha: 0.45), size: 20),
+                    Icon(
+                      LucideIcons.chevronRight,
+                      color: AppColors.primary.withValues(alpha: 0.45),
+                      size: 20,
+                    ),
                 ],
               ],
             );
@@ -214,7 +246,11 @@ class _FlowNode extends StatelessWidget {
   final String label;
   final bool done;
 
-  const _FlowNode({required this.icon, required this.label, required this.done});
+  const _FlowNode({
+    required this.icon,
+    required this.label,
+    required this.done,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -224,20 +260,30 @@ class _FlowNode extends StatelessWidget {
           width: 52,
           height: 52,
           decoration: BoxDecoration(
-            color: (done ? AppColors.success : AppColors.primary).withValues(alpha: 0.12),
+            color: (done ? AppColors.success : AppColors.primary).withValues(
+              alpha: 0.12,
+            ),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: done ? AppColors.success : AppColors.primary,
               width: done ? 2 : 1,
             ),
           ),
-          child: Icon(icon, color: done ? AppColors.success : AppColors.primary, size: 24),
+          child: Icon(
+            icon,
+            color: done ? AppColors.success : AppColors.primary,
+            size: 24,
+          ),
         ),
         const SizedBox(height: 8),
         Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
         ),
       ],
     );
@@ -268,7 +314,11 @@ class _ScenarioPicker extends StatelessWidget {
       children: [
         Text(
           context.tr('demo_scenarios_heading'),
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -323,7 +373,10 @@ class _FocusPatientBanner extends StatelessWidget {
                 'name': patient.getLocalizedFullName(context),
                 'id': patient.id,
               }),
-              style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
         ],
@@ -348,10 +401,26 @@ class _StepCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (IconData icon, Color color, String roleLabel) = switch (step.role) {
-      DemoPortalRole.admin => (LucideIcons.landmark, AppColors.textPrimary, context.tr('demo_role_admin')),
-      DemoPortalRole.doctor => (LucideIcons.stethoscope, AppColors.primary, context.tr('demo_role_doctor')),
-      DemoPortalRole.center => (LucideIcons.building2, const Color(0xFF1565C0), context.tr('demo_role_center')),
-      DemoPortalRole.patient => (LucideIcons.smartphone, AppColors.accent, context.tr('demo_role_patient')),
+      DemoPortalRole.admin => (
+        LucideIcons.landmark,
+        AppColors.textPrimary,
+        context.tr('demo_role_admin'),
+      ),
+      DemoPortalRole.doctor => (
+        LucideIcons.stethoscope,
+        AppColors.primary,
+        context.tr('demo_role_doctor'),
+      ),
+      DemoPortalRole.center => (
+        LucideIcons.building2,
+        const Color(0xFF1565C0),
+        context.tr('demo_role_center'),
+      ),
+      DemoPortalRole.patient => (
+        LucideIcons.smartphone,
+        AppColors.accent,
+        context.tr('demo_role_patient'),
+      ),
     };
 
     final launchLabel = step.role == DemoPortalRole.admin
@@ -387,14 +456,21 @@ class _StepCard extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           '${step.index + 1} · $roleLabel',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
                         ),
                       ),
                     ],
@@ -402,12 +478,20 @@ class _StepCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     context.tr(step.titleKey),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     context.tr(step.bodyKey),
-                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Container(
@@ -420,12 +504,20 @@ class _StepCard extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(LucideIcons.lightbulb, size: 16, color: AppColors.warning),
+                        Icon(
+                          LucideIcons.lightbulb,
+                          size: 16,
+                          color: AppColors.warning,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             context.tr(step.tipKey),
-                            style: TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.35),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textPrimary,
+                              height: 1.35,
+                            ),
                           ),
                         ),
                       ],
@@ -435,7 +527,9 @@ class _StepCard extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: onLaunch,
                     icon: Icon(
-                      step.role == DemoPortalRole.admin ? LucideIcons.panelLeft : LucideIcons.externalLink,
+                      step.role == DemoPortalRole.admin
+                          ? LucideIcons.panelLeft
+                          : LucideIcons.externalLink,
                       size: 18,
                     ),
                     label: Text(launchLabel),

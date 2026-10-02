@@ -4,14 +4,12 @@ class ResponsiveLayout extends StatelessWidget {
   final Widget mobile;
   final Widget web;
 
-  const ResponsiveLayout({
-    super.key,
-    required this.mobile,
-    required this.web,
-  });
+  const ResponsiveLayout({super.key, required this.mobile, required this.web});
 
-  static bool isWeb(BuildContext context) => MediaQuery.of(context).size.width >= 900;
-  static bool isMobile(BuildContext context) => MediaQuery.of(context).size.width < 900;
+  static bool isWeb(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 900;
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < 900;
 
   @override
   Widget build(BuildContext context) {

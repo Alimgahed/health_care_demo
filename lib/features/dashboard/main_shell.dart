@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../patients/patient_list_screen.dart';
 import '../dispensing/dispensing_screen.dart';

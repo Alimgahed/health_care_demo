@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/l10n_extension.dart';
@@ -15,12 +15,14 @@ class WebMapAnalyticsScreen extends StatefulWidget {
 }
 
 class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
-  String _selectedCategory = 'All'; // All, Patients, Pharmacies, Physical Therapy
+  String _selectedCategory =
+      'All'; // All, Patients, Pharmacies, Physical Therapy
   String _selectedEmirate = 'All';
   final String _selectedRisk = 'All';
   String _searchQuery = '';
 
-  dynamic selectedEntity; // Can be Patient, DispensingCenter, or PhysicalTherapyCenter
+  dynamic
+  selectedEntity; // Can be Patient, DispensingCenter, or PhysicalTherapyCenter
   bool _isDrawerOpen = false; // Controls the side drawer visibility
 
   final MapController _mapController = MapController();
@@ -33,14 +35,14 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     'Ajman',
     'Umm Al Quwain',
     'Ras Al Khaimah',
-    'Fujairah'
+    'Fujairah',
   ];
 
   final List<String> _categories = [
     'All',
     'Patients',
     'Pharmacies',
-    'Physical Therapy'
+    'Physical Therapy',
   ];
 
   @override
@@ -50,13 +52,19 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     // Refresh selected entity from provider to reflect live changes
     if (selectedEntity != null) {
       if (selectedEntity is Patient) {
-        final matches = dataProvider.patients.where((p) => p.id == selectedEntity.id);
+        final matches = dataProvider.patients.where(
+          (p) => p.id == selectedEntity.id,
+        );
         selectedEntity = matches.isNotEmpty ? matches.first : null;
       } else if (selectedEntity is DispensingCenter) {
-        final matches = dataProvider.centers.where((c) => c.id == selectedEntity.id);
+        final matches = dataProvider.centers.where(
+          (c) => c.id == selectedEntity.id,
+        );
         selectedEntity = matches.isNotEmpty ? matches.first : null;
       } else if (selectedEntity is PhysicalTherapyCenter) {
-        final matches = dataProvider.therapyCenters.where((tc) => tc.id == selectedEntity.id);
+        final matches = dataProvider.therapyCenters.where(
+          (tc) => tc.id == selectedEntity.id,
+        );
         selectedEntity = matches.isNotEmpty ? matches.first : null;
       }
       if (selectedEntity == null) _isDrawerOpen = false;
@@ -64,13 +72,19 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
 
     // Filter Patients (cap markers for map performance)
     var filteredPatients = dataProvider.patients.where((p) {
-      if (_selectedCategory != 'All' && _selectedCategory != 'Patients') return false;
-      if (_selectedEmirate != 'All' && p.emirate != _selectedEmirate) return false;
+      if (_selectedCategory != 'All' && _selectedCategory != 'Patients') {
+        return false;
+      }
+      if (_selectedEmirate != 'All' && p.emirate != _selectedEmirate) {
+        return false;
+      }
       if (_selectedRisk == 'Critical Obesity' && p.bmi < 35.0) return false;
       if (_selectedRisk == 'Low Stock') return false;
       if (_searchQuery.isNotEmpty &&
-          (!p.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) && 
-           !p.fullNameAr.toLowerCase().contains(_searchQuery.toLowerCase())) &&
+          (!p.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) &&
+              !p.fullNameAr.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              )) &&
           !p.id.toLowerCase().contains(_searchQuery.toLowerCase())) {
         return false;
       }
@@ -79,22 +93,31 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     if (filteredPatients.length > 35) {
       final step = (filteredPatients.length / 35).ceil();
       filteredPatients = [
-        for (int i = 0; i < filteredPatients.length; i += step) filteredPatients[i],
+        for (int i = 0; i < filteredPatients.length; i += step)
+          filteredPatients[i],
       ];
     }
 
     // Filter Dispensing Centers (Pharmacies)
     final filteredCenters = dataProvider.centers.where((c) {
-      if (_selectedCategory != 'All' && _selectedCategory != 'Pharmacies') return false;
-      if (_selectedEmirate != 'All' && c.region != _selectedEmirate) return false;
+      if (_selectedCategory != 'All' && _selectedCategory != 'Pharmacies') {
+        return false;
+      }
+      if (_selectedEmirate != 'All' && c.region != _selectedEmirate) {
+        return false;
+      }
       if (_selectedRisk == 'Critical Obesity') return false;
       if (_selectedRisk == 'Low Stock') {
-        final low = c.inventory2_5mg <= 10 || c.inventory5mg <= 10 || c.inventory7_5mg <= 10 || c.inventory10mg <= 10;
+        final low =
+            c.inventory2_5mg <= 10 ||
+            c.inventory5mg <= 10 ||
+            c.inventory7_5mg <= 10 ||
+            c.inventory10mg <= 10;
         if (!low) return false;
       }
       if (_searchQuery.isNotEmpty &&
-          (!c.name.toLowerCase().contains(_searchQuery.toLowerCase()) && 
-           !c.nameAr.toLowerCase().contains(_searchQuery.toLowerCase())) &&
+          (!c.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
+              !c.nameAr.toLowerCase().contains(_searchQuery.toLowerCase())) &&
           !c.id.toLowerCase().contains(_searchQuery.toLowerCase())) {
         return false;
       }
@@ -103,13 +126,18 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
 
     // Filter Physical Therapy Centers
     final filteredTherapyCenters = dataProvider.therapyCenters.where((tc) {
-      if (_selectedCategory != 'All' && _selectedCategory != 'Physical Therapy') return false;
-      if (_selectedEmirate != 'All' && tc.emirate != _selectedEmirate) return false;
+      if (_selectedCategory != 'All' &&
+          _selectedCategory != 'Physical Therapy') {
+        return false;
+      }
+      if (_selectedEmirate != 'All' && tc.emirate != _selectedEmirate) {
+        return false;
+      }
       if (_selectedRisk == 'Critical Obesity') return false;
       if (_selectedRisk == 'Low Stock') return false;
       if (_searchQuery.isNotEmpty &&
-          (!tc.name.toLowerCase().contains(_searchQuery.toLowerCase()) && 
-           !tc.nameAr.toLowerCase().contains(_searchQuery.toLowerCase())) &&
+          (!tc.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
+              !tc.nameAr.toLowerCase().contains(_searchQuery.toLowerCase())) &&
           !tc.id.toLowerCase().contains(_searchQuery.toLowerCase())) {
         return false;
       }
@@ -142,7 +170,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                 markers: [
                   // Physical Therapy Center Markers
                   ...filteredTherapyCenters.map((tc) {
-                    final isSelected = selectedEntity is PhysicalTherapyCenter && selectedEntity.id == tc.id;
+                    final isSelected =
+                        selectedEntity is PhysicalTherapyCenter &&
+                        selectedEntity.id == tc.id;
                     return Marker(
                       point: LatLng(tc.latitude, tc.longitude),
                       width: isSelected ? 50 : 40,
@@ -153,26 +183,42 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                             selectedEntity = tc;
                             _isDrawerOpen = true;
                           });
-                          _mapController.move(LatLng(tc.latitude, tc.longitude), 12.0);
+                          _mapController.move(
+                            LatLng(tc.latitude, tc.longitude),
+                            12.0,
+                          );
                         },
                         child: AnimatedContainer(
                           duration: Duration.zero,
                           decoration: BoxDecoration(
                             color: Colors.purple.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.surface, width: isSelected ? 3 : 2),
+                            border: Border.all(
+                              color: AppColors.surface,
+                              width: isSelected ? 3 : 2,
+                            ),
                             boxShadow: [
-                              BoxShadow(color: Colors.purple.withValues(alpha: 0.5), blurRadius: 10, spreadRadius: isSelected ? 5 : 2),
+                              BoxShadow(
+                                color: Colors.purple.withValues(alpha: 0.5),
+                                blurRadius: 10,
+                                spreadRadius: isSelected ? 5 : 2,
+                              ),
                             ],
                           ),
-                          child: Icon(LucideIcons.activity, color: Colors.white, size: isSelected ? 24 : 18),
+                          child: Icon(
+                            LucideIcons.activity,
+                            color: Colors.white,
+                            size: isSelected ? 24 : 18,
+                          ),
                         ),
                       ),
                     );
                   }),
                   // Dispensing Center Markers
                   ...filteredCenters.map((c) {
-                    final isSelected = selectedEntity is DispensingCenter && selectedEntity.id == c.id;
+                    final isSelected =
+                        selectedEntity is DispensingCenter &&
+                        selectedEntity.id == c.id;
                     return Marker(
                       point: LatLng(c.latitude, c.longitude),
                       width: isSelected ? 50 : 40,
@@ -183,29 +229,46 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                             selectedEntity = c;
                             _isDrawerOpen = true;
                           });
-                          _mapController.move(LatLng(c.latitude, c.longitude), 12.0);
+                          _mapController.move(
+                            LatLng(c.latitude, c.longitude),
+                            12.0,
+                          );
                         },
                         child: AnimatedContainer(
                           duration: Duration.zero,
                           decoration: BoxDecoration(
                             color: AppColors.navy.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.surface, width: isSelected ? 3 : 2),
+                            border: Border.all(
+                              color: AppColors.surface,
+                              width: isSelected ? 3 : 2,
+                            ),
                             boxShadow: [
-                              BoxShadow(color: AppColors.navy.withValues(alpha: 0.5), blurRadius: 10, spreadRadius: isSelected ? 5 : 2),
+                              BoxShadow(
+                                color: AppColors.navy.withValues(alpha: 0.5),
+                                blurRadius: 10,
+                                spreadRadius: isSelected ? 5 : 2,
+                              ),
                             ],
                           ),
-                          child: Icon(LucideIcons.store, color: Colors.white, size: isSelected ? 24 : 18),
+                          child: Icon(
+                            LucideIcons.store,
+                            color: Colors.white,
+                            size: isSelected ? 24 : 18,
+                          ),
                         ),
                       ),
                     );
                   }),
                   // Patient Markers
                   ...filteredPatients.map((p) {
-                    final isSelected = selectedEntity is Patient && selectedEntity.id == p.id;
+                    final isSelected =
+                        selectedEntity is Patient && selectedEntity.id == p.id;
                     final isCritical = p.bmi >= 35.0;
-                    final mColor = isCritical ? AppColors.error : AppColors.primary;
-                    
+                    final mColor = isCritical
+                        ? AppColors.error
+                        : AppColors.primary;
+
                     return Marker(
                       point: LatLng(p.latitude, p.longitude),
                       width: isSelected ? 40 : 30,
@@ -216,15 +279,29 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                             selectedEntity = p;
                             _isDrawerOpen = true;
                           });
-                          _mapController.move(LatLng(p.latitude, p.longitude), 14.0);
+                          _mapController.move(
+                            LatLng(p.latitude, p.longitude),
+                            14.0,
+                          );
                         },
                         child: AnimatedContainer(
                           duration: Duration.zero,
                           decoration: BoxDecoration(
                             color: mColor.withValues(alpha: 0.8),
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.surface, width: isSelected ? 3 : 1),
-                            boxShadow: isSelected ? [BoxShadow(color: mColor.withValues(alpha: 0.5), blurRadius: 10, spreadRadius: 4)] : [],
+                            border: Border.all(
+                              color: AppColors.surface,
+                              width: isSelected ? 3 : 1,
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: mColor.withValues(alpha: 0.5),
+                                      blurRadius: 10,
+                                      spreadRadius: 4,
+                                    ),
+                                  ]
+                                : [],
                           ),
                         ),
                       ),
@@ -239,7 +316,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           Positioned(
             top: 24,
             left: 24,
-            right: _isDrawerOpen ? 424 : 24, // Responsive padding based on drawer
+            right: _isDrawerOpen
+                ? 424
+                : 24, // Responsive padding based on drawer
             child: _buildFloatingFilters(context),
           ),
 
@@ -268,7 +347,10 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                   backgroundColor: AppColors.background,
                   onPressed: () {
                     final currentZoom = _mapController.camera.zoom;
-                    _mapController.move(_mapController.camera.center, currentZoom + 1);
+                    _mapController.move(
+                      _mapController.camera.center,
+                      currentZoom + 1,
+                    );
                   },
                   child: Icon(LucideIcons.plus, color: AppColors.textPrimary),
                 ),
@@ -279,7 +361,10 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                   backgroundColor: AppColors.background,
                   onPressed: () {
                     final currentZoom = _mapController.camera.zoom;
-                    _mapController.move(_mapController.camera.center, currentZoom - 1);
+                    _mapController.move(
+                      _mapController.camera.center,
+                      currentZoom - 1,
+                    );
                   },
                   child: Icon(LucideIcons.minus, color: AppColors.textPrimary),
                 ),
@@ -298,7 +383,11 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         color: AppColors.surface.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
         ],
       ),
       child: Row(
@@ -307,10 +396,14 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           const SizedBox(width: 12),
           Text(
             context.tr('geo_analytics'),
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(width: 24),
-          
+
           // Search Box
           Expanded(
             child: Container(
@@ -323,7 +416,11 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
+                  Icon(
+                    LucideIcons.search,
+                    size: 18,
+                    color: AppColors.textSecondary,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -331,7 +428,10 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: context.tr('search'),
-                        hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        hintStyle: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -364,7 +464,12 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
     );
   }
 
-  Widget _buildDropdownFilter({required BuildContext context, required String value, required List<String> items, required Function(String?) onChanged}) {
+  Widget _buildDropdownFilter({
+    required BuildContext context,
+    required String value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
     // Translate the visible values
     String getDisplayValue(String v) {
       if (v == 'All') return context.tr('filter_all');
@@ -386,8 +491,17 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         child: DropdownButton<String>(
           value: value,
           icon: const Icon(LucideIcons.chevronDown, size: 16),
-          style: TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
-          items: items.map((e) => DropdownMenuItem(value: e, child: Text(getDisplayValue(e)))).toList(),
+          style: TextStyle(
+            fontSize: 14,
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w500,
+          ),
+          items: items
+              .map(
+                (e) =>
+                    DropdownMenuItem(value: e, child: Text(getDisplayValue(e))),
+              )
+              .toList(),
           onChanged: onChanged,
         ),
       ),
@@ -399,7 +513,11 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 30, offset: const Offset(-10, 0)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 30,
+            offset: const Offset(-10, 0),
+          ),
         ],
       ),
       child: Column(
@@ -407,20 +525,24 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           // Drawer Header
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.navy,
-            ),
+            decoration: BoxDecoration(color: AppColors.navy),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: Text(
-                    selectedEntity != null ? (
-                      selectedEntity is Patient ? context.tr('patient_details') :
-                      selectedEntity is DispensingCenter ? context.tr('center_details') :
-                      context.tr('rehab_center_details')
-                    ) : context.tr('geo_analytics'),
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    selectedEntity != null
+                        ? (selectedEntity is Patient
+                              ? context.tr('patient_details')
+                              : selectedEntity is DispensingCenter
+                              ? context.tr('center_details')
+                              : context.tr('rehab_center_details'))
+                        : context.tr('geo_analytics'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -430,18 +552,32 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
               ],
             ),
           ),
-          
+
           // Drawer Content
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: selectedEntity == null
-                  ? Center(child: Text(context.tr('select_marker'), style: TextStyle(color: AppColors.textSecondary)))
+                  ? Center(
+                      child: Text(
+                        context.tr('select_marker'),
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    )
                   : (selectedEntity is Patient
-                      ? _buildPatientContent(context, selectedEntity as Patient)
-                      : (selectedEntity is DispensingCenter
-                          ? _buildCenterContent(context, selectedEntity as DispensingCenter)
-                          : _buildTherapyContent(context, selectedEntity as PhysicalTherapyCenter))),
+                        ? _buildPatientContent(
+                            context,
+                            selectedEntity as Patient,
+                          )
+                        : (selectedEntity is DispensingCenter
+                              ? _buildCenterContent(
+                                  context,
+                                  selectedEntity as DispensingCenter,
+                                )
+                              : _buildTherapyContent(
+                                  context,
+                                  selectedEntity as PhysicalTherapyCenter,
+                                ))),
             ),
           ),
         ],
@@ -451,7 +587,7 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
 
   Widget _buildPatientContent(BuildContext context, Patient p) {
     final isCritical = p.bmi >= 35.0;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -460,25 +596,49 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           children: [
             CircleAvatar(
               radius: 32,
-              backgroundColor: isCritical ? AppColors.error.withValues(alpha: 0.1) : AppColors.primary.withValues(alpha: 0.1),
-              child: Icon(LucideIcons.user, color: isCritical ? AppColors.error : AppColors.primary, size: 32),
+              backgroundColor: isCritical
+                  ? AppColors.error.withValues(alpha: 0.1)
+                  : AppColors.primary.withValues(alpha: 0.1),
+              child: Icon(
+                LucideIcons.user,
+                color: isCritical ? AppColors.error : AppColors.primary,
+                size: 32,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(p.getLocalizedFullName(context), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  Text(
+                    p.getLocalizedFullName(context),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: isCritical ? AppColors.error.withValues(alpha: 0.1) : AppColors.success.withValues(alpha: 0.1),
+                      color: isCritical
+                          ? AppColors.error.withValues(alpha: 0.1)
+                          : AppColors.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      isCritical ? context.tr('flagged') : context.tr('success'),
-                      style: TextStyle(color: isCritical ? AppColors.error : AppColors.success, fontWeight: FontWeight.bold, fontSize: 12),
+                      isCritical
+                          ? context.tr('flagged')
+                          : context.tr('success'),
+                      style: TextStyle(
+                        color: isCritical ? AppColors.error : AppColors.success,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -490,29 +650,68 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
 
         // Info Cards
         _buildInfoCard(LucideIcons.hash, context.tr('eid'), p.emiratesId),
-        _buildInfoCard(LucideIcons.calendar, context.tr('age'), '${p.age} ${context.tr('age')} (${p.getLocalizedGender(context)})'),
-        _buildInfoCard(LucideIcons.mapPin, context.tr('residency'), '${p.getLocalizedResidency(context)} · ${p.getLocalizedEmirate(context)}'),
-        
+        _buildInfoCard(
+          LucideIcons.calendar,
+          context.tr('age'),
+          '${p.age} ${context.tr('age')} (${p.getLocalizedGender(context)})',
+        ),
+        _buildInfoCard(
+          LucideIcons.mapPin,
+          context.tr('residency'),
+          '${p.getLocalizedResidency(context)} · ${p.getLocalizedEmirate(context)}',
+        ),
+
         const SizedBox(height: 24),
         Divider(color: AppColors.border),
         const SizedBox(height: 24),
 
         // Health Metrics
-        Text(context.tr('health_metrics'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        Text(
+          context.tr('health_metrics'),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildMetricBox(context.tr('weight'), '${p.weight} kg', AppColors.primary)),
+            Expanded(
+              child: _buildMetricBox(
+                context.tr('weight'),
+                '${p.weight} kg',
+                AppColors.primary,
+              ),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: _buildMetricBox(context.tr('bmi'), p.bmi.toStringAsFixed(1), isCritical ? AppColors.error : AppColors.warning)),
+            Expanded(
+              child: _buildMetricBox(
+                context.tr('bmi'),
+                p.bmi.toStringAsFixed(1),
+                isCritical ? AppColors.error : AppColors.warning,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildMetricBox(context.tr('current_dose'), p.currentDose, AppColors.accent)),
+            Expanded(
+              child: _buildMetricBox(
+                context.tr('current_dose'),
+                p.currentDose,
+                AppColors.accent,
+              ),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: _buildMetricBox(context.tr('adherence'), '${(p.complianceRate * 100).toInt()}%', AppColors.success)),
+            Expanded(
+              child: _buildMetricBox(
+                context.tr('adherence'),
+                '${(p.complianceRate * 100).toInt()}%',
+                AppColors.success,
+              ),
+            ),
           ],
         ),
 
@@ -521,16 +720,28 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         const SizedBox(height: 24),
 
         // Medical Conditions
-        Text(context.tr('medical_conditions'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        Text(
+          context.tr('medical_conditions'),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: p.getLocalizedMedicalConditions(context).map((cond) => Chip(
-            label: Text(cond),
-            backgroundColor: AppColors.surface,
-            side: BorderSide(color: AppColors.border),
-          )).toList(),
+          children: p
+              .getLocalizedMedicalConditions(context)
+              .map(
+                (cond) => Chip(
+                  label: Text(cond),
+                  backgroundColor: AppColors.surface,
+                  side: BorderSide(color: AppColors.border),
+                ),
+              )
+              .toList(),
         ),
       ],
     );
@@ -545,30 +756,68 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             CircleAvatar(
               radius: 32,
               backgroundColor: AppColors.navy.withValues(alpha: 0.1),
-              child: Icon(LucideIcons.store, color: AppColors.textPrimary, size: 32),
+              child: Icon(
+                LucideIcons.store,
+                color: AppColors.textPrimary,
+                size: 32,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(c.getLocalizedName(context), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  Text(
+                    c.getLocalizedName(context),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(context.tr('region_label', {'region': c.getLocalizedRegion(context)}), style: TextStyle(color: AppColors.textSecondary)),
+                  Text(
+                    context.tr('region_label', {
+                      'region': c.getLocalizedRegion(context),
+                    }),
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
                 ],
               ),
             ),
           ],
         ),
         const SizedBox(height: 32),
-        
-        Text(context.tr('inventory_status'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+
+        Text(
+          context.tr('inventory_status'),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
         const SizedBox(height: 16),
-        
-        _buildInventoryRow(context, '2.5 mg', c.inventory2_5mg, c.dispensed2_5mg),
+
+        _buildInventoryRow(
+          context,
+          '2.5 mg',
+          c.inventory2_5mg,
+          c.dispensed2_5mg,
+        ),
         _buildInventoryRow(context, '5.0 mg', c.inventory5mg, c.dispensed5mg),
-        _buildInventoryRow(context, '7.5 mg', c.inventory7_5mg, c.dispensed7_5mg),
-        _buildInventoryRow(context, '10.0 mg', c.inventory10mg, c.dispensed10mg),
+        _buildInventoryRow(
+          context,
+          '7.5 mg',
+          c.inventory7_5mg,
+          c.dispensed7_5mg,
+        ),
+        _buildInventoryRow(
+          context,
+          '10.0 mg',
+          c.inventory10mg,
+          c.dispensed10mg,
+        ),
       ],
     );
   }
@@ -582,16 +831,30 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             CircleAvatar(
               radius: 32,
               backgroundColor: Colors.purple.withValues(alpha: 0.1),
-              child: const Icon(LucideIcons.activity, color: Colors.purple, size: 32),
+              child: const Icon(
+                LucideIcons.activity,
+                color: Colors.purple,
+                size: 32,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tc.getLocalizedName(context), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  Text(
+                    tc.getLocalizedName(context),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(tc.getLocalizedEmirate(context), style: TextStyle(color: AppColors.textSecondary)),
+                  Text(
+                    tc.getLocalizedEmirate(context),
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
                 ],
               ),
             ),
@@ -599,24 +862,48 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
         ),
         const SizedBox(height: 32),
 
-        _buildInfoCard(LucideIcons.userPlus, context.tr('chief_therapist'), tc.getLocalizedChiefTherapist(context)),
-        _buildInfoCard(LucideIcons.users, context.tr('active_patients_rehab'), '${tc.activePatients}'),
-        _buildInfoCard(LucideIcons.clock, context.tr('working_hours'), tc.workingHours),
-        
+        _buildInfoCard(
+          LucideIcons.userPlus,
+          context.tr('chief_therapist'),
+          tc.getLocalizedChiefTherapist(context),
+        ),
+        _buildInfoCard(
+          LucideIcons.users,
+          context.tr('active_patients_rehab'),
+          '${tc.activePatients}',
+        ),
+        _buildInfoCard(
+          LucideIcons.clock,
+          context.tr('working_hours'),
+          tc.workingHours,
+        ),
+
         const SizedBox(height: 24),
         Divider(color: AppColors.border),
         const SizedBox(height: 24),
 
-        Text(context.tr('services_offered'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        Text(
+          context.tr('services_offered'),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: tc.getLocalizedServices(context).map((s) => Chip(
-            label: Text(s),
-            backgroundColor: Colors.purple.withValues(alpha: 0.05),
-            side: BorderSide(color: Colors.purple.withValues(alpha: 0.2)),
-          )).toList(),
+          children: tc
+              .getLocalizedServices(context)
+              .map(
+                (s) => Chip(
+                  label: Text(s),
+                  backgroundColor: Colors.purple.withValues(alpha: 0.05),
+                  side: BorderSide(color: Colors.purple.withValues(alpha: 0.2)),
+                ),
+              )
+              .toList(),
         ),
       ],
     );
@@ -641,9 +928,22 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -663,19 +963,42 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color.withAlpha(200))),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: color.withAlpha(200),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInventoryRow(BuildContext context, String dose, int inventory, int dispensed) {
+  Widget _buildInventoryRow(
+    BuildContext context,
+    String dose,
+    int inventory,
+    int dispensed,
+  ) {
     bool isOutOfStock = inventory == 0;
     bool isLowStock = inventory > 0 && inventory <= 10;
-    Color statusColor = isOutOfStock ? AppColors.error : (isLowStock ? AppColors.warning : AppColors.success);
-    String statusText = isOutOfStock ? context.tr('out_of_stock') : (isLowStock ? context.tr('low_stock') : context.tr('available'));
+    Color statusColor = isOutOfStock
+        ? AppColors.error
+        : (isLowStock ? AppColors.warning : AppColors.success);
+    String statusText = isOutOfStock
+        ? context.tr('out_of_stock')
+        : (isLowStock ? context.tr('low_stock') : context.tr('available'));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -691,14 +1014,27 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(dose, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(
+                dose,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(statusText, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text(
+                  statusText,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ],
           ),
@@ -709,9 +1045,22 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('available'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    Text(
+                      context.tr('available'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text('$inventory', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: statusColor)),
+                    Text(
+                      '$inventory',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: statusColor,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -722,9 +1071,22 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(context.tr('actual_dispensed'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text(
+                        context.tr('actual_dispensed'),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text('$dispensed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                      Text(
+                        '$dispensed',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -736,7 +1098,9 @@ class _WebMapAnalyticsScreenState extends State<WebMapAnalyticsScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: (inventory + dispensed) > 0 ? (dispensed / (inventory + dispensed)) : 0,
+              value: (inventory + dispensed) > 0
+                  ? (dispensed / (inventory + dispensed))
+                  : 0,
               backgroundColor: statusColor.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 8,

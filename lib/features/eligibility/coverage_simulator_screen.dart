@@ -7,7 +7,8 @@ class CoverageSimulatorScreen extends StatefulWidget {
   const CoverageSimulatorScreen({super.key});
 
   @override
-  State<CoverageSimulatorScreen> createState() => _CoverageSimulatorScreenState();
+  State<CoverageSimulatorScreen> createState() =>
+      _CoverageSimulatorScreenState();
 }
 
 class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
@@ -31,9 +32,7 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('coverage_simulator')),
-      ),
+      appBar: AppBar(title: Text(context.tr('coverage_simulator'))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -46,12 +45,12 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
             const SizedBox(height: 8),
             Text(
               context.tr('simulate_coverage_sub'),
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 32),
-            
+
             // Inputs
             Card(
               child: Padding(
@@ -59,13 +58,25 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('patient_status'), style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      context.tr('patient_status'),
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 16),
                     SegmentedButton<ResidencyStatus>(
                       segments: [
-                        ButtonSegment(value: ResidencyStatus.citizen, label: Text(context.tr('emirati'))),
-                        ButtonSegment(value: ResidencyStatus.resident, label: Text(context.tr('resident'))),
-                        ButtonSegment(value: ResidencyStatus.visitor, label: Text(context.tr('visitor'))),
+                        ButtonSegment(
+                          value: ResidencyStatus.citizen,
+                          label: Text(context.tr('emirati')),
+                        ),
+                        ButtonSegment(
+                          value: ResidencyStatus.resident,
+                          label: Text(context.tr('resident')),
+                        ),
+                        ButtonSegment(
+                          value: ResidencyStatus.visitor,
+                          label: Text(context.tr('visitor')),
+                        ),
                       ],
                       selected: {_selectedStatus},
                       onSelectionChanged: (Set<ResidencyStatus> newSelection) {
@@ -75,7 +86,10 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                       },
                     ),
                     const SizedBox(height: 32),
-                    Text(context.tr('mounjaro_price'), style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      context.tr('mounjaro_price'),
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 16),
                     Row(
                       children: [
@@ -103,11 +117,14 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Outputs
-            Text(context.tr('simulation_results'), style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              context.tr('simulation_results'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -146,9 +163,8 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
                     ),
                     Text(
                       '${(_coveragePercentage * 100).toStringAsFixed(0)}%',
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        color: AppColors.accent,
-                      ),
+                      style: Theme.of(context).textTheme.displayMedium
+                          ?.copyWith(color: AppColors.accent),
                     ),
                   ],
                 ),
@@ -160,7 +176,12 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
     );
   }
 
-  Widget _buildResultCard(BuildContext context, String label, double amount, Color color) {
+  Widget _buildResultCard(
+    BuildContext context,
+    String label,
+    double amount,
+    Color color,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -168,22 +189,22 @@ class _CoverageSimulatorScreenState extends State<CoverageSimulatorScreen> {
           children: [
             Text(
               label,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 12),
             Text(
               amount.toStringAsFixed(0),
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                color: color,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.displaySmall?.copyWith(color: color),
             ),
             Text(
               'AED',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),

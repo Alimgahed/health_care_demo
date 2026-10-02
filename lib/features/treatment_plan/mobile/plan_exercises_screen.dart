@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/l10n_extension.dart';
@@ -20,19 +20,23 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _fadeIn;
-  final Set<String> _completedToday = {};
+  Set<String> _completedToday = {};
 
   // Weekly days — S M T W T F S aligned to today
   List<String> get _weekDays => context.tr('exercise_week_days').split(',');
-  final Set<int> _activeDays = {0, 1, 2, 3}; // Mocked: last 4 days done
+  Set<int> _activeDays = {};
 
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 700))
-      ..forward();
-    _fadeIn = CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic);
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..forward();
+    _fadeIn = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
@@ -53,25 +57,67 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
           children: [
             Icon(LucideIcons.dumbbell, size: 64, color: AppColors.border),
             const SizedBox(height: 16),
-            Text(context.tr('no_treatment_plan_mobile'),
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary)),
+            Text(
+              context.tr('no_treatment_plan_mobile'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textSecondary,
+              ),
+            ),
           ],
         ),
       );
     }
 
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final resolvedExercises =
-        plan.homeExercises.map((e) => HomeExerciseCatalog.resolve(e)).toList();
-    final int totalMinutes =
-        resolvedExercises.fold(0, (sum, e) => sum + e.durationMinutes);
-    final int streakDays = 4;
+    final resolvedExercises = plan.homeExercises
+        .map((e) => HomeExerciseCatalog.resolve(e))
+        .toList();
+    final today = DateTime.now();
+    final activityDates = resolvedExercises
+        .expand((exercise) => exercise.completedDates)
+        .map((date) => DateTime(date.year, date.month, date.day))
+        .toSet();
+    _completedToday = resolvedExercises
+        .where(
+          (exercise) => exercise.completedDates.any(
+            (date) =>
+                date.year == today.year &&
+                date.month == today.month &&
+                date.day == today.day,
+          ),
+        )
+        .map((exercise) => exercise.id)
+        .toSet();
+    _activeDays = activityDates
+        .where((date) {
+          final age = DateTime(
+            today.year,
+            today.month,
+            today.day,
+          ).difference(date).inDays;
+          return age >= 0 && age < 7;
+        })
+        .map((date) => date.weekday % 7)
+        .toSet();
+    final int totalMinutes = resolvedExercises.fold(
+      0,
+      (sum, e) => sum + e.durationMinutes,
+    );
+    var streakDays = 0;
+    var cursor = DateTime(today.year, today.month, today.day);
+    if (!activityDates.contains(cursor)) {
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+    while (activityDates.contains(cursor)) {
+      streakDays++;
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
     final int completedCount = _completedToday.length;
-    final double todayProgress =
-        resolvedExercises.isEmpty ? 0 : completedCount / resolvedExercises.length;
+    final double todayProgress = resolvedExercises.isEmpty
+        ? 0
+        : completedCount / resolvedExercises.length;
 
     // Group by category
     final Map<String, List<HomeExercise>> byCategory = {};
@@ -93,14 +139,20 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
             Text(
               context.tr('nav_exercises'),
               style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  letterSpacing: -0.5),
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+                letterSpacing: -0.5,
+              ),
             ),
             const SizedBox(height: 4),
-            Text(context.tr('exercise_total_summary', {'mins': '$totalMinutes', 'count': '${resolvedExercises.length}'}),
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+            Text(
+              context.tr('exercise_total_summary', {
+                'mins': '$totalMinutes',
+                'count': '${resolvedExercises.length}',
+              }),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            ),
             const SizedBox(height: 24),
 
             // ── Streak Hero Card ─────────────────────────────────────────
@@ -112,12 +164,25 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
             const SizedBox(height: 24),
 
             // ── Today's Progress ─────────────────────────────────────────
-            _buildTodayProgress(context, completedCount, resolvedExercises.length, todayProgress, totalMinutes),
+            _buildTodayProgress(
+              context,
+              completedCount,
+              resolvedExercises.length,
+              todayProgress,
+              totalMinutes,
+            ),
             const SizedBox(height: 24),
 
             // ── Exercises by Category ────────────────────────────────────
-            ...byCategory.entries.map((entry) => _buildCategorySection(
-                context, entry.key, entry.value, isAr, plan)),
+            ...byCategory.entries.map(
+              (entry) => _buildCategorySection(
+                context,
+                entry.key,
+                entry.value,
+                isAr,
+                plan,
+              ),
+            ),
 
             // ── Motivational Tip ─────────────────────────────────────────
             _buildTip(context),
@@ -140,9 +205,10 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-              color: AppColors.warning.withValues(alpha: 0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 8))
+            color: AppColors.warning.withValues(alpha: 0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
       child: Stack(
@@ -155,8 +221,9 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.surface.withValues(alpha: 0.08)),
+                shape: BoxShape.circle,
+                color: AppColors.surface.withValues(alpha: 0.08),
+              ),
             ),
           ),
           Row(
@@ -165,59 +232,79 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                    color: AppColors.surface.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                          color: AppColors.surface.withValues(alpha: 0.3),
-                          blurRadius: 12)
-                    ]),
-                child:
-                    const Icon(LucideIcons.flame, color: Colors.white, size: 34),
+                  color: AppColors.surface.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.surface.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  LucideIcons.flame,
+                  color: Colors.white,
+                  size: 34,
+                ),
               ),
               const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('exercise_streak_title'),
-                        style: TextStyle(
-                            color: AppColors.surface,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600)),
+                    Text(
+                      context.tr('exercise_streak_title'),
+                      style: TextStyle(
+                        color: AppColors.surface,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('$streakDays',
-                            style: TextStyle(
-                                color: AppColors.surface,
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                                height: 1.0,
-                                letterSpacing: -2)),
+                        Text(
+                          '$streakDays',
+                          style: TextStyle(
+                            color: AppColors.surface,
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            height: 1.0,
+                            letterSpacing: -2,
+                          ),
+                        ),
                         Padding(
                           padding: EdgeInsets.only(bottom: 6, left: 6),
-                          child: Text(context.tr('exercise_streak_unit'),
-                              style: TextStyle(
-                                  color: AppColors.surface,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600)),
+                          child: Text(
+                            context.tr('exercise_streak_unit'),
+                            style: TextStyle(
+                              color: AppColors.surface,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                          color: AppColors.surface.withValues(alpha: 0.25),
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Text(context.tr('exercise_better_than_avg'),
-                          style: TextStyle(
-                              color: AppColors.surface,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold)),
+                        color: AppColors.surface.withValues(alpha: 0.25),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        context.tr('exercise_better_than_avg'),
+                        style: TextStyle(
+                          color: AppColors.surface,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -238,9 +325,10 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4))
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -249,16 +337,24 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.tr('exercise_week_activity'),
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface)),
-              Text(context.tr('exercise_days_count', {'days': '${_activeDays.length}'}),
-                  style: const TextStyle(
-                      color: AppColors.success,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold)),
+              Text(
+                context.tr('exercise_week_activity'),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              Text(
+                context.tr('exercise_days_count', {
+                  'days': '${_activeDays.length}',
+                }),
+                style: const TextStyle(
+                  color: AppColors.success,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -277,27 +373,35 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       color: isActive
                           ? AppColors.success
                           : isToday
-                              ? AppColors.primary.withValues(alpha: 0.15)
-                              : AppColors.border.withValues(alpha: 0.5),
+                          ? AppColors.primary.withValues(alpha: 0.15)
+                          : AppColors.border.withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                       boxShadow: isActive
                           ? [
                               BoxShadow(
-                                  color: AppColors.success.withValues(alpha: 0.4),
-                                  blurRadius: 8)
+                                color: AppColors.success.withValues(alpha: 0.4),
+                                blurRadius: 8,
+                              ),
                             ]
                           : null,
                     ),
                     child: Center(
                       child: isActive
-                          ? const Icon(Icons.check, color: Colors.white, size: 16)
-                          : Text(_weekDays[i],
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 16,
+                            )
+                          : Text(
+                              _weekDays[i],
                               style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: isToday
-                                      ? AppColors.primary
-                                      : AppColors.textSecondary)),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: isToday
+                                    ? AppColors.primary
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -306,7 +410,9 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       width: 5,
                       height: 5,
                       decoration: BoxDecoration(
-                          color: AppColors.primary, shape: BoxShape.circle),
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                 ],
               );
@@ -318,22 +424,29 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
   }
 
   // ── Today's Progress ─────────────────────────────────────────────────────────
-  Widget _buildTodayProgress(BuildContext context, int completed, int total,
-      double progress, int totalMinutes) {
+  Widget _buildTodayProgress(
+    BuildContext context,
+    int completed,
+    int total,
+    double progress,
+    int totalMinutes,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-            color: progress >= 1.0
-                ? AppColors.success.withValues(alpha: 0.4)
-                : AppColors.border.withValues(alpha: 0.5)),
+          color: progress >= 1.0
+              ? AppColors.success.withValues(alpha: 0.4)
+              : AppColors.border.withValues(alpha: 0.5),
+        ),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4))
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -345,27 +458,38 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.tr('exercise_today_title'),
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface)),
+                  Text(
+                    context.tr('exercise_today_title'),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
-                      progress >= 1.0
-                          ? context.tr('exercise_all_done')
-                          : context.tr('exercise_progress_count', {'completed': '$completed', 'total': '$total'}),
-                      style: TextStyle(
-                          color: progress >= 1.0
-                              ? AppColors.success
-                              : AppColors.textSecondary,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500)),
+                    progress >= 1.0
+                        ? context.tr('exercise_all_done')
+                        : context.tr('exercise_progress_count', {
+                            'completed': '$completed',
+                            'total': '$total',
+                          }),
+                    style: TextStyle(
+                      color: progress >= 1.0
+                          ? AppColors.success
+                          : AppColors.textSecondary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               ),
               // Calorie estimate
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -375,11 +499,16 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                   children: [
                     Icon(LucideIcons.flame, size: 14, color: AppColors.error),
                     const SizedBox(width: 4),
-                    Text(context.tr('exercise_calories_burned', {'calories': '${(totalMinutes * 5.5).toInt()}'}),
-                        style: const TextStyle(
-                            color: AppColors.error,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold)),
+                    Text(
+                      context.tr('exercise_calories_burned', {
+                        'calories': '${(totalMinutes * 5.5).toInt()}',
+                      }),
+                      style: const TextStyle(
+                        color: AppColors.error,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -393,17 +522,22 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               minHeight: 10,
               backgroundColor: AppColors.border,
               valueColor: AlwaysStoppedAnimation<Color>(
-                  progress >= 1.0 ? AppColors.success : AppColors.primary),
+                progress >= 1.0 ? AppColors.success : AppColors.primary,
+              ),
             ),
           ),
           if (progress > 0 && progress < 1.0) ...[
             const SizedBox(height: 8),
             Text(
-                context.tr('exercise_remaining')
-                    .replaceAll('{remaining}', '${total - completed}')
-                    .replaceAll('{minutes}', '${totalMinutes - (completed * (totalMinutes ~/ total.clamp(1, 999)))}'),
-                style: TextStyle(
-                    color: AppColors.textSecondary, fontSize: 12)),
+              context
+                  .tr('exercise_remaining')
+                  .replaceAll('{remaining}', '${total - completed}')
+                  .replaceAll(
+                    '{minutes}',
+                    '${totalMinutes - (completed * (totalMinutes ~/ total.clamp(1, 999)))}',
+                  ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            ),
           ],
         ],
       ),
@@ -411,8 +545,13 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
   }
 
   // ── Category Section ─────────────────────────────────────────────────────────
-  Widget _buildCategorySection(BuildContext context, String category,
-      List<HomeExercise> exercises, bool isAr, TreatmentPlan plan) {
+  Widget _buildCategorySection(
+    BuildContext context,
+    String category,
+    List<HomeExercise> exercises,
+    bool isAr,
+    TreatmentPlan plan,
+  ) {
     final Color catColor = _categoryColor(category);
     final IconData catIcon = _categoryIcon(category);
     final String catLabel = _categoryLabel(category);
@@ -431,31 +570,49 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               child: Icon(catIcon, color: catColor, size: 16),
             ),
             const SizedBox(width: 10),
-            Text(catLabel,
-                style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface)),
+            Text(
+              catLabel,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             const Spacer(),
-            Text(context.tr('exercise_count_label', {'count': '${exercises.length}'}),
-                style: TextStyle(
-                    color: catColor, fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(
+              context.tr('exercise_count_label', {
+                'count': '${exercises.length}',
+              }),
+              style: TextStyle(
+                color: catColor,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 12),
         ...exercises.map(
-            (e) => _buildExerciseCard(context, e, isAr, catColor, plan)),
+          (e) => _buildExerciseCard(context, e, isAr, catColor, plan),
+        ),
         const SizedBox(height: 20),
       ],
     );
   }
 
   // ── Exercise Card ────────────────────────────────────────────────────────────
-  Widget _buildExerciseCard(BuildContext context, HomeExercise exercise,
-      bool isAr, Color catColor, TreatmentPlan plan) {
+  Widget _buildExerciseCard(
+    BuildContext context,
+    HomeExercise exercise,
+    bool isAr,
+    Color catColor,
+    TreatmentPlan plan,
+  ) {
     final isCompleted = _completedToday.contains(exercise.id);
     final name = HomeExerciseCatalog.displayName(
-        HomeExerciseCatalog.resolve(exercise), isAr);
+      HomeExerciseCatalog.resolve(exercise),
+      isAr,
+    );
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -472,14 +629,16 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
         ),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 3))
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
         ],
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: () => _showExerciseDetail(context, exercise, isAr, catColor, plan),
+        onTap: () =>
+            _showExerciseDetail(context, exercise, isAr, catColor, plan),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -496,7 +655,9 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
-                  isCompleted ? LucideIcons.checkCircle : _exerciseIcon(exercise.category),
+                  isCompleted
+                      ? LucideIcons.checkCircle
+                      : _exerciseIcon(exercise.category),
                   color: isCompleted ? AppColors.success : catColor,
                   size: 26,
                 ),
@@ -507,20 +668,43 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: isCompleted
-                                ? AppColors.success
-                                : Theme.of(context).colorScheme.onSurface)),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: isCompleted
+                            ? AppColors.success
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 8,
                       children: [
-                        _chip(LucideIcons.clock, context.tr('exercise_minutes_short', {'mins': '${exercise.durationMinutes}'}), AppColors.info),
-                        if (exercise.sets > 1) _chip(LucideIcons.repeat, context.tr('exercise_sets_short', {'sets': '${exercise.sets}'}), catColor),
-                        if (exercise.reps > 1) _chip(LucideIcons.zap, context.tr('exercise_reps_short', {'reps': '${exercise.reps}'}), AppColors.warning),
+                        _chip(
+                          LucideIcons.clock,
+                          context.tr('exercise_minutes_short', {
+                            'mins': '${exercise.durationMinutes}',
+                          }),
+                          AppColors.info,
+                        ),
+                        if (exercise.sets > 1)
+                          _chip(
+                            LucideIcons.repeat,
+                            context.tr('exercise_sets_short', {
+                              'sets': '${exercise.sets}',
+                            }),
+                            catColor,
+                          ),
+                        if (exercise.reps > 1)
+                          _chip(
+                            LucideIcons.zap,
+                            context.tr('exercise_reps_short', {
+                              'reps': '${exercise.reps}',
+                            }),
+                            AppColors.warning,
+                          ),
                       ],
                     ),
                   ],
@@ -529,15 +713,17 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               const SizedBox(width: 8),
               // Action button
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (isCompleted) {
-                      _completedToday.remove(exercise.id);
-                    } else {
-                      _completedToday.add(exercise.id);
-                    }
-                  });
-                },
+                onTap: isCompleted
+                    ? null
+                    : () {
+                        final provider = context.read<DataProvider>();
+                        final plan = provider.getPlanForPatient(
+                          widget.patient.id,
+                        );
+                        if (plan != null) {
+                          provider.completeExercise(plan.id, exercise.id);
+                        }
+                      },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   padding: const EdgeInsets.all(10),
@@ -546,10 +732,11 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                          color: (isCompleted ? AppColors.success : catColor)
-                              .withValues(alpha: 0.35),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3))
+                        color: (isCompleted ? AppColors.success : catColor)
+                            .withValues(alpha: 0.35),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
                     ],
                   ),
                   child: Icon(
@@ -578,17 +765,27 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
         children: [
           Icon(icon, size: 11, color: color),
           const SizedBox(width: 4),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 11, color: color, fontWeight: FontWeight.bold)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
   }
 
   // ── Exercise Detail Bottom Sheet ─────────────────────────────────────────────
-  void _showExerciseDetail(BuildContext context, HomeExercise exercise, bool isAr,
-      Color catColor, TreatmentPlan plan) {
+  void _showExerciseDetail(
+    BuildContext context,
+    HomeExercise exercise,
+    bool isAr,
+    Color catColor,
+    TreatmentPlan plan,
+  ) {
     final resolved = HomeExerciseCatalog.resolve(exercise);
     final name = HomeExerciseCatalog.displayName(resolved, isAr);
     final desc = isAr ? resolved.descriptionAr : resolved.description;
@@ -610,9 +807,12 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
             children: [
               const SizedBox(height: 12),
               Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
-                    color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -630,20 +830,34 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                               color: catColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(_exerciseIcon(resolved.category), color: catColor, size: 32),
+                            child: Icon(
+                              _exerciseIcon(resolved.category),
+                              color: catColor,
+                              size: 32,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(name,
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.onSurface)),
-                                Text(_categoryLabel(resolved.category),
-                                    style: TextStyle(color: catColor, fontWeight: FontWeight.w600)),
+                                Text(
+                                  name,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                                Text(
+                                  _categoryLabel(resolved.category),
+                                  style: TextStyle(
+                                    color: catColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -654,21 +868,42 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                       // Stats Row
                       Row(
                         children: [
-                          _detailStat(context, '${resolved.durationMinutes}', context.tr('exercise_minutes'), LucideIcons.clock, AppColors.info),
+                          _detailStat(
+                            context,
+                            '${resolved.durationMinutes}',
+                            context.tr('exercise_minutes'),
+                            LucideIcons.clock,
+                            AppColors.info,
+                          ),
                           const SizedBox(width: 12),
-                          _detailStat(context, '${resolved.sets}', context.tr('exercise_sets'), LucideIcons.repeat, catColor),
+                          _detailStat(
+                            context,
+                            '${resolved.sets}',
+                            context.tr('exercise_sets'),
+                            LucideIcons.repeat,
+                            catColor,
+                          ),
                           const SizedBox(width: 12),
-                          _detailStat(context, '${resolved.reps}', context.tr('exercise_reps'), LucideIcons.zap, AppColors.warning),
+                          _detailStat(
+                            context,
+                            '${resolved.reps}',
+                            context.tr('exercise_reps'),
+                            LucideIcons.zap,
+                            AppColors.warning,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 24),
 
                       // Description
-                      Text(context.tr('exercise_description'),
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface)),
+                      Text(
+                        context.tr('exercise_description'),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -676,20 +911,26 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                           color: AppColors.border.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Text(desc,
-                            style: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 14,
-                                height: 1.6)),
+                        child: Text(
+                          desc,
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
+                            height: 1.6,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 24),
 
                       // Tips
-                      Text(context.tr('exercise_tips'),
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface)),
+                      Text(
+                        context.tr('exercise_tips'),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       _tipRow(context.tr('exercise_tip_1')),
                       _tipRow(context.tr('exercise_tip_2')),
@@ -701,7 +942,13 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            setState(() => _completedToday.add(exercise.id));
+                            final provider = context.read<DataProvider>();
+                            final plan = provider.getPlanForPatient(
+                              widget.patient.id,
+                            );
+                            if (plan != null) {
+                              provider.completeExercise(plan.id, exercise.id);
+                            }
                             Navigator.pop(ctx);
                           },
                           icon: const Icon(LucideIcons.checkCircle),
@@ -710,7 +957,9 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
                             backgroundColor: catColor,
                             foregroundColor: Colors.white,
                             minimumSize: const Size(double.infinity, 52),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                         ),
                       ),
@@ -725,7 +974,13 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
     );
   }
 
-  Widget _detailStat(BuildContext context, String value, String label, IconData icon, Color color) {
+  Widget _detailStat(
+    BuildContext context,
+    String value,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -737,8 +992,22 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
           children: [
             Icon(icon, color: color, size: 20),
             const SizedBox(height: 8),
-            Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-            Text(label, style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -751,12 +1020,21 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
       child: Row(
         children: [
           Container(
-            width: 20, height: 20,
-            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.12), shape: BoxShape.circle),
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
             child: Icon(Icons.check, size: 12, color: AppColors.primary),
           ),
           const SizedBox(width: 10),
-          Expanded(child: Text(tip, style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+          Expanded(
+            child: Text(
+              tip,
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            ),
+          ),
         ],
       ),
     );
@@ -786,22 +1064,33 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
               color: AppColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(LucideIcons.lightbulb, color: AppColors.primary, size: 20),
+            child: Icon(
+              LucideIcons.lightbulb,
+              color: AppColors.primary,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.tr('exercise_daily_tip_title'),
-                    style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold)),
+                Text(
+                  context.tr('exercise_daily_tip_title'),
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   context.tr('exercise_daily_tip_body'),
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
@@ -814,37 +1103,53 @@ class _PlanExercisesScreenState extends State<PlanExercisesScreen>
   // ── Helpers ──────────────────────────────────────────────────────────────────
   Color _categoryColor(String category) {
     switch (category.toLowerCase()) {
-      case 'cardio': return AppColors.error;
-      case 'strength': return AppColors.primary;
-      case 'flexibility': return AppColors.info;
-      default: return AppColors.accent;
+      case 'cardio':
+        return AppColors.error;
+      case 'strength':
+        return AppColors.primary;
+      case 'flexibility':
+        return AppColors.info;
+      default:
+        return AppColors.accent;
     }
   }
 
   IconData _categoryIcon(String category) {
     switch (category.toLowerCase()) {
-      case 'cardio': return LucideIcons.heartPulse;
-      case 'strength': return LucideIcons.dumbbell;
-      case 'flexibility': return LucideIcons.activity;
-      default: return LucideIcons.zap;
+      case 'cardio':
+        return LucideIcons.heartPulse;
+      case 'strength':
+        return LucideIcons.dumbbell;
+      case 'flexibility':
+        return LucideIcons.activity;
+      default:
+        return LucideIcons.zap;
     }
   }
 
   IconData _exerciseIcon(String category) {
     switch (category.toLowerCase()) {
-      case 'cardio': return LucideIcons.heartPulse;
-      case 'strength': return LucideIcons.dumbbell;
-      case 'flexibility': return LucideIcons.activity;
-      default: return LucideIcons.zap;
+      case 'cardio':
+        return LucideIcons.heartPulse;
+      case 'strength':
+        return LucideIcons.dumbbell;
+      case 'flexibility':
+        return LucideIcons.activity;
+      default:
+        return LucideIcons.zap;
     }
   }
 
   String _categoryLabel(String category) {
     switch (category.toLowerCase()) {
-      case 'cardio': return 'كارديو';
-      case 'strength': return 'تقوية العضلات';
-      case 'flexibility': return 'مرونة وإطالة';
-      default: return category;
+      case 'cardio':
+        return 'كارديو';
+      case 'strength':
+        return 'تقوية العضلات';
+      case 'flexibility':
+        return 'مرونة وإطالة';
+      default:
+        return category;
     }
   }
 }

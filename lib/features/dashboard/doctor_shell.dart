@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import '../../core/auth/access_control.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/responsive_layout.dart';
@@ -9,12 +10,17 @@ import 'web/web_doctor_shell.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../../core/models/activity_log.dart';
 import 'program_alerts.dart';
+import '../journey/journey_provider.dart';
 
 class DoctorShell extends StatelessWidget {
   final String? initialPatientId;
   final int initialTabIndex;
 
-  const DoctorShell({super.key, this.initialPatientId, this.initialTabIndex = 0});
+  const DoctorShell({
+    super.key,
+    this.initialPatientId,
+    this.initialTabIndex = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +41,11 @@ class MobileDoctorShell extends StatefulWidget {
   final String? initialPatientId;
   final int initialTabIndex;
 
-  const MobileDoctorShell({super.key, this.initialPatientId, this.initialTabIndex = 0});
+  const MobileDoctorShell({
+    super.key,
+    this.initialPatientId,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<MobileDoctorShell> createState() => _MobileDoctorShellState();
@@ -48,17 +58,30 @@ class _MobileDoctorShellState extends State<MobileDoctorShell> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialTabIndex.clamp(0, 1);
+    if (widget.initialPatientId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final data = context.read<DataProvider>();
+        final patient = data.getPatientById(widget.initialPatientId!);
+        if (patient != null) {
+          context.read<JourneyProvider>().bindExistingPatient(patient);
+        }
+      });
+    }
   }
 
   List<Widget> get _pages => [
-        PatientListScreen(highlightPatientId: widget.initialPatientId),
-        const MobileAssessmentsTab(),
-      ];
+    PatientListScreen(highlightPatientId: widget.initialPatientId),
+    const MobileAssessmentsTab(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final pendingCount =
-        pendingAuthorizationReviewCount(context.watch<DataProvider>());
+    final isReviewer =
+        context.watch<AccessControlProvider>().role == AppRole.medicalReviewer;
+    final pendingCount = pendingAuthorizationReviewCount(
+      context.watch<DataProvider>(),
+    );
     final assessmentsIcon = pendingCount > 0
         ? Badge(
             label: Text('$pendingCount'),
@@ -83,7 +106,9 @@ class _MobileDoctorShellState extends State<MobileDoctorShell> {
           ),
           NavigationDestination(
             icon: assessmentsIcon,
-            label: context.tr('nav_assessments'),
+            label: isReviewer
+                ? (context.isArabic ? 'المراجعات' : 'Reviews')
+                : context.tr('nav_assessments'),
           ),
         ],
       ),
@@ -98,19 +123,17 @@ class MobileAssessmentsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final dataProvider = Provider.of<DataProvider>(context);
     final logs = dataProvider.logs
-        .where((l) =>
-            l.eventType == ActivityEventType.doseChange ||
-            l.eventType == ActivityEventType.weightUpdate)
+        .where(
+          (l) =>
+              l.eventType == ActivityEventType.doseChange ||
+              l.eventType == ActivityEventType.weightUpdate,
+        )
         .toList();
-    
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('assessments_log')),
-      ),
+      appBar: AppBar(title: Text(context.tr('assessments_log'))),
       body: logs.isEmpty
-          ? Center(
-              child: Text(context.tr('no_assessments')),
-            )
+          ? Center(child: Text(context.tr('no_assessments')))
           : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: logs.length,
@@ -119,12 +142,21 @@ class MobileAssessmentsTab extends StatelessWidget {
                 final log = logs[index];
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(LucideIcons.clipboardList, color: AppColors.primary),
-                  title: Text(log.getLocalizedPatientName(context), style: const TextStyle(fontWeight: FontWeight.bold)),
+                  leading: Icon(
+                    LucideIcons.clipboardList,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(
+                    log.getLocalizedPatientName(context),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(log.getLocalizedAction(context)),
                   trailing: Text(
                     '${log.timestamp.day}/${log.timestamp.month}',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                 );
               },

@@ -10,7 +10,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -42,10 +43,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         if (mounted) {
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return FadeTransition(opacity: animation, child: child);
-              },
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const LoginScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
               transitionDuration: const Duration(milliseconds: 800),
             ),
           );
@@ -65,14 +68,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       body: Container(
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.primaryDark,
-              AppColors.primary,
-            ],
+            colors: [AppColors.primaryDark, AppColors.primary],
           ),
         ),
         child: Center(
@@ -106,20 +106,26 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           child: Image.asset(
                             'assets/logo.png',
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Center(
-                              child: Icon(Icons.health_and_safety, size: 70, color: AppColors.primary),
-                            ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Center(
+                                  child: Icon(
+                                    Icons.health_and_safety,
+                                    size: 70,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 32),
                       Text(
                         context.tr('splash_platform'),
-                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: AppColors.surface,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                        ),
+                        style: Theme.of(context).textTheme.displaySmall
+                            ?.copyWith(
+                              color: AppColors.surface,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(

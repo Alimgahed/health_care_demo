@@ -69,20 +69,24 @@ class TreatmentPlan {
   final String patientId;
   final String doctorName;
   final DateTime createdAt;
-  
+  final DateTime? updatedAt;
+
   // Medication
   final String medicationDose;
   final int medicationFrequencyDays;
+  final int medicationQuantity;
+  final String prescriptionId;
+  final DateTime prescriptionValidUntil;
   final List<TimeOfDay> reminderTimes;
-  
+
   // Therapy
   final String? assignedCenterId;
   final int totalSessions;
   final List<TherapySession> sessions;
-  
+
   // Home Exercises
   final List<HomeExercise> homeExercises;
-  
+
   // Goals
   final double targetWeight;
   final String status; // "Active", "Completed", "Paused"
@@ -94,8 +98,12 @@ class TreatmentPlan {
     required this.patientId,
     required this.doctorName,
     required this.createdAt,
+    this.updatedAt,
     required this.medicationDose,
     required this.medicationFrequencyDays,
+    this.medicationQuantity = 1,
+    String? prescriptionId,
+    DateTime? prescriptionValidUntil,
     required this.reminderTimes,
     this.assignedCenterId,
     this.totalSessions = 0,
@@ -104,21 +112,33 @@ class TreatmentPlan {
     required this.targetWeight,
     this.status = "Active",
     this.clinicalApprovalStatus = "approved",
-  });
+  }) : prescriptionId = prescriptionId ?? 'RX-$id',
+       prescriptionValidUntil =
+           prescriptionValidUntil ?? createdAt.add(const Duration(days: 365));
 
   TreatmentPlan copyWith({
+    DateTime? updatedAt,
     String? clinicalApprovalStatus,
     String? status,
     String? medicationDose,
     int? medicationFrequencyDays,
+    int? medicationQuantity,
+    String? prescriptionId,
+    DateTime? prescriptionValidUntil,
   }) {
     return TreatmentPlan(
       id: id,
       patientId: patientId,
       doctorName: doctorName,
       createdAt: createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       medicationDose: medicationDose ?? this.medicationDose,
-      medicationFrequencyDays: medicationFrequencyDays ?? this.medicationFrequencyDays,
+      medicationFrequencyDays:
+          medicationFrequencyDays ?? this.medicationFrequencyDays,
+      medicationQuantity: medicationQuantity ?? this.medicationQuantity,
+      prescriptionId: prescriptionId ?? this.prescriptionId,
+      prescriptionValidUntil:
+          prescriptionValidUntil ?? this.prescriptionValidUntil,
       reminderTimes: reminderTimes,
       assignedCenterId: assignedCenterId,
       totalSessions: totalSessions,
@@ -126,7 +146,8 @@ class TreatmentPlan {
       homeExercises: homeExercises,
       targetWeight: targetWeight,
       status: status ?? this.status,
-      clinicalApprovalStatus: clinicalApprovalStatus ?? this.clinicalApprovalStatus,
+      clinicalApprovalStatus:
+          clinicalApprovalStatus ?? this.clinicalApprovalStatus,
     );
   }
 }

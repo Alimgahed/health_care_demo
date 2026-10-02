@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/mock_data.dart';
 import '../../core/localization/l10n_extension.dart';
@@ -17,7 +17,11 @@ class RegisterPatientDialog extends StatefulWidget {
       barrierDismissible: false,
       builder: (ctx) => const Dialog(
         insetPadding: EdgeInsets.all(32),
-        child: SizedBox(width: 820, height: 720, child: RegisterPatientDialog()),
+        child: SizedBox(
+          width: 820,
+          height: 720,
+          child: RegisterPatientDialog(),
+        ),
       ),
     );
   }
@@ -181,8 +185,8 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
     final emLatLng = _emirate == 'Dubai'
         ? (25.2048, 55.2708)
         : _emirate == 'Abu Dhabi'
-            ? (24.4539, 54.3773)
-            : (25.3463, 55.4209);
+        ? (24.4539, 54.3773)
+        : (25.3463, 55.4209);
 
     final newP = Patient(
       id: provider.generateNextPatientId(),
@@ -227,7 +231,10 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
           padding: const EdgeInsets.fromLTRB(24, 20, 16, 20),
           decoration: BoxDecoration(
             color: AppColors.navy,
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(12),
+              topRight: Radius.circular(12),
+            ),
           ),
           child: Row(
             children: [
@@ -236,7 +243,11 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
               Expanded(
                 child: Text(
                   context.tr('register_new_patient'),
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               IconButton(
@@ -262,8 +273,8 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             child: _step == 0
                 ? _buildDemographicsStep(context)
                 : _step == 1
-                    ? _buildClinicalStep(context)
-                    : _buildDocumentsStep(context),
+                ? _buildClinicalStep(context)
+                : _buildDocumentsStep(context),
           ),
         ),
         Padding(
@@ -295,9 +306,16 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 14,
+                  ),
                 ),
-                child: Text(_step < 2 ? context.tr('next') : context.tr('register_beneficiary_btn')),
+                child: Text(
+                  _step < 2
+                      ? context.tr('next')
+                      : context.tr('register_beneficiary_btn'),
+                ),
               ),
             ],
           ),
@@ -313,9 +331,13 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
         margin: EdgeInsets.only(right: index < 2 ? 8 : 0),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: active ? AppColors.primary.withValues(alpha: 0.1) : AppColors.background,
+          color: active
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : AppColors.background,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: active ? AppColors.primary : AppColors.border),
+          border: Border.all(
+            color: active ? AppColors.primary : AppColors.border,
+          ),
         ),
         child: Text(
           label,
@@ -363,8 +385,14 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
                 initialValue: _gender,
                 decoration: InputDecoration(labelText: context.tr('gender')),
                 items: [
-                  DropdownMenuItem(value: 'Male', child: Text(context.tr('male'))),
-                  DropdownMenuItem(value: 'Female', child: Text(context.tr('female'))),
+                  DropdownMenuItem(
+                    value: 'Male',
+                    child: Text(context.tr('male')),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Female',
+                    child: Text(context.tr('female')),
+                  ),
                 ],
                 onChanged: (v) => setState(() => _gender = v ?? 'Male'),
               ),
@@ -375,9 +403,22 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
         DropdownButtonFormField<String>(
           initialValue: _nationality,
           decoration: InputDecoration(labelText: context.tr('nationality')),
-          items: ['United Arab Emirates', 'United Kingdom', 'United States', 'India', 'Pakistan', 'Egypt']
-              .map((n) => DropdownMenuItem(value: n, child: Text(context.nationalityLabel(n))))
-              .toList(),
+          items:
+              [
+                    'United Arab Emirates',
+                    'United Kingdom',
+                    'United States',
+                    'India',
+                    'Pakistan',
+                    'Egypt',
+                  ]
+                  .map(
+                    (n) => DropdownMenuItem(
+                      value: n,
+                      child: Text(context.nationalityLabel(n)),
+                    ),
+                  )
+                  .toList(),
           onChanged: (v) => setState(() => _nationality = v ?? _nationality),
         ),
         const SizedBox(height: 12),
@@ -386,11 +427,22 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             Expanded(
               child: DropdownButtonFormField<ResidencyStatus>(
                 initialValue: _residency,
-                decoration: InputDecoration(labelText: context.tr('residency_status')),
+                decoration: InputDecoration(
+                  labelText: context.tr('residency_status'),
+                ),
                 items: [
-                  DropdownMenuItem(value: ResidencyStatus.citizen, child: Text(context.tr('emirati'))),
-                  DropdownMenuItem(value: ResidencyStatus.resident, child: Text(context.tr('resident'))),
-                  DropdownMenuItem(value: ResidencyStatus.visitor, child: Text(context.tr('visitor'))),
+                  DropdownMenuItem(
+                    value: ResidencyStatus.citizen,
+                    child: Text(context.tr('emirati')),
+                  ),
+                  DropdownMenuItem(
+                    value: ResidencyStatus.resident,
+                    child: Text(context.tr('resident')),
+                  ),
+                  DropdownMenuItem(
+                    value: ResidencyStatus.visitor,
+                    child: Text(context.tr('visitor')),
+                  ),
                 ],
                 onChanged: (v) => setState(() => _residency = v ?? _residency),
               ),
@@ -400,9 +452,23 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
               child: DropdownButtonFormField<String>(
                 initialValue: _emirate,
                 decoration: InputDecoration(labelText: context.tr('region')),
-                items: ['Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah']
-                    .map((e) => DropdownMenuItem(value: e, child: Text(context.emirateLabel(e))))
-                    .toList(),
+                items:
+                    [
+                          'Abu Dhabi',
+                          'Dubai',
+                          'Sharjah',
+                          'Ajman',
+                          'Umm Al Quwain',
+                          'Ras Al Khaimah',
+                          'Fujairah',
+                        ]
+                        .map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(context.emirateLabel(e)),
+                          ),
+                        )
+                        .toList(),
                 onChanged: (v) => setState(() => _emirate = v ?? _emirate),
               ),
             ),
@@ -422,8 +488,13 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             Expanded(
               child: TextField(
                 controller: _weight,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: context.tr('weight_kg'), suffixText: 'kg'),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: context.tr('weight_kg'),
+                  suffixText: 'kg',
+                ),
                 onChanged: (_) => setState(() {}),
               ),
             ),
@@ -432,7 +503,10 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
               child: TextField(
                 controller: _height,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: context.tr('height_cm'), suffixText: 'cm'),
+                decoration: InputDecoration(
+                  labelText: context.tr('height_cm'),
+                  suffixText: 'cm',
+                ),
                 onChanged: (_) => setState(() {}),
               ),
             ),
@@ -449,14 +523,20 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             ),
             child: Text(
               context.tr('calculated_bmi', {'bmi': bmi.toStringAsFixed(1)}),
-              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
         ],
         const SizedBox(height: 24),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          title: Text(context.tr('has_chronic_disease'), style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(
+            context.tr('has_chronic_disease'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           subtitle: Text(context.tr('has_chronic_disease_hint')),
           value: _hasChronic,
           activeThumbColor: AppColors.primary,
@@ -466,7 +546,10 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
           }),
         ),
         if (_hasChronic) ...[
-          Text(context.tr('select_chronic_conditions'), style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            context.tr('select_chronic_conditions'),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -487,18 +570,29 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             }).toList(),
           ),
         ] else
-          Text(context.tr('no_chronic_note'), style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(
+            context.tr('no_chronic_note'),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          ),
         const SizedBox(height: 24),
-        Text(context.tr('lab_values_section'), style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          context.tr('lab_values_section'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
-        Text(context.tr('lab_values_hint'), style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+        Text(
+          context.tr('lab_values_hint'),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               child: TextField(
                 controller: _hba1c,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: InputDecoration(
                   labelText: context.tr('hba1c_label'),
                   suffixText: '%',
@@ -526,7 +620,10 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.tr('upload_lab_hint'), style: TextStyle(color: AppColors.textSecondary)),
+        Text(
+          context.tr('upload_lab_hint'),
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
         const SizedBox(height: 16),
         OutlinedButton.icon(
           onPressed: _pickFiles,
@@ -542,14 +639,24 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.border, style: BorderStyle.solid),
+              border: Border.all(
+                color: AppColors.border,
+                style: BorderStyle.solid,
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               children: [
-                Icon(LucideIcons.fileUp, size: 40, color: AppColors.textSecondary),
+                Icon(
+                  LucideIcons.fileUp,
+                  size: 40,
+                  color: AppColors.textSecondary,
+                ),
                 const SizedBox(height: 8),
-                Text(context.tr('no_files_yet'), style: TextStyle(color: AppColors.textSecondary)),
+                Text(
+                  context.tr('no_files_yet'),
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
               ],
             ),
           )
@@ -562,8 +669,16 @@ class _RegisterPatientDialogState extends State<RegisterPatientDialog> {
                   doc.isPdf ? LucideIcons.fileText : LucideIcons.image,
                   color: AppColors.primary,
                 ),
-                title: Text(doc.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                subtitle: Text(context.tr('document_uploaded_at', {'date': doc.uploadedAt.toString().split('.').first})),
+                title: Text(
+                  doc.fileName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  context.tr('document_uploaded_at', {
+                    'date': doc.uploadedAt.toString().split('.').first,
+                  }),
+                ),
                 trailing: IconButton(
                   icon: Icon(LucideIcons.trash2, color: AppColors.error),
                   onPressed: () => setState(() => _attachments.remove(doc)),

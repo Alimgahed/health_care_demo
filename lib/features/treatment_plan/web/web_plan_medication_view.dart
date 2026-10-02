@@ -1,504 +1,483 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/constants/mock_data.dart';
 import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../patient_app/medication_order/medication_order_wizard.dart' as mounjaro_demo;
+import '../../../../core/theme/design_tokens.dart';
+import '../../../../core/widgets/platform_state_view.dart';
+import '../../clinical/patient_clinical_models.dart';
+import '../models/treatment_plan.dart';
+import '../../patient_app/medication_order/medication_order_wizard.dart';
 
-class WebPlanMedicationView extends StatefulWidget {
+class WebPlanMedicationView extends StatelessWidget {
   final Patient patient;
 
   const WebPlanMedicationView({super.key, required this.patient});
 
   @override
-  State<WebPlanMedicationView> createState() => _WebPlanMedicationViewState();
-}
-
-class _WebPlanMedicationViewState extends State<WebPlanMedicationView> with TickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-  bool _injectionDone = false;
-  int _selectedTab = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(duration: const Duration(milliseconds: 1800), vsync: this)..repeat(reverse: true);
-    _pulseAnimation = CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut);
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final dataProvider = Provider.of<DataProvider>(context);
-    final plan = dataProvider.getPlanForPatient(widget.patient.id);
-
-    if (plan == null) {
-      return Center(child: Text('No Medication Plan', style: TextStyle(color: AppColors.textSecondary, fontSize: 18)));
+    final data = context.watch<DataProvider>();
+    final currentPatient = data.getPatientById(patient.id);
+    if (currentPatient == null) {
+      return PlatformStateView(
+        kind: PlatformStateKind.error,
+        title: context.isArabic
+            ? 'ملف المريض غير متاح'
+            : 'Patient record unavailable',
+        message: context.isArabic
+            ? 'ارجع إلى الملف الصحي ثم حاول مرة أخرى.'
+            : 'Return to your health profile and try again.',
+      );
     }
+    final plan = data.getPlanForPatient(currentPatient.id);
+    if (plan == null) {
+      return PlatformStateView(
+        kind: PlatformStateKind.empty,
+        title: context.isArabic
+            ? 'لا توجد خطة دوائية نشطة'
+            : 'No active medication plan',
+        message: context.isArabic
+            ? 'ستظهر تفاصيل الدواء عند اعتماد خطة العلاج.'
+            : 'Medication details will appear when your care plan is approved.',
+      );
+    }
+    final events = [...data.medicationEventsFor(currentPatient.id)]
+      ..sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
+    final handovers = [...currentPatient.dispenseRecords]
+      ..sort((a, b) => b.date.compareTo(a.date));
+    final taken = events
+        .where((event) => event.status == MedicationDoseStatus.taken)
+        .length;
+    final adherence = events.isEmpty ? null : taken / events.length;
+    final queue = data.pharmacyRequestForPatient(currentPatient.id);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(context, plan),
-          const SizedBox(height: 32),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Column 1 (flex: 2) - Injection Hero & Schedule
-              Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    _buildNextDoseHeroCard(context, plan),
-                    const SizedBox(height: 24),
-                    _buildScheduleCard(context, plan),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 32),
-              // Column 2 (flex: 3) - Adherence & Dosage Info
-              Expanded(
-                flex: 3,
-                child: Column(
-                  children: [
-                    _buildAdherenceCard(context),
-                    const SizedBox(height: 24),
-                    _buildDosageInfoCard(context),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 32),
-              // Column 3 (flex: 3) - History & Side Effects Tabs
-              Expanded(
-                flex: 3,
-                child: Column(
-                  children: [
-                    _buildTabBar(context),
-                    const SizedBox(height: 24),
-                    _buildTabContent(context),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          _buildRefillCard(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, dynamic plan) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-              child: Icon(LucideIcons.syringe, color: AppColors.primary, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(context.tr('nav_medication'), style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-                Text('Mounjaro (Tirzepatide) — Weekly Injection', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-              ],
-            ),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.primary.withValues(alpha: 0.2))),
-          child: Row(
-            children: [
-              Icon(LucideIcons.pill, size: 16, color: AppColors.primary),
-              const SizedBox(width: 8),
-              Text(plan.medicationDose ?? '5 mg', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNextDoseHeroCard(BuildContext context, dynamic plan) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight], begin: Alignment.topLeft, end: Alignment.bottomRight),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 24, offset: Offset(0, 10))],
-      ),
-      child: Stack(
-        children: [
-          Positioned(right: -20, top: -20, child: Container(width: 130, height: 130, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.surface.withValues(alpha: 0.06)))),
-          Positioned(left: -10, bottom: -30, child: Container(width: 100, height: 100, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.accent.withValues(alpha: 0.12)))),
-          Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    AnimatedBuilder(
-                      animation: _pulseAnimation,
-                      builder: (context, child) {
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(width: 70 + (_pulseAnimation.value * 12), height: 70 + (_pulseAnimation.value * 12), decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.surface.withValues(alpha: 0.06 * (1 - _pulseAnimation.value)))),
-                            Container(width: 64, height: 64, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.15)), child: const Icon(LucideIcons.syringe, color: Colors.white, size: 28)),
-                          ],
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Next Mounjaro Dose', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 4),
-                          const Text('In 5 Days', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(color: AppColors.accent.withValues(alpha: 0.25), borderRadius: BorderRadius.circular(10)),
-                            child: Text('Thursday, Jun 12', style: TextStyle(color: AppColors.accentLight, fontSize: 12, fontWeight: FontWeight.bold)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  children: List.generate(7, (i) {
-                    final isToday = i == 1;
-                    final isPast = i == 0;
-                    final isNext = i == 6;
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: Column(
-                          children: [
-                            Container(
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: isPast ? AppColors.surface.withValues(alpha: 0.9) : (isToday ? AppColors.accent : (isNext ? AppColors.accent.withValues(alpha: 0.5) : AppColors.surface.withValues(alpha: 0.2))),
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(['M', 'T', 'W', 'T', 'F', 'S', 'S'][i], style: TextStyle(fontSize: 10, color: isToday ? AppColors.accent : Colors.white60, fontWeight: isToday ? FontWeight.bold : FontWeight.normal)),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _injectionDone = !_injectionDone;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_injectionDone ? 'Injection marked as taken.' : 'Injection unmarked.'), backgroundColor: _injectionDone ? AppColors.success : AppColors.primary));
-                    },
-                    icon: Icon(_injectionDone ? LucideIcons.checkCircle : LucideIcons.check, size: 20),
-                    label: Text(_injectionDone ? 'تم التسجيل ✓' : 'تسجيل الحقنة', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _injectionDone ? AppColors.success : Colors.white,
-                      foregroundColor: _injectionDone ? Colors.white : AppColors.primary,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScheduleCard(BuildContext context, dynamic plan) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Injection Schedule', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-          const SizedBox(height: 20),
-          _buildInfoRow(LucideIcons.repeat, 'Frequency', 'Weekly'),
-          const Divider(height: 24),
-          _buildInfoRow(LucideIcons.calendarClock, 'Reminder Time', '09:00 AM (Thursdays)'),
-          const Divider(height: 24),
-          _buildInfoRow(LucideIcons.history, 'Last Injection', '5 Days Ago (Thigh)'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAdherenceCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Adherence Overview', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                child: Text('Excellent', style: TextStyle(fontSize: 12, color: AppColors.success, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(child: _buildAdherenceStat('100%', 'This Month', AppColors.success, LucideIcons.checkCircle2)),
-              Container(width: 1, height: 48, color: AppColors.border),
-              Expanded(child: _buildAdherenceStat('4/4', 'Doses Taken', AppColors.primary, LucideIcons.pill)),
-              Container(width: 1, height: 48, color: AppColors.border),
-              Expanded(child: _buildAdherenceStat('0', 'Missed', AppColors.info, LucideIcons.x)),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: List.generate(4, (week) {
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 40,
-                        decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.success.withValues(alpha: 0.3))),
-                        child: Center(child: Icon(LucideIcons.check, size: 16, color: AppColors.success)),
-                      ),
-                      const SizedBox(height: 6),
-                      Text('Wk ${week + 1}', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAdherenceStat(String value, String label, Color color, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: color),
-        const SizedBox(height: 8),
-        Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, letterSpacing: -0.5)),
-        Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
-      ],
-    );
-  }
-
-  Widget _buildDosageInfoCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: AppColors.accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
-                child: Icon(LucideIcons.info, size: 20, color: AppColors.accent),
-              ),
-              const SizedBox(width: 12),
-              Text('Dosage Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _buildInfoRow(LucideIcons.pill, 'Medication', 'Mounjaro (Tirzepatide)'),
-          const Divider(height: 24),
-          _buildInfoRow(LucideIcons.droplets, 'Current Dose', '5 mg', color: AppColors.accent),
-          const Divider(height: 24),
-          _buildInfoRow(LucideIcons.trendingUp, 'Dose Escalation', '2.5 → 5 → 7.5 mg', color: AppColors.info),
-          const Divider(height: 24),
-          _buildInfoRow(LucideIcons.mapPin, 'Injection Site', 'Abdomen / Thigh / Arm', color: AppColors.success),
-          const Divider(height: 24),
-          _buildInfoRow(LucideIcons.thermometer, 'Storage', '2°C – 8°C (Refrigerated)', color: AppColors.textPrimary),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value, {Color? color}) {
-    final colorValue = color ?? AppColors.primary;
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: colorValue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-          child: Icon(icon, size: 16, color: colorValue),
-        ),
-        const SizedBox(width: 14),
-        Expanded(child: Text(label, style: TextStyle(color: AppColors.textSecondary, fontSize: 14))),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-      ],
-    );
-  }
-
-  Widget _buildTabBar(BuildContext context) {
-    final tabs = ['History', 'Schedule', 'Side Effects'];
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
-      child: Row(
-        children: List.generate(tabs.length, (i) {
-          final isSelected = _selectedTab == i;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _selectedTab = i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(color: isSelected ? AppColors.primary : Colors.transparent, borderRadius: BorderRadius.circular(12)),
-                child: Text(tabs[i], textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : AppColors.textSecondary)),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildTabContent(BuildContext context) {
-    if (_selectedTab == 0) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-        child: Column(
-          children: [
-            _buildHistoryItem('Week 4', '2 days ago', '5 mg', 'Abdomen'),
-            const Divider(height: 32),
-            _buildHistoryItem('Week 3', '9 days ago', '5 mg', 'Thigh'),
-            const Divider(height: 32),
-            _buildHistoryItem('Week 2', '16 days ago', '2.5 mg', 'Abdomen'),
-          ],
-        ),
-      );
-    } else if (_selectedTab == 1) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-        child: Text('Schedule list goes here', style: TextStyle(color: AppColors.textSecondary)),
-      );
-    } else {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]),
-        child: Text('Side effects guide goes here', style: TextStyle(color: AppColors.textSecondary)),
-      );
-    }
-  }
-
-  Widget _buildHistoryItem(String week, String date, String dose, String site) {
-    return Row(
-      children: [
-        Container(
-          width: 40, height: 40,
-          decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.15), shape: BoxShape.circle),
-          child: Icon(LucideIcons.check, color: AppColors.success, size: 20),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
+      padding: AppLayout.pagePadding(MediaQuery.sizeOf(context).width),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(week, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              Text(date, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              _header(context, plan, currentPatient),
+              const SizedBox(height: 22),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns = constraints.maxWidth >= 1050 ? 4 : 2;
+                  final width =
+                      (constraints.maxWidth - (columns - 1) * 12) / columns;
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      _metric(
+                        context.isArabic
+                            ? 'الجرعة الموصوفة'
+                            : 'Prescribed dose',
+                        plan.medicationDose,
+                        LucideIcons.syringe,
+                        width,
+                      ),
+                      _metric(
+                        context.isArabic ? 'تكرار الجرعة' : 'Dose interval',
+                        context.isArabic
+                            ? 'كل ${plan.medicationFrequencyDays} أيام'
+                            : 'Every ${plan.medicationFrequencyDays} days',
+                        LucideIcons.calendarClock,
+                        width,
+                      ),
+                      _metric(
+                        context.isArabic
+                            ? 'الالتزام الموثق'
+                            : 'Recorded adherence',
+                        adherence == null
+                            ? (context.isArabic
+                                  ? 'لا توجد جرعات موثقة'
+                                  : 'No dose events')
+                            : '${(adherence * 100).toStringAsFixed(0)}%',
+                        LucideIcons.circleCheck,
+                        width,
+                      ),
+                      _metric(
+                        context.isArabic ? 'آخر تسليم' : 'Last handover',
+                        handovers.isEmpty ? '—' : handovers.first.date,
+                        LucideIcons.packageCheck,
+                        width,
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 22),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final wide = constraints.maxWidth >= 930;
+                  final left = Column(
+                    children: [
+                      _planCard(context, plan, currentPatient, queue),
+                      const SizedBox(height: 16),
+                      _recordCard(context, data, plan, events),
+                    ],
+                  );
+                  final right = Column(
+                    children: [
+                      _handoverCard(context, data, handovers),
+                      const SizedBox(height: 16),
+                      _eventCard(context, events),
+                    ],
+                  );
+                  if (wide) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: left),
+                        const SizedBox(width: 18),
+                        Expanded(child: right),
+                      ],
+                    );
+                  }
+                  return Column(
+                    children: [left, const SizedBox(height: 16), right],
+                  );
+                },
+              ),
             ],
           ),
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(dose, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 14)),
-            Text(site, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRefillCard(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.navy.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.navy.withValues(alpha: 0.1))),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(14)),
-                child: Icon(LucideIcons.package, color: AppColors.warning, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Medication Refill Status', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text('3 doses remaining (approx. 3 weeks)', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-                ],
-              ),
-            ],
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const mounjaro_demo.MedicationOrderWizard(),
-                ),
-              );
-            },
-            icon: const Icon(LucideIcons.shoppingBag, size: 16),
-            label: const Text('Request Refill', style: TextStyle(fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ],
       ),
     );
   }
+
+  Widget _header(
+    BuildContext context,
+    TreatmentPlan plan,
+    Patient patient,
+  ) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(26),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(colors: [AppColors.navy, AppColors.primaryDark]),
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.isArabic ? 'الخطة الدوائية' : 'Medication plan',
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Mounjaro · ${plan.medicationDose}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          context.isArabic
+              ? 'ملف ${patient.getLocalizedFullName(context)} · رقم الخطة ${plan.id}'
+              : '${patient.getLocalizedFullName(context)} · Plan ${plan.id}',
+          style: const TextStyle(color: Colors.white70),
+        ),
+      ],
+    ),
+  );
+
+  Widget _metric(String label, String value, IconData icon, double width) =>
+      Container(
+        width: width,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.primary, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    value,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _card(BuildContext context, String title, List<Widget> children) =>
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(21),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 15),
+            ...children,
+          ],
+        ),
+      );
+
+  Widget _fact(String label, String value) => Padding(
+    padding: const EdgeInsets.only(bottom: 11),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(label, style: TextStyle(color: AppColors.textSecondary)),
+        ),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _planCard(
+    BuildContext context,
+    TreatmentPlan plan,
+    Patient patient,
+    PharmacyDispensingRequest? queue,
+  ) => _card(
+    context,
+    context.isArabic
+        ? 'الوصفة وحالة إعادة الصرف'
+        : 'Prescription and refill status',
+    [
+      _fact(
+        context.isArabic ? 'رقم الوصفة' : 'Prescription ID',
+        plan.prescriptionId,
+      ),
+      _fact(
+        context.isArabic ? 'الكمية' : 'Quantity',
+        '${plan.medicationQuantity}',
+      ),
+      _fact(
+        context.isArabic ? 'صلاحية الوصفة حتى' : 'Prescription valid until',
+        _date(plan.prescriptionValidUntil),
+      ),
+      _fact(
+        context.isArabic ? 'الطبيب المعالج' : 'Prescribing physician',
+        plan.doctorName,
+      ),
+      _fact(
+        context.isArabic ? 'استحقاق إعادة الصرف' : 'Next eligible refill',
+        patient.nextEligibleDate ?? '—',
+      ),
+      _fact(
+        context.isArabic ? 'طلب الصيدلية' : 'Pharmacy request',
+        queue == null
+            ? (context.isArabic ? 'لا يوجد طلب مفتوح' : 'No open request')
+            : _queueStatus(context, queue.status),
+      ),
+      const SizedBox(height: 8),
+      OutlinedButton.icon(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => const MedicationOrderWizard(),
+          ),
+        ),
+        icon: const Icon(LucideIcons.packagePlus),
+        label: Text(context.isArabic ? 'طلب إعادة صرف' : 'Request a refill'),
+      ),
+    ],
+  );
+
+  Widget _recordCard(
+    BuildContext context,
+    DataProvider data,
+    TreatmentPlan plan,
+    List<MedicationDoseEvent> events,
+  ) => _card(context, context.isArabic ? 'توثيق الجرعة' : 'Record a dose', [
+    Text(
+      context.isArabic
+          ? 'اختر ما حدث في فترة الجرعة الحالية. يظهر التوثيق في ملف الرعاية لجميع الفرق المصرح لها.'
+          : 'Record the current dose interval. Your care team can see the updated record.',
+      style: TextStyle(color: AppColors.textSecondary),
+    ),
+    const SizedBox(height: 14),
+    Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _eventButton(
+          context,
+          data,
+          plan,
+          MedicationDoseStatus.taken,
+          context.isArabic ? 'تم أخذ الجرعة' : 'Taken',
+          LucideIcons.circleCheck,
+        ),
+        _eventButton(
+          context,
+          data,
+          plan,
+          MedicationDoseStatus.skipped,
+          context.isArabic ? 'تم تخطيها' : 'Skipped',
+          LucideIcons.circleMinus,
+        ),
+        _eventButton(
+          context,
+          data,
+          plan,
+          MedicationDoseStatus.missed,
+          context.isArabic ? 'فاتت الجرعة' : 'Missed',
+          LucideIcons.circleAlert,
+        ),
+      ],
+    ),
+    if (events.isEmpty) ...[
+      const SizedBox(height: 12),
+      Text(
+        context.isArabic ? 'لم تُوثق أي جرعات بعد.' : 'No doses recorded yet.',
+        style: TextStyle(color: AppColors.textSecondary),
+      ),
+    ],
+  ]);
+
+  Widget _eventButton(
+    BuildContext context,
+    DataProvider data,
+    TreatmentPlan plan,
+    MedicationDoseStatus status,
+    String label,
+    IconData icon,
+  ) => OutlinedButton.icon(
+    onPressed: () {
+      final time = DateTime.now();
+      data.logMedication(plan.id, time, status: status);
+      final interval = plan.medicationFrequencyDays < 1
+          ? 1
+          : plan.medicationFrequencyDays;
+      final slot = time.difference(plan.createdAt).inDays ~/ interval;
+      final saved = data
+          .medicationEventsFor(plan.patientId)
+          .any(
+            (event) =>
+                event.planId == plan.id &&
+                event.status == status &&
+                event.scheduledAt.difference(plan.createdAt).inDays ~/
+                        interval ==
+                    slot,
+          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            saved
+                ? (context.isArabic
+                      ? 'تم تحديث سجل الجرعات.'
+                      : 'Dose record updated.')
+                : (context.isArabic
+                      ? 'تعذر تحديث سجل الجرعات.'
+                      : 'Unable to update the dose record.'),
+          ),
+        ),
+      );
+    },
+    icon: Icon(icon, size: 17),
+    label: Text(label),
+  );
+
+  Widget _handoverCard(
+    BuildContext context,
+    DataProvider data,
+    List<PatientDispenseRecord> handovers,
+  ) => _card(
+    context,
+    context.isArabic ? 'سجل تسليم الدواء' : 'Medication handovers',
+    [
+      if (handovers.isEmpty)
+        Text(
+          context.isArabic
+              ? 'لم يُسجل تسليم دواء بعد.'
+              : 'No medication handover recorded.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+      for (final record in handovers.take(8))
+        _fact(
+          record.date,
+          '${record.dose} · ${data.dispensingFacilityLabel(context, record.centerId)}',
+        ),
+    ],
+  );
+
+  Widget _eventCard(BuildContext context, List<MedicationDoseEvent> events) =>
+      _card(context, context.isArabic ? 'سجل الجرعات' : 'Dose history', [
+        if (events.isEmpty)
+          Text(
+            context.isArabic
+                ? 'لا توجد جرعات موثقة.'
+                : 'No dose events recorded.',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        for (final event in events.take(8))
+          _fact(_date(event.recordedAt), _status(context, event.status)),
+      ]);
+
+  String _status(BuildContext context, MedicationDoseStatus status) =>
+      switch (status) {
+        MedicationDoseStatus.taken => context.isArabic ? 'تم أخذها' : 'Taken',
+        MedicationDoseStatus.skipped =>
+          context.isArabic ? 'تم تخطيها' : 'Skipped',
+        MedicationDoseStatus.missed => context.isArabic ? 'فاتت' : 'Missed',
+      };
+
+  String _queueStatus(BuildContext context, PharmacyRequestStatus status) =>
+      switch ((context.isArabic, status)) {
+        (true, PharmacyRequestStatus.ready) => 'جاهز للصرف',
+        (true, PharmacyRequestStatus.pendingReview) => 'بانتظار المراجعة',
+        (true, PharmacyRequestStatus.notEligible) => 'غير مؤهل',
+        (true, PharmacyRequestStatus.outOfStock) => 'غير متوفر بالمخزون',
+        (true, PharmacyRequestStatus.expired) => 'منتهي الصلاحية',
+        (true, PharmacyRequestStatus.cancelled) => 'ملغي',
+        (true, PharmacyRequestStatus.dispensed) => 'تم الصرف',
+        (false, PharmacyRequestStatus.ready) => 'Ready to dispense',
+        (false, PharmacyRequestStatus.pendingReview) => 'Pending review',
+        (false, PharmacyRequestStatus.notEligible) => 'Not eligible',
+        (false, PharmacyRequestStatus.outOfStock) => 'Out of stock',
+        (false, PharmacyRequestStatus.expired) => 'Expired',
+        (false, PharmacyRequestStatus.cancelled) => 'Cancelled',
+        (false, PharmacyRequestStatus.dispensed) => 'Dispensed',
+      };
+
+  String _date(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 }

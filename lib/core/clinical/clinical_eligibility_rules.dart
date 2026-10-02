@@ -42,52 +42,49 @@ abstract final class ClinicalEligibilityRules {
 
     if (bmi < minBmi) {
       violations.add(
-        EligibilityViolation(
-          EligibilityBlockCode.bmiTooLow,
-          {
-            'bmi': bmi.toStringAsFixed(1),
-            'min': minBmi.toStringAsFixed(1),
-          },
-        ),
+        EligibilityViolation(EligibilityBlockCode.bmiTooLow, {
+          'bmi': bmi.toStringAsFixed(1),
+          'min': minBmi.toStringAsFixed(1),
+        }),
       );
     }
 
     for (final blocked in ClinicalEligibilityConfig.absoluteBlockConditionsEn) {
-      if (medicalConditions.any((c) => c.toLowerCase() == blocked.toLowerCase())) {
+      if (medicalConditions.any(
+        (c) => c.toLowerCase() == blocked.toLowerCase(),
+      )) {
         violations.add(
-          EligibilityViolation(
-            EligibilityBlockCode.contraindicatedCondition,
-            {'condition': blocked},
-          ),
+          EligibilityViolation(EligibilityBlockCode.contraindicatedCondition, {
+            'condition': blocked,
+          }),
         );
       }
     }
 
     if (ClinicalEligibilityConfig.requireLabValuesOnFile &&
         (hba1cPercent == null || fastingGlucoseMgDl == null)) {
-      violations.add(const EligibilityViolation(EligibilityBlockCode.labsMissing));
+      violations.add(
+        const EligibilityViolation(EligibilityBlockCode.labsMissing),
+      );
     } else {
-      if (hba1cPercent != null && hba1cPercent > ClinicalEligibilityConfig.maxHbA1cPercent) {
+      if (hba1cPercent != null &&
+          hba1cPercent > ClinicalEligibilityConfig.maxHbA1cPercent) {
         violations.add(
-          EligibilityViolation(
-            EligibilityBlockCode.hba1cTooHigh,
-            {
-              'value': hba1cPercent.toStringAsFixed(1),
-              'max': ClinicalEligibilityConfig.maxHbA1cPercent.toStringAsFixed(1),
-            },
-          ),
+          EligibilityViolation(EligibilityBlockCode.hba1cTooHigh, {
+            'value': hba1cPercent.toStringAsFixed(1),
+            'max': ClinicalEligibilityConfig.maxHbA1cPercent.toStringAsFixed(1),
+          }),
         );
       }
       if (fastingGlucoseMgDl != null &&
-          fastingGlucoseMgDl > ClinicalEligibilityConfig.maxFastingGlucoseMgDl) {
+          fastingGlucoseMgDl >
+              ClinicalEligibilityConfig.maxFastingGlucoseMgDl) {
         violations.add(
-          EligibilityViolation(
-            EligibilityBlockCode.glucoseTooHigh,
-            {
-              'value': fastingGlucoseMgDl.toStringAsFixed(0),
-              'max': ClinicalEligibilityConfig.maxFastingGlucoseMgDl.toStringAsFixed(0),
-            },
-          ),
+          EligibilityViolation(EligibilityBlockCode.glucoseTooHigh, {
+            'value': fastingGlucoseMgDl.toStringAsFixed(0),
+            'max': ClinicalEligibilityConfig.maxFastingGlucoseMgDl
+                .toStringAsFixed(0),
+          }),
         );
       }
     }

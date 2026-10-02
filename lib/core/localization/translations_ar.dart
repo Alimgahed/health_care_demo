@@ -1,5 +1,16 @@
 /// Arabic UI strings — formal MoH / national healthcare platform style.
 const Map<String, String> translationsAr = {
+  'connected_journey': 'الرحلة المترابطة',
+  'create_treatment_request': 'إنشاء طلب علاج',
+  'treatment_journey': 'الرحلة العلاجية',
+  'medications': 'الأدوية',
+  'laboratory_results': 'نتائج المختبر',
+  'eligibility': 'الأهلية',
+  'under_treatment': 'تحت العلاج',
+  'treatment_requests': 'طلبات العلاج',
+  'documents': 'المستندات',
+  'appointments': 'المواعيد',
+  'audit_trail': 'سجل التدقيق',
   'app_title': 'منصة الرعاية الصحية — وزارة الصحة',
   'demo_environment': 'بيئة العرض التوضيحي',
   'national_registry': 'سجل المرضى',
@@ -44,8 +55,7 @@ const Map<String, String> translationsAr = {
   'demo_cred_clinical':
       'وصول تجريبي: بوابة الطبيب المعالج (clinical@moh.gov.ae)',
   'demo_cred_pharmacy': 'وصول تجريبي: منفذ التوزيع (pharmacy@moh.gov.ae)',
-  'demo_cred_patient':
-      'وصول تجريبي: بوابة المريض (patient@moh.gov.ae)',
+  'demo_cred_patient': 'وصول تجريبي: بوابة المريض (patient@moh.gov.ae)',
 
   'splash_platform': 'منصة إدارة برنامج الرعاية الصحية',
   'splash_moh': 'وزارة الصحة ووقاية المجتمع',
@@ -179,12 +189,35 @@ const Map<String, String> translationsAr = {
   'col_bmi': 'مؤشر كتلة الجسم',
   'col_residency': 'الإقامة',
   'col_status': 'الحالة',
+  'last_visit': 'آخر متابعة',
+  'actions': 'الإجراءات',
+  'obesity': 'سمنة',
+  'blood_pressure': 'ضغط الدم',
+  'clinical_summary': 'الملخص السريري',
+  'current_medications': 'الأدوية الحالية',
+  'fasting_glucose': 'سكر صائم',
+  'treatment_status': 'حالة العلاج',
+  'provider': 'مقدم الرعاية',
+  'follow_up': 'موعد متابعة',
+  'total_visits': 'إجمالي الزيارات',
+  'medical_procedures': 'الإجراءات الطبية',
+  'diagnosis': 'تشخيص أولي',
+  'first_visit': 'أول زيارة',
+  'medical_timeline': 'التاريخ الطبي الزمني',
+  'medical_event_details': 'تفاصيل الحدث الطبي',
+  'visit_type': 'نوع الزيارة',
+  'visit_notes': 'ملاحظات الزيارة',
+  'stable_continue_plan':
+      'حالة المريض مستقرة. يُنصح بالاستمرار على خطة الرعاية الحالية والمتابعة المجدولة.',
+  'diagnoses_conditions': 'التشخيصات والحالات الطبية',
+  'chronic': 'مزمن',
   'status_active': 'نشط',
   'status_flagged': 'مطلوب المتابعة',
   'status_override': 'استثناءات الإدارة',
 
   'inventory_management': 'إدارة المخزون الوطني',
-  'inventory_management_sub': 'مستويات المخزون اللحظية في منافذ التوزيع المعتمدة.',
+  'inventory_management_sub':
+      'مستويات المخزون اللحظية في منافذ التوزيع المعتمدة.',
   'low_stock': 'مخزون منخفض',
   'stable': 'كافٍ',
 
@@ -449,7 +482,8 @@ const Map<String, String> translationsAr = {
   'edit_current_plan': 'تعديل خطة الرعاية الحالية',
   'add_new_plan': 'اضافة خطة رعاية جديدة',
   'manage_plan': 'إدارة الخطة',
-  'cannot_add_new_plan_error': 'لا يمكنك إضافة خطة جديدة حتى تكتمل الخطة الحالية.',
+  'cannot_add_new_plan_error':
+      'لا يمكنك إضافة خطة جديدة حتى تكتمل الخطة الحالية.',
   'no_active_plan': 'لا توجد خطة رعاية نشطة',
   'no_activity_logs': 'لا توجد سجلات نشاط',
   'no_treatment_plan_mobile': 'لا توجد خطة رعاية نشطة',
@@ -665,10 +699,10 @@ const Map<String, String> translationsAr = {
   'good_stock': 'مخزون كافٍ',
   'override_duplicate_warning':
       'يشير تنبيه السلامة إلى احتمال صرف دواء مكرر لهذا المريض. يتطلب المتابعة مبرراً طبياً.',
-  'mounjaro_dose_2_5': 'الرعاية الصحية 2.5 ملغ',
-  'mounjaro_dose_5_0': 'الرعاية الصحية 5.0 ملغ',
-  'mounjaro_dose_7_5': 'الرعاية الصحية 7.5 ملغ',
-  'mounjaro_dose_10_0': 'الرعاية الصحية 10.0 ملغ',
+  'mounjaro_dose_2_5': 'مونجارو 2.5 ملغ',
+  'mounjaro_dose_5_0': 'مونجارو 5 ملغ',
+  'mounjaro_dose_7_5': 'مونجارو 7.5 ملغ',
+  'mounjaro_dose_10_0': 'مونجارو 10 ملغ',
 
   // Emirates & nationalities (dropdown labels)
   'emirate_abu_dhabi': 'أبوظبي',
@@ -708,7 +742,7 @@ const Map<String, String> translationsAr = {
   'awaiting_clinical_approval': 'بانتظار اعتماد الطبيب',
   'pending_reviews_queue': 'طابور اعتمادات معلّقة',
   'no_pending_reviews':
-      'لا توجد اعتمادات معلّقة — جميع المرضى مُصرّح لهم بالصرف.',
+      'لا توجد طلبات تنتظر المراجعة الطبية.',
   'review_type_care_plan': 'تحديث خطة الرعاية بعد صرف حديث',
   'review_type_early_dispense': 'صرف مبكر قبل موعد الجرعة التالية',
   'approve_clinical_review': 'اعتماد',
@@ -1161,7 +1195,8 @@ const Map<String, String> translationsAr = {
   'view_all': 'عرض الكل',
   'more_alerts': 'تنبيهات أخرى',
   'clear': 'مسح',
-  'live_activity_feed_desc': 'مراقبة الأنشطة والأحداث في الوقت الفعلي عبر النظام',
+  'live_activity_feed_desc':
+      'مراقبة الأنشطة والأحداث في الوقت الفعلي عبر النظام',
   'analytics_and_stats_desc': 'تحليلات التنبيهات وتصدير البيانات للتقارير',
   'freeze_account': 'تجميد الحساب',
 
@@ -1287,27 +1322,33 @@ const Map<String, String> translationsAr = {
   'ai_comprehensive_evaluation': 'تقييم الذكاء الاصطناعي الشامل',
   'ai_success_rate': 'نسبة النجاح المتوقعة',
   'ai_suggestion': 'اقتراح الذكاء الاصطناعي',
-  'ai_suggestion_poor_frequency': 'Mounjaro يعطي أفضل النتائج عند استخدامه بشكل أسبوعي. يُرجى تعديل التردد لـ 7 أيام.',
-  'ai_suggestion_missing_lifestyle': 'للمرضى فوق مؤشر كتلة ٣٥، الدواء وحده لا يكفي. إضافة جلسات متابعة وتمارين منزلية يرفع نسبة النجاح بشكل ملحوظ.',
-  'ai_suggestion_insufficient_sessions': 'يُنصح بزيادة عدد الجلسات إلى ٨ على الأقل لضمان المتابعة المستمرة.',
-  'ai_suggestion_optimal': 'خطة شاملة ومثالية. توازن ممتاز بين العلاج الدوائي وتغيير نمط الحياة.',
+  'ai_suggestion_poor_frequency':
+      'Mounjaro يعطي أفضل النتائج عند استخدامه بشكل أسبوعي. يُرجى تعديل التردد لـ 7 أيام.',
+  'ai_suggestion_missing_lifestyle':
+      'للمرضى فوق مؤشر كتلة ٣٥، الدواء وحده لا يكفي. إضافة جلسات متابعة وتمارين منزلية يرفع نسبة النجاح بشكل ملحوظ.',
+  'ai_suggestion_insufficient_sessions':
+      'يُنصح بزيادة عدد الجلسات إلى ٨ على الأقل لضمان المتابعة المستمرة.',
+  'ai_suggestion_optimal':
+      'خطة شاملة ومثالية. توازن ممتاز بين العلاج الدوائي وتغيير نمط الحياة.',
 
   // --- AI Mega-Update ---
-  
+
   // 1. Fraud Detection
   'ai_fraud_risk': 'مؤشر الاحتيال (AI)',
   'ai_fraud_safe': 'آمن للصرف',
   'ai_fraud_warning': 'شبهة تلاعب',
   'ai_fraud_critical': 'محاولة صرف مكرر',
   'ai_fraud_detail_safe': 'لا توجد أنماط غير اعتيادية. المريض ملتزم بالجدول.',
-  'ai_fraud_detail_critical': 'المريض حاول الصرف من مركز آخر منذ أيام قليلة. الصرف مرفوض تلقائياً من الـ AI.',
-  
+  'ai_fraud_detail_critical':
+      'تم رصد صرف حديث من مركز آخر. أوقفت قاعدة السلامة التجريبية المعاملة لحين المراجعة البشرية المخولة.',
+
   // 2. AI Eligibility
   'ai_eligibility_prediction': 'توقع نجاح العلاج (AI)',
   'ai_eligibility_high': 'فرصة نجاح عالية جداً',
   'ai_eligibility_medium': 'فرصة نجاح متوسطة',
   'ai_eligibility_low': 'فرصة نجاح ضعيفة',
-  'ai_eligibility_detail': 'بناءً على الذكاء الاصطناعي وتحليل حالات مشابهة في نفس الفئة العمرية (BMI: {bmi})، نسبة الوصول للوزن المستهدف هي {score}%.',
+  'ai_eligibility_detail':
+      'بناءً على الذكاء الاصطناعي وتحليل حالات مشابهة في نفس الفئة العمرية (BMI: {bmi})، نسبة الوصول للوزن المستهدف هي {score}%.',
 
   // 3 & 4. Smart AlertOS & Chat Assistant
   'ai_chat_fab': 'المساعد الذكي للإدارة',
@@ -1315,30 +1356,37 @@ const Map<String, String> translationsAr = {
   'ai_chat_prompt_1': 'مرضى وزنهم ثابت',
   'ai_chat_prompt_2': 'توقع ميزانية الربع القادم',
   'ai_chat_prompt_3': 'نواقص المخزون المتوقعة',
-  'ai_chat_response_1': 'يوجد 12 مريض لم يتغير وزنهم خلال آخر 8 أسابيع. أوصي بتنبيه أطبائهم لمراجعة الجرعات الحالية (أغلبهم على تركيز 5mg).',
-  'ai_chat_response_2': 'بناءً على معدل النمو الأخير، نتوقع استهلاك 2.3 مليون درهم في الربع القادم لدعم المواطنين والمقيمين.',
-  'ai_chat_response_3': 'تحليل المخزون يظهر أن مركز الشارقة سيستنفد جرعة 10mg خلال 4 أيام. اقترح نقل فائض من دبي.',
+  'ai_chat_response_1':
+      'يوجد 12 مريض لم يتغير وزنهم خلال آخر 8 أسابيع. أوصي بتنبيه أطبائهم لمراجعة الجرعات الحالية (أغلبهم على تركيز 5mg).',
+  'ai_chat_response_2':
+      'بناءً على معدل النمو الأخير، نتوقع استهلاك 2.3 مليون درهم في الربع القادم لدعم المواطنين والمقيمين.',
+  'ai_chat_response_3':
+      'تحليل المخزون يظهر أن مركز الشارقة سيستنفد جرعة 10mg خلال 4 أيام. اقترح نقل فائض من دبي.',
   'ai_alert_badge': 'تحليل AI',
   'ai_alert_predictive': 'توقع استباقي',
 
   // 5. Weight Prediction
   'ai_weight_prediction_title': 'التوقع المستقبلي (AI)',
-  'ai_weight_prediction_desc': 'بناءً على التزامك 90%، ستصل للوزن المستهدف ({target} كجم) خلال 12 أسبوع.',
+  'ai_weight_prediction_desc':
+      'بناءً على التزامك 90%، ستصل للوزن المستهدف ({target} كجم) خلال 12 أسبوع.',
 
   // 6. Inventory Forecasting
   'ai_inventory_depletion': 'توقع النفاد (AI)',
   'ai_inventory_days': '{days} أيام',
   'ai_inventory_safe': 'آمن',
-  
+
   // 10. Patient Health Chatbot
-  'ai_patient_fab': 'المساعد الصحي (AI)',
+  'ai_patient_fab': 'المساعد الصحي',
   'ai_patient_chat_title': 'مساعدك الصحي',
   'ai_patient_prompt_1': 'إمتى جرعتي الجاية؟',
   'ai_patient_prompt_2': 'حاسس بغثيان بسيط',
   'ai_patient_prompt_3': 'أقدر أغير ميعاد الحقنة؟',
-  'ai_patient_response_1': 'جرعتك القادمة يوم الخميس. متبقي يومين! تذكر استخدامها في نفس الموعد لضمان الفاعلية.',
-  'ai_patient_response_2': 'الغثيان عرض جانبي شائع جداً مع Mounjaro، خاصة في الأسابيع الأولى. أنصحك بتقسيم وجباتك وشرب ماء كثير. لو استمر، تواصل مع طبيبك.',
-  'ai_patient_response_3': 'نعم، يمكنك تغيير الموعد بشرط أن يمر 72 ساعة على الأقل بين الجرعتين. هل ترغب في تحديث خطتك؟',
+  'ai_patient_response_1':
+      'جرعتك القادمة يوم الخميس. متبقي يومين! تذكر استخدامها في نفس الموعد لضمان الفاعلية.',
+  'ai_patient_response_2':
+      'الغثيان عرض جانبي شائع جداً مع Mounjaro، خاصة في الأسابيع الأولى. أنصحك بتقسيم وجباتك وشرب ماء كثير. لو استمر، تواصل مع طبيبك.',
+  'ai_patient_response_3':
+      'نعم، يمكنك تغيير الموعد بشرط أن يمر 72 ساعة على الأقل بين الجرعتين. هل ترغب في تحديث خطتك؟',
 
   'ai_nav_risk': ' (مخاطر AI)',
   'ai_nav_forecast': ' (توقع AI)',
@@ -1367,5 +1415,53 @@ const Map<String, String> translationsAr = {
   'ai_kpi_new_centers': 'تنبؤ: منافذ التوزيع المطلوبة',
 
   'medically_eligible': 'مؤهل طبياً (Eligible Medical)',
-  'medically_eligible_desc': 'المريض مؤهل طبياً ويستوفي جميع الشروط لأخذ هذا الدواء.',
+  'medically_eligible_desc':
+      'المريض مؤهل طبياً ويستوفي جميع الشروط لأخذ هذا الدواء.',
+  'medication_adherence': 'الالتزام بالعلاج',
+  'usage_duration': 'مدة الاستخدام',
+  'medication_safety': 'السلامة الدوائية',
+  'no_issues': 'لا توجد مشاكل',
+  'current_medication': 'الدواء الحالي',
+  'weekly': 'أسبوعياً',
+  'route': 'طريقة الاستخدام',
+  'subcutaneous': 'حقن تحت الجلد',
+  'start_date': 'تاريخ البدء',
+  'prescribing_physician': 'الطبيب الواصف',
+  'indication': 'دواعي الاستخدام',
+  'interaction_check': 'فحص التداخلات الدوائية',
+  'allergy_check': 'فحص الحساسية',
+  'no_allergies': 'لا توجد حساسية معروفة',
+  'duplicate_check': 'فحص تكرار العلاج',
+  'recent_dispense_warning': 'صرف حديث يحتاج للمراجعة',
+  'no_duplicate_therapy': 'لا يوجد علاج مكرر',
+  'contraindication_check': 'فحص موانع الاستخدام',
+  'passed': 'تم الاجتياز',
+  'dose_validation': 'التحقق من الجرعة',
+  'approval_validity': 'صلاحية الموافقة',
+  'valid': 'سارية',
+  'ai_medication_insights': 'رؤى الذكاء الاصطناعي للأدوية',
+  'ai_demo_content': 'محتوى ذكاء اصطناعي تجريبي',
+  'adherence_recent': 'الالتزام الحديث بالعلاج منتظم',
+  'dispensing_operations': 'تمت مراجعة نمط الصرف',
+  'no_duplicate_signal': 'لا توجد إشارة لتكرار الدواء',
+  'ai_not_prescriber': 'دعم للقرار فقط — وليس قراراً طبياً أو وصفة علاجية.',
+  'dispensing_timeline': 'الجدول الزمني للصرف',
+  'subcutaneous_weekly': 'حقن تحت الجلد — أسبوعياً',
+  'delayed': 'متأخر',
+  'dispensed': 'تم الصرف',
+  'expected_doses': 'الجرعات المتوقعة',
+  'upcoming_medication_event': 'الحدث الدوائي القادم',
+  'prescription_details': 'تفاصيل الوصفة الطبية',
+  'prescription_id': 'رقم الوصفة',
+  'date_issued': 'تاريخ الإصدار',
+  'valid_until': 'صالحة حتى',
+  'quantity': 'الكمية',
+  'refills': 'مرات إعادة الصرف',
+  'pharmacy_information': 'معلومات الصيدلية',
+  'pharmacy': 'الصيدلية',
+  'dispensed_doses': 'الجرعات المصروفة',
+  'remaining_doses': 'الجرعات المتبقية',
+  'medication_history': 'التاريخ الدوائي',
+  'current': 'الحالي',
+  'current_treatment': 'العلاج الحالي النشط',
 };

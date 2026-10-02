@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/l10n_extension.dart';
@@ -14,7 +14,11 @@ class TreatmentPlanBuilder extends StatefulWidget {
   final Patient patient;
   final TreatmentPlan? existingPlan;
 
-  const TreatmentPlanBuilder({super.key, required this.patient, this.existingPlan});
+  const TreatmentPlanBuilder({
+    super.key,
+    required this.patient,
+    this.existingPlan,
+  });
 
   @override
   State<TreatmentPlanBuilder> createState() => _TreatmentPlanBuilderState();
@@ -27,6 +31,8 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
   int _frequencyDays = 7;
 
   PhysicalTherapyCenter? _selectedCenter;
+  String? _selectedCenterId;
+  bool _didResolveExistingCenter = false;
   int _totalSessions = 12;
 
   List<HomeExercise> _selectedExercises = [];
@@ -37,11 +43,24 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
   void initState() {
     super.initState();
     if (widget.existingPlan != null) {
-      _selectedDose = DoseUtils.toInventoryDose(widget.existingPlan!.medicationDose);
+      _selectedDose = DoseUtils.toInventoryDose(
+        widget.existingPlan!.medicationDose,
+      );
       _frequencyDays = widget.existingPlan!.medicationFrequencyDays;
       _totalSessions = widget.existingPlan!.totalSessions;
+      _selectedCenterId = widget.existingPlan!.assignedCenterId;
       _selectedExercises = List.from(widget.existingPlan!.homeExercises);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didResolveExistingCenter || _selectedCenterId == null) return;
+    _selectedCenter = context.read<DataProvider>().getTherapyCenterById(
+      _selectedCenterId,
+    );
+    _didResolveExistingCenter = true;
   }
 
   String _frequencyLabel(BuildContext context, int days) {
@@ -57,14 +76,13 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
     }
   }
 
-  bool _willNeedClinicalReview(DataProvider dp) {
-    final p = dp.getPatientById(widget.patient.id) ?? widget.patient;
-    return p.lastDispensingDate != null &&
-        p.isWithinDispensingCooldown(cooldownDays: _frequencyDays);
-  }
-
   void _savePlan(BuildContext context) {
-    final live = Provider.of<DataProvider>(context, listen: false).getPatientById(widget.patient.id) ?? widget.patient;
+    final live =
+        Provider.of<DataProvider>(
+          context,
+          listen: false,
+        ).getPatientById(widget.patient.id) ??
+        widget.patient;
     if (!live.programEligibility.eligible) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -77,25 +95,34 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
 
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     final inventoryDose = DoseUtils.toInventoryDose(_selectedDose);
-    final needsReview = _willNeedClinicalReview(dataProvider);
 
+    final now = DateTime.now();
+    final existing = widget.existingPlan;
+    final centerId = _selectedCenter?.id ?? _selectedCenterId;
+    final keepExistingSessions =
+        existing != null &&
+        centerId == existing.assignedCenterId &&
+        _totalSessions == existing.totalSessions;
     final newPlan = TreatmentPlan(
-      id: 'TP-${DateTime.now().millisecondsSinceEpoch}',
+      id: existing?.id ?? 'TP-${now.millisecondsSinceEpoch}',
       patientId: widget.patient.id,
-      doctorName: 'Dr. Current User',
-      createdAt: DateTime.now(),
+      doctorName: existing?.doctorName ?? 'Dr. Current User',
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
       medicationDose: inventoryDose,
       medicationFrequencyDays: _frequencyDays,
       reminderTimes: const [TimeOfDay(hour: 9, minute: 0)],
-      assignedCenterId: _selectedCenter?.id,
-      totalSessions: _selectedCenter != null ? _totalSessions : 0,
-      sessions: _selectedCenter != null
+      assignedCenterId: centerId,
+      totalSessions: centerId != null ? _totalSessions : 0,
+      sessions: keepExistingSessions
+          ? existing.sessions
+          : centerId != null
           ? List.generate(
               _totalSessions,
               (i) => TherapySession(
-                id: 'S-${DateTime.now().millisecondsSinceEpoch}-$i',
+                id: 'S-${now.millisecondsSinceEpoch}-$i',
                 sessionNumber: i + 1,
-                scheduledDate: DateTime.now().add(Duration(days: (i + 1) * 7)),
+                scheduledDate: now.add(Duration(days: (i + 1) * 7)),
               ),
             )
           : [],
@@ -104,15 +131,29 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
     );
 
     dataProvider.createTreatmentPlan(newPlan);
+    if (dataProvider.getPlanForPatient(widget.patient.id)?.id != newPlan.id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.isArabic
+                ? 'تعذّر حفظ خطة العلاج. راجع الأهلية وبيانات الوصفة والصلاحيات.'
+                : 'The treatment plan could not be saved. Review eligibility, prescription details, and access.',
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    final messenger = ScaffoldMessenger.of(context);
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Text(
-          needsReview
-              ? context.tr('plan_submitted_for_review')
-              : context.tr('care_plan_synced'),
+          context.isArabic
+              ? 'حُفظت خطة العلاج. أرسل الطلب للمراجعة الطبية من مسار العلاج.'
+              : 'Treatment plan saved. Submit its request for medical review from the treatment journey.',
         ),
-        backgroundColor: needsReview ? AppColors.warning : AppColors.primary,
+        backgroundColor: AppColors.primary,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -122,7 +163,7 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
   Widget build(BuildContext context) {
     final dp = context.watch<DataProvider>();
     final livePatient = dp.getPatientById(widget.patient.id) ?? widget.patient;
-    final needsReviewOnSave = _willNeedClinicalReview(dp);
+    const needsReviewOnSave = true;
     final ineligible = !livePatient.programEligibility.eligible;
 
     return Column(
@@ -131,14 +172,21 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: AppColors.navy,
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 context.tr('create_treatment_plan'),
-                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               IconButton(
                 icon: const Icon(LucideIcons.x, color: Colors.white),
@@ -158,8 +206,14 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    context.tr('plan_pending_review_banner', {'date': livePatient.lastDispensingDate ?? ''}),
-                    style: TextStyle(color: AppColors.warning, fontWeight: FontWeight.w600, fontSize: 13),
+                    context.tr('plan_pending_review_banner', {
+                      'date': livePatient.lastDispensingDate ?? '',
+                    }),
+                    style: TextStyle(
+                      color: AppColors.warning,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               ],
@@ -190,9 +244,16 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
                       ),
-                      child: Text(_currentStep == 3 ? context.tr('save_plan') : context.tr('next')),
+                      child: Text(
+                        _currentStep == 3
+                            ? context.tr('save_plan')
+                            : context.tr('next'),
+                      ),
                     ),
                     const SizedBox(width: 16),
                     if (_currentStep > 0)
@@ -236,7 +297,10 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (Provider.of<DataProvider>(context).getPatientById(widget.patient.id)?.programEligibility.eligible ?? widget.patient.programEligibility.eligible)
+        if (Provider.of<DataProvider>(
+              context,
+            ).getPatientById(widget.patient.id)?.programEligibility.eligible ??
+            widget.patient.programEligibility.eligible)
           Container(
             width: double.infinity,
             margin: const EdgeInsets.only(bottom: 24),
@@ -244,11 +308,17 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
             decoration: BoxDecoration(
               color: AppColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.success.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: AppColors.success.withValues(alpha: 0.5),
+              ),
             ),
             child: Row(
               children: [
-                Icon(LucideIcons.checkCircle, color: AppColors.success, size: 24),
+                Icon(
+                  LucideIcons.checkCircle,
+                  color: AppColors.success,
+                  size: 24,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -279,9 +349,18 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
         else
           Container(
             margin: const EdgeInsets.only(bottom: 24),
-            child: ClinicalEligibilityBanner(patient: Provider.of<DataProvider>(context).getPatientById(widget.patient.id) ?? widget.patient),
+            child: ClinicalEligibilityBanner(
+              patient:
+                  Provider.of<DataProvider>(
+                    context,
+                  ).getPatientById(widget.patient.id) ??
+                  widget.patient,
+            ),
           ),
-        Text(context.tr('select_dose'), style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          context.tr('select_dose'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 16),
         Wrap(
           spacing: 12,
@@ -302,7 +381,10 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
           }).toList(),
         ),
         const SizedBox(height: 24),
-        Text(context.tr('injection_interval'), style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          context.tr('injection_interval'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 12,
@@ -335,7 +417,9 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
             decoration: BoxDecoration(
               color: AppColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: AppColors.success.withValues(alpha: 0.3),
+              ),
             ),
             child: Row(
               children: [
@@ -343,12 +427,17 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    context.tr('selected_center', {'name': _selectedCenter!.getLocalizedName(context)}),
+                    context.tr('selected_center', {
+                      'name': _selectedCenter!.getLocalizedName(context),
+                    }),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 TextButton(
-                  onPressed: () => setState(() => _selectedCenter = null),
+                  onPressed: () => setState(() {
+                    _selectedCenter = null;
+                    _selectedCenterId = null;
+                  }),
                   child: Text(context.tr('change')),
                 ),
               ],
@@ -366,12 +455,19 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
                     child: TherapyCenterPicker(
                       patientLatitude: widget.patient.latitude,
                       patientLongitude: widget.patient.longitude,
-                      patientEmirate: widget.patient.getLocalizedEmirate(context),
+                      patientEmirate: widget.patient.getLocalizedEmirate(
+                        context,
+                      ),
                     ),
                   ),
                 ),
               );
-              if (center != null) setState(() => _selectedCenter = center);
+              if (center != null) {
+                setState(() {
+                  _selectedCenter = center;
+                  _selectedCenterId = center.id;
+                });
+              }
             },
             icon: const Icon(LucideIcons.map),
             label: Text(context.tr('assign_center')),
@@ -381,7 +477,10 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
           ),
         if (_selectedCenter != null) ...[
           const SizedBox(height: 32),
-          Text(context.tr('sessions'), style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            context.tr('sessions'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           Slider(
             value: _totalSessions.toDouble(),
@@ -406,10 +505,16 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
             final exercises = await showDialog<List<HomeExercise>>(
               context: context,
               builder: (context) => const Dialog(
-                child: SizedBox(width: 800, height: 600, child: HomeExerciseLibrary()),
+                child: SizedBox(
+                  width: 800,
+                  height: 600,
+                  child: HomeExerciseLibrary(),
+                ),
               ),
             );
-            if (exercises != null) setState(() => _selectedExercises = exercises);
+            if (exercises != null) {
+              setState(() => _selectedExercises = exercises);
+            }
           },
           icon: const Icon(LucideIcons.plus),
           label: Text(context.tr('home_exercises')),
@@ -419,11 +524,13 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
           return ListTile(
             leading: const Icon(LucideIcons.activity),
             title: Text(context.isArabic ? e.nameAr : e.name),
-            subtitle: Text(context.tr('exercise_duration_format', {
-              'minutes': '${e.durationMinutes}',
-              'sets': '${e.sets}',
-              'reps': '${e.reps}',
-            })),
+            subtitle: Text(
+              context.tr('exercise_duration_format', {
+                'minutes': '${e.durationMinutes}',
+                'sets': '${e.sets}',
+                'reps': '${e.reps}',
+              }),
+            ),
             trailing: IconButton(
               icon: Icon(LucideIcons.trash2, color: AppColors.error),
               onPressed: () => setState(() => _selectedExercises.remove(e)),
@@ -438,27 +545,32 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.tr('review_treatment_plan'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(
+          context.tr('review_treatment_plan'),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 24),
         _AIPlanEvaluatorCard(
           patient: widget.patient,
           selectedDose: _selectedDose,
           frequencyDays: _frequencyDays,
-          totalSessions: _selectedCenter != null ? _totalSessions : 0,
+          totalSessions: _selectedCenterId != null ? _totalSessions : 0,
           exercisesCount: _selectedExercises.length,
         ),
         ListTile(
           title: Text(context.tr('medication_plan')),
-          subtitle: Text(context.tr('medication_schedule_line', {
-            'dose': context.mounjaroDoseLabel(_selectedDose),
-            'days': '$_frequencyDays',
-          })),
+          subtitle: Text(
+            context.tr('medication_schedule_line', {
+              'dose': context.mounjaroDoseLabel(_selectedDose),
+              'days': '$_frequencyDays',
+            }),
+          ),
           leading: const Icon(LucideIcons.pill),
         ),
         ListTile(
           title: Text(context.tr('therapy_plan')),
           subtitle: Text(
-            _selectedCenter != null
+            _selectedCenterId != null
                 ? context.tr('therapy_review_summary', {
                     'center': _selectedCenter!.getLocalizedName(context),
                     'sessions': '$_totalSessions',
@@ -469,7 +581,11 @@ class _TreatmentPlanBuilderState extends State<TreatmentPlanBuilder> {
         ),
         ListTile(
           title: Text(context.tr('home_exercises')),
-          subtitle: Text(context.tr('exercises_selected', {'count': '${_selectedExercises.length}'})),
+          subtitle: Text(
+            context.tr('exercises_selected', {
+              'count': '${_selectedExercises.length}',
+            }),
+          ),
           leading: const Icon(LucideIcons.activity),
         ),
       ],
@@ -500,13 +616,16 @@ class _AIPlanEvaluatorCard extends StatelessWidget {
     if (frequencyDays > 7) {
       successScore = 45;
       suggestionKey = 'ai_suggestion_poor_frequency';
-    } else if (patient.bmi > 35 && (totalSessions == 0 || exercisesCount == 0)) {
+    } else if (patient.bmi > 35 &&
+        (totalSessions == 0 || exercisesCount == 0)) {
       successScore = 60;
       suggestionKey = 'ai_suggestion_missing_lifestyle';
     } else if (totalSessions > 0 && totalSessions < 8) {
       successScore = 75;
       suggestionKey = 'ai_suggestion_insufficient_sessions';
-    } else if (totalSessions >= 8 && exercisesCount >= 2 && frequencyDays == 7) {
+    } else if (totalSessions >= 8 &&
+        exercisesCount >= 2 &&
+        frequencyDays == 7) {
       successScore = 95;
       suggestionKey = 'ai_suggestion_optimal';
     } else {
@@ -522,7 +641,10 @@ class _AIPlanEvaluatorCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.navy.withValues(alpha: 0.05),
-        border: Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 1.5),
+        border: Border.all(
+          color: AppColors.accent.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -543,14 +665,22 @@ class _AIPlanEvaluatorCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: isOptimal ? AppColors.success : (isPoor ? AppColors.error : AppColors.warning),
+                  color: isOptimal
+                      ? AppColors.success
+                      : (isPoor ? AppColors.error : AppColors.warning),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${context.tr('ai_success_rate')}: $successScore%',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -559,7 +689,9 @@ class _AIPlanEvaluatorCard extends StatelessWidget {
           LinearProgressIndicator(
             value: successScore / 100,
             backgroundColor: Colors.grey.shade300,
-            color: isOptimal ? AppColors.success : (isPoor ? AppColors.error : AppColors.warning),
+            color: isOptimal
+                ? AppColors.success
+                : (isPoor ? AppColors.error : AppColors.warning),
             minHeight: 8,
             borderRadius: BorderRadius.circular(4),
           ),
@@ -575,12 +707,18 @@ class _AIPlanEvaluatorCard extends StatelessWidget {
                   children: [
                     Text(
                       context.tr('ai_suggestion'),
-                      style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       context.tr(suggestionKey),
-                      style: TextStyle(color: AppColors.navy, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: AppColors.navy,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),

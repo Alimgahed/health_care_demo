@@ -27,5 +27,6 @@ class PatientAttachment {
     this.category = 'lab_report',
   });
 
-  bool get isPdf => mimeType.contains('pdf') || fileName.toLowerCase().endsWith('.pdf');
+  bool get isPdf =>
+      mimeType.contains('pdf') || fileName.toLowerCase().endsWith('.pdf');
 }

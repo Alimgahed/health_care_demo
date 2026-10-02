@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/constants/mock_data.dart';
 import '../../core/models/activity_log.dart';
@@ -68,7 +68,9 @@ class ProgramAlert {
   }
 
   String localizedKindLabel(BuildContext context) {
-    if (kind == ProgramAlertKind.aiPredictive) return context.tr('ai_alert_predictive');
+    if (kind == ProgramAlertKind.aiPredictive) {
+      return context.tr('ai_alert_predictive');
+    }
     switch (category) {
       case AlertCategory.fraud:
         return context.tr('alert_category_fraud');
@@ -83,10 +85,14 @@ class ProgramAlert {
 
   IconData get kindIcon {
     switch (category) {
-      case AlertCategory.fraud: return Icons.shield_outlined;
-      case AlertCategory.clinical: return Icons.monitor_heart_outlined;
-      case AlertCategory.supply: return Icons.inventory_2_outlined;
-      case AlertCategory.info: return Icons.info_outline;
+      case AlertCategory.fraud:
+        return Icons.shield_outlined;
+      case AlertCategory.clinical:
+        return Icons.monitor_heart_outlined;
+      case AlertCategory.supply:
+        return Icons.inventory_2_outlined;
+      case AlertCategory.info:
+        return Icons.info_outline;
     }
   }
 }
@@ -136,7 +142,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
       if (units > 10) return;
       alerts.add(
         ProgramAlert(
-        id: idCounter++,
+          id: idCounter++,
           message: tr('inventory_low_msg', {
             'center': center.getLocalizedName(context),
             'dose': dose,
@@ -176,7 +182,9 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
         kind: isOverride ? ProgramAlertKind.override : ProgramAlertKind.flagged,
         severity: isOverride ? 2 : 3,
         action: isOverride ? tr('review_plan') : tr('freeze_account'),
-        actionIcon: isOverride ? Icons.find_in_page_outlined : Icons.lock_outline,
+        actionIcon: isOverride
+            ? Icons.find_in_page_outlined
+            : Icons.lock_outline,
         metadata: {
           'logId': log.id,
           'patientId': log.patientId,
@@ -186,15 +194,16 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
     );
   }
 
-  // --- AI-driven supply / clinical alerts ---
-  
+  // Additional rule-based supply and clinical checks.
+
   // 1. Supply Crisis (Critical Shortage)
   for (final center in dp.centers) {
     void checkShortage(String dose, int units) {
       if (units == 0) {
-        alerts.insert(0,
+        alerts.insert(
+          0,
           ProgramAlert(
-        id: idCounter++,
+            id: idCounter++,
             message: tr('alert_critical_shortage', {
               'center': center.getLocalizedName(context),
               'dose': dose,
@@ -216,6 +225,7 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
         );
       }
     }
+
     checkShortage('2.5 mg', center.inventory2_5mg);
     checkShortage('5.0 mg', center.inventory5mg);
     checkShortage('7.5 mg', center.inventory7_5mg);
@@ -224,18 +234,22 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
 
   // Clinical / compliance (derived from patient records)
   for (final patient in dp.patients) {
-    final patientName = Localizations.localeOf(context).languageCode == 'ar' ? patient.fullNameAr : patient.fullName;
+    final patientName = Localizations.localeOf(context).languageCode == 'ar'
+        ? patient.fullNameAr
+        : patient.fullName;
 
     if (patient.weightHistory.isNotEmpty &&
         (patient.weightHistory.first - patient.weight < 1.0) &&
-        (patient.currentDose == '10 mg' || patient.currentDose == '10.0 mg' || patient.currentDose == '7.5 mg')) {
+        (patient.currentDose == '10 mg' ||
+            patient.currentDose == '10.0 mg' ||
+            patient.currentDose == '7.5 mg')) {
       alerts.add(
         ProgramAlert(
-        id: idCounter++,
+          id: idCounter++,
           message: tr('alert_clinical_ineffective', {'name': patientName}),
           icon: LucideIcons.activity,
           color: AppColors.accent,
-          time: tr('time_days_ago', {'count': '2'}),
+          time: tr('now'),
           kind: ProgramAlertKind.clinicalIneffective,
           severity: 2,
           action: tr('review_plan'),
@@ -248,38 +262,6 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
           },
         ),
       );
-    }
-
-    // Non Compliance (Mock logic: if nextEligibleDate is more than 7 days ago)
-    if (patient.nextEligibleDate != null) {
-      final parts = patient.nextEligibleDate!.split('-');
-      if (parts.length == 3) {
-        final d = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
-        final diff = DateTime.now().difference(d).inDays;
-        if (diff > 7) {
-          alerts.add(
-            ProgramAlert(
-        id: idCounter++,
-              message: tr('alert_non_compliance', {
-                'name': patientName,
-                'days': '$diff',
-              }),
-              icon: LucideIcons.userX,
-              color: AppColors.warning,
-              time: tr('today'),
-              kind: ProgramAlertKind.nonCompliance,
-              severity: 1,
-              action: tr('contact_patient'),
-              actionIcon: Icons.phone_outlined,
-              metadata: {
-                'patientName': patientName,
-                'daysOverdue': diff,
-                'lastDispensingDate': patient.lastDispensingDate,
-              },
-            ),
-          );
-        }
-      }
     }
   }
 
@@ -298,22 +280,6 @@ List<ProgramAlert> collectProgramAlerts(BuildContext context, DataProvider dp) {
       ),
     );
   }
-
-  // Inject a mock AI Predictive Alert for Feature 3
-  alerts.insert(
-    0,
-    ProgramAlert(
-      id: idCounter++,
-      message: tr('ai_chat_response_3'),
-      icon: LucideIcons.sparkles,
-      color: AppColors.accent,
-      time: tr('now'),
-      kind: ProgramAlertKind.aiPredictive,
-      severity: 2,
-      action: 'Auto-Transfer Stock',
-      actionIcon: LucideIcons.packagePlus,
-    ),
-  );
 
   return alerts;
 }

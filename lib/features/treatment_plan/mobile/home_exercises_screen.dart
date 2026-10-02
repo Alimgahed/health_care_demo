@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/l10n_extension.dart';
@@ -17,23 +17,26 @@ class HomeExercisesScreen extends StatelessWidget {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('home_exercises')),
-      ),
+      appBar: AppBar(title: Text(context.tr('home_exercises'))),
       body: ListView.builder(
         padding: const EdgeInsets.all(24),
         itemCount: plan.homeExercises.length,
         itemBuilder: (context, index) {
           final ex = HomeExerciseCatalog.resolve(plan.homeExercises[index]);
-          final isCompletedToday = ex.completedDates.any((d) => 
-            d.year == DateTime.now().year && d.month == DateTime.now().month && d.day == DateTime.now().day
+          final isCompletedToday = ex.completedDates.any(
+            (d) =>
+                d.year == DateTime.now().year &&
+                d.month == DateTime.now().month &&
+                d.day == DateTime.now().day,
           );
 
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: isCompletedToday ? AppColors.success : AppColors.border),
+              side: BorderSide(
+                color: isCompletedToday ? AppColors.success : AppColors.border,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -48,37 +51,56 @@ class HomeExercisesScreen extends StatelessWidget {
                           color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(LucideIcons.activity, color: AppColors.primary),
+                        child: Icon(
+                          LucideIcons.activity,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(isAr ? ex.nameAr : ex.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                            Text(context.tr('exercise_duration_format', {
-                              'minutes': '${ex.durationMinutes}',
-                              'sets': '${ex.sets}',
-                              'reps': '${ex.reps}',
-                            })),
+                            Text(
+                              isAr ? ex.nameAr : ex.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              context.tr('exercise_duration_format', {
+                                'minutes': '${ex.durationMinutes}',
+                                'sets': '${ex.sets}',
+                                'reps': '${ex.reps}',
+                              }),
+                            ),
                           ],
                         ),
                       ),
                       if (isCompletedToday)
-                        Icon(LucideIcons.checkCircle, color: AppColors.success)
+                        Icon(LucideIcons.checkCircle, color: AppColors.success),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text(isAr ? ex.descriptionAr : ex.description, style: TextStyle(color: AppColors.textSecondary)),
+                  Text(
+                    isAr ? ex.descriptionAr : ex.description,
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
                   const SizedBox(height: 16),
                   if (!isCompletedToday)
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         onPressed: () {
-                          final provider = Provider.of<DataProvider>(context, listen: false);
+                          final provider = Provider.of<DataProvider>(
+                            context,
+                            listen: false,
+                          );
                           provider.completeExercise(plan.id, ex.id);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr('success'))));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(context.tr('success'))),
+                          );
                         },
                         icon: const Icon(LucideIcons.check),
                         label: Text(context.tr('mark_complete')),

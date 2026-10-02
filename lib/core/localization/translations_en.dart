@@ -1,5 +1,16 @@
 /// English UI strings — enterprise healthcare / UAE government style.
 const Map<String, String> translationsEn = {
+  'connected_journey': 'Connected Journey',
+  'create_treatment_request': 'Create Treatment Request',
+  'treatment_journey': 'Treatment Journey',
+  'medications': 'Medications',
+  'laboratory_results': 'Laboratory Results',
+  'eligibility': 'Eligibility',
+  'under_treatment': 'Under treatment',
+  'treatment_requests': 'Treatment Requests',
+  'documents': 'Documents',
+  'appointments': 'Appointments',
+  'audit_trail': 'Audit Trail',
   // App
   'app_title': 'MoH Health Care Platform',
   'demo_environment': 'Demonstration Environment',
@@ -44,7 +55,8 @@ const Map<String, String> translationsEn = {
   'access_portal': 'Enter Portal',
   'demo_cred_admin': 'Demo access: National Executive (admin@moh.gov.ae)',
   'demo_cred_clinical': 'Demo access: Physician Portal (clinical@moh.gov.ae)',
-  'demo_cred_distribution outlet': 'Demo access: Distribution Outlet (distribution outlet@moh.gov.ae)',
+  'demo_cred_distribution outlet':
+      'Demo access: Distribution Outlet (distribution outlet@moh.gov.ae)',
   'demo_cred_patient':
       'Demo access: Patient (patient@mounjaro.ae · Ahmed Al Mansoori)',
 
@@ -192,13 +204,36 @@ const Map<String, String> translationsEn = {
   'col_bmi': 'BMI',
   'col_residency': 'Residency',
   'col_status': 'Status',
+  'last_visit': 'Last follow-up',
+  'actions': 'Actions',
+  'obesity': 'Obesity',
+  'blood_pressure': 'Blood pressure',
+  'clinical_summary': 'Clinical summary',
+  'current_medications': 'Current medications',
+  'fasting_glucose': 'Fasting glucose',
+  'treatment_status': 'Treatment status',
+  'provider': 'Care provider',
+  'follow_up': 'Follow-up visit',
+  'total_visits': 'Total visits',
+  'medical_procedures': 'Medical procedures',
+  'diagnosis': 'Initial diagnosis',
+  'first_visit': 'First visit',
+  'medical_timeline': 'Medical timeline',
+  'medical_event_details': 'Medical event details',
+  'visit_type': 'Visit type',
+  'visit_notes': 'Visit notes',
+  'stable_continue_plan':
+      'Patient is stable. Continue the current care plan and scheduled monitoring.',
+  'diagnoses_conditions': 'Diagnoses and medical conditions',
+  'chronic': 'Chronic',
   'status_active': 'Active',
   'status_flagged': 'Flagged',
   'status_override': 'Override',
 
   // Inventory admin
   'inventory_management': 'National Inventory Management',
-  'inventory_management_sub': 'Live stock levels at authorized distribution outlets.',
+  'inventory_management_sub':
+      'Live stock levels at authorized distribution outlets.',
   'low_stock': 'Low stock',
   'stable': 'Adequate',
 
@@ -469,7 +504,6 @@ const Map<String, String> translationsEn = {
   'assign_center': 'Assign center',
   'sessions': 'Sessions',
   'completed': 'Completed',
-  'upcoming': 'Upcoming',
   'exercises': 'Exercises',
   'duration': 'Duration',
   'sets': 'Sets',
@@ -486,7 +520,8 @@ const Map<String, String> translationsEn = {
   'edit_current_plan': 'Edit current care plan',
   'add_new_plan': 'Add new care plan',
   'manage_plan': 'Manage care plan',
-  'cannot_add_new_plan_error': 'Cannot add a new plan until the current one is finished.',
+  'cannot_add_new_plan_error':
+      'Cannot add a new plan until the current one is finished.',
   'no_active_plan': 'No active care plan assigned',
   'no_activity_logs': 'No activity records found',
   'no_treatment_plan_mobile': 'No active care plan',
@@ -712,10 +747,10 @@ const Map<String, String> translationsEn = {
   'good_stock': 'Adequate stock',
   'override_duplicate_warning':
       'A safety alert indicates this patient may receive duplicate medication. Medical justification is required to proceed.',
-  'mounjaro_dose_2_5': 'Health Care 2.5 mg',
-  'mounjaro_dose_5_0': 'Health Care 5.0 mg',
-  'mounjaro_dose_7_5': 'Health Care 7.5 mg',
-  'mounjaro_dose_10_0': 'Health Care 10.0 mg',
+  'mounjaro_dose_2_5': 'Mounjaro 2.5 mg',
+  'mounjaro_dose_5_0': 'Mounjaro 5 mg',
+  'mounjaro_dose_7_5': 'Mounjaro 7.5 mg',
+  'mounjaro_dose_10_0': 'Mounjaro 10 mg',
 
   // Emirates & nationalities (dropdown labels)
   'emirate_abu_dhabi': 'Abu Dhabi',
@@ -755,7 +790,7 @@ const Map<String, String> translationsEn = {
   'awaiting_clinical_approval': 'Awaiting physician approval',
   'pending_reviews_queue': 'Pending authorizations queue',
   'no_pending_reviews':
-      'No pending authorizations — all patients are cleared for dispensing.',
+      'No requests are awaiting medical review.',
   'review_type_care_plan': 'Care plan update after recent dispensing',
   'review_type_early_dispense': 'Early dispensing before refill interval',
   'approve_clinical_review': 'Approve',
@@ -1218,12 +1253,14 @@ const Map<String, String> translationsEn = {
   'alert_os_alert_categories': 'Alert Categories',
   'alert_os_tools': 'Intelligence Tools',
   'security_fraud_desc': 'Fraud alerts, overrides, and flagged accounts',
-  'clinical_followup_desc': 'Medical reviews, non-compliance, and treatment response',
+  'clinical_followup_desc':
+      'Medical reviews, non-compliance, and treatment response',
   'supply_crises_desc': 'Low stock, critical shortages, and ready-to-dispense',
   'view_all': 'View all',
   'more_alerts': 'more alerts',
   'clear': 'Clear',
-  'live_activity_feed_desc': 'Real-time monitoring of system events and activities',
+  'live_activity_feed_desc':
+      'Real-time monitoring of system events and activities',
   'analytics_and_stats_desc': 'Alert analytics and data export for reporting',
   'freeze_account': 'Freeze Account',
 
@@ -1344,27 +1381,34 @@ const Map<String, String> translationsEn = {
   'ai_comprehensive_evaluation': 'Comprehensive AI Evaluation',
   'ai_success_rate': 'Predicted Success Rate',
   'ai_suggestion': 'AI Suggestion',
-  'ai_suggestion_poor_frequency': 'Mounjaro is most effective when taken weekly. Adjust the injection frequency to 7 days.',
-  'ai_suggestion_missing_lifestyle': 'For a BMI over 35, medication alone is insufficient. Adding physical therapy and home exercises increases success significantly.',
-  'ai_suggestion_insufficient_sessions': 'Increasing therapy sessions to at least 8 is recommended to ensure proper monitoring.',
-  'ai_suggestion_optimal': 'Highly optimized comprehensive plan. It perfectly balances medical and lifestyle interventions.',
+  'ai_suggestion_poor_frequency':
+      'Mounjaro is most effective when taken weekly. Adjust the injection frequency to 7 days.',
+  'ai_suggestion_missing_lifestyle':
+      'For a BMI over 35, medication alone is insufficient. Adding physical therapy and home exercises increases success significantly.',
+  'ai_suggestion_insufficient_sessions':
+      'Increasing therapy sessions to at least 8 is recommended to ensure proper monitoring.',
+  'ai_suggestion_optimal':
+      'Highly optimized comprehensive plan. It perfectly balances medical and lifestyle interventions.',
 
   // --- AI Mega-Update ---
-  
+
   // 1. Fraud Detection
   'ai_fraud_risk': 'AI Fraud Risk',
   'ai_fraud_safe': 'Safe to Dispense',
   'ai_fraud_warning': 'Suspicious Activity',
   'ai_fraud_critical': 'Duplicate Attempt',
-  'ai_fraud_detail_safe': 'No unusual patterns detected. Patient is compliant with schedule.',
-  'ai_fraud_detail_critical': 'Patient attempted to dispense from another center recently. AI has automatically blocked this transaction.',
-  
+  'ai_fraud_detail_safe':
+      'No unusual patterns detected. Patient is compliant with schedule.',
+  'ai_fraud_detail_critical':
+      'A recent dispense at another center was detected. The transaction is held by the demo safety rule for authorized human review.',
+
   // 2. AI Eligibility
   'ai_eligibility_prediction': 'AI Success Prediction',
   'ai_eligibility_high': 'High Probability of Success',
   'ai_eligibility_medium': 'Moderate Probability',
   'ai_eligibility_low': 'Low Probability',
-  'ai_eligibility_detail': 'Based on AI analysis of similar profiles (BMI: {bmi}), the probability of reaching the target weight is {score}%.',
+  'ai_eligibility_detail':
+      'Based on AI analysis of similar profiles (BMI: {bmi}), the probability of reaching the target weight is {score}%.',
 
   // 3 & 4. Smart AlertOS & Chat Assistant
   'ai_chat_fab': 'AI Admin Assistant',
@@ -1372,30 +1416,37 @@ const Map<String, String> translationsEn = {
   'ai_chat_prompt_1': 'Patients not losing weight',
   'ai_chat_prompt_2': 'Next quarter budget forecast',
   'ai_chat_prompt_3': 'Predicted inventory shortages',
-  'ai_chat_response_1': 'There are 12 patients with no weight change in the last 8 weeks. I recommend alerting their physicians to review dosages (mostly on 5mg).',
-  'ai_chat_response_2': 'Based on recent growth rates, we project a 2.3 Million AED subsidy requirement for the upcoming quarter.',
-  'ai_chat_response_3': 'Inventory analysis indicates Sharjah center will deplete 10mg doses in 4 days. Recommend transferring surplus from Dubai.',
+  'ai_chat_response_1':
+      'There are 12 patients with no weight change in the last 8 weeks. I recommend alerting their physicians to review dosages (mostly on 5mg).',
+  'ai_chat_response_2':
+      'Based on recent growth rates, we project a 2.3 Million AED subsidy requirement for the upcoming quarter.',
+  'ai_chat_response_3':
+      'Inventory analysis indicates Sharjah center will deplete 10mg doses in 4 days. Recommend transferring surplus from Dubai.',
   'ai_alert_badge': 'AI Analysis',
   'ai_alert_predictive': 'Predictive Alert',
 
   // 5. Weight Prediction
   'ai_weight_prediction_title': 'AI Future Prediction',
-  'ai_weight_prediction_desc': 'Based on 90% adherence, you will reach your target weight ({target} kg) in 12 weeks.',
+  'ai_weight_prediction_desc':
+      'Based on 90% adherence, you will reach your target weight ({target} kg) in 12 weeks.',
 
   // 6. Inventory Forecasting
   'ai_inventory_depletion': 'AI Depletion Est.',
   'ai_inventory_days': '{days} Days',
   'ai_inventory_safe': 'Safe',
-  
+
   // 10. Patient Health Chatbot
-  'ai_patient_fab': 'AI Health Assistant',
+  'ai_patient_fab': 'Health Assistant',
   'ai_patient_chat_title': 'Your Health Assistant',
   'ai_patient_prompt_1': 'When is my next dose?',
   'ai_patient_prompt_2': 'I feel a bit nauseous',
   'ai_patient_prompt_3': 'Can I change my injection day?',
-  'ai_patient_response_1': 'Your next dose is on Thursday. 2 days remaining! Remember to take it at the same time for maximum effectiveness.',
-  'ai_patient_response_2': 'Nausea is a very common side effect of Mounjaro, especially in the first weeks. Try eating smaller meals and staying hydrated. If it persists, consult your doctor.',
-  'ai_patient_response_3': 'Yes, you can change the day as long as there are at least 72 hours between doses. Would you like to update your schedule?',
+  'ai_patient_response_1':
+      'Your next dose is on Thursday. 2 days remaining! Remember to take it at the same time for maximum effectiveness.',
+  'ai_patient_response_2':
+      'Nausea is a very common side effect of Mounjaro, especially in the first weeks. Try eating smaller meals and staying hydrated. If it persists, consult your doctor.',
+  'ai_patient_response_3':
+      'Yes, you can change the day as long as there are at least 72 hours between doses. Would you like to update your schedule?',
 
   'ai_nav_risk': ' (AI Risk)',
   'ai_nav_forecast': ' (AI Forecast)',
@@ -1424,5 +1475,54 @@ const Map<String, String> translationsEn = {
   'ai_kpi_new_centers': 'AI: Needed Centers Contracts',
 
   'medically_eligible': 'Medically Eligible',
-  'medically_eligible_desc': 'Patient meets all clinical criteria to receive this medication.',
+  'medically_eligible_desc':
+      'Patient meets all clinical criteria to receive this medication.',
+  'medication_adherence': 'Medication adherence',
+  'usage_duration': 'Usage duration',
+  'medication_safety': 'Medication safety',
+  'no_issues': 'No issues',
+  'current_medication': 'Current medication',
+  'weekly': 'Weekly',
+  'route': 'Route',
+  'subcutaneous': 'Subcutaneous injection',
+  'start_date': 'Start date',
+  'prescribing_physician': 'Prescribing physician',
+  'indication': 'Indication',
+  'interaction_check': 'Interaction check',
+  'allergy_check': 'Allergy check',
+  'no_allergies': 'No known allergies',
+  'duplicate_check': 'Duplicate therapy check',
+  'recent_dispense_warning': 'Recent dispense requires review',
+  'no_duplicate_therapy': 'No duplicate therapy',
+  'contraindication_check': 'Contraindication check',
+  'passed': 'Passed',
+  'dose_validation': 'Dose validation',
+  'approval_validity': 'Approval validity',
+  'valid': 'Valid',
+  'ai_medication_insights': 'AI medication insights',
+  'ai_demo_content': 'AI-generated demo content',
+  'adherence_recent': 'Recent adherence is consistent',
+  'dispensing_operations': 'Dispensing pattern reviewed',
+  'no_duplicate_signal': 'No duplicate medication signal detected',
+  'ai_not_prescriber': 'Decision support only — not a prescribing decision.',
+  'dispensing_timeline': 'Dispensing timeline',
+  'subcutaneous_weekly': 'Subcutaneous injection — weekly',
+  'delayed': 'Delayed',
+  'dispensed': 'Dispensed',
+  'expected_doses': 'Expected doses',
+  'upcoming_medication_event': 'Upcoming medication event',
+  'upcoming': 'Upcoming',
+  'prescription_details': 'Prescription details',
+  'prescription_id': 'Prescription ID',
+  'date_issued': 'Date issued',
+  'valid_until': 'Valid until',
+  'quantity': 'Quantity',
+  'refills': 'Refills',
+  'pharmacy_information': 'Pharmacy information',
+  'pharmacy': 'Pharmacy',
+  'dispensed_doses': 'Dispensed doses',
+  'remaining_doses': 'Remaining doses',
+  'medication_history': 'Medication history',
+  'current': 'Current',
+  'current_treatment': 'Current active treatment',
 };

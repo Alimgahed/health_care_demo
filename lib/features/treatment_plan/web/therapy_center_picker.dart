@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/mock_data.dart';
 import '../../../../core/localization/l10n_extension.dart';
@@ -40,19 +40,20 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
 
   List<_RankedCenter> _rankCenters(List<PhysicalTherapyCenter> all) {
     final origin = LatLng(widget.patientLatitude, widget.patientLongitude);
-    final ranked = all
-        .map(
-          (c) => _RankedCenter(
-            center: c,
-            distanceKm: _distance.as(
-              LengthUnit.Kilometer,
-              origin,
-              LatLng(c.latitude, c.longitude),
-            ),
-          ),
-        )
-        .toList()
-      ..sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
+    final ranked =
+        all
+            .map(
+              (c) => _RankedCenter(
+                center: c,
+                distanceKm: _distance.as(
+                  LengthUnit.Kilometer,
+                  origin,
+                  LatLng(c.latitude, c.longitude),
+                ),
+              ),
+            )
+            .toList()
+          ..sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
     return ranked.take(8).toList();
   }
 
@@ -64,10 +65,7 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
     ];
     final bounds = LatLngBounds.fromPoints(points);
     _mapController.fitCamera(
-      CameraFit.bounds(
-        bounds: bounds,
-        padding: const EdgeInsets.all(48),
-      ),
+      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(48)),
     );
     _mapFitted = true;
   }
@@ -89,8 +87,10 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
 
   @override
   Widget build(BuildContext context) {
-
-    final patientPoint = LatLng(widget.patientLatitude, widget.patientLongitude);
+    final patientPoint = LatLng(
+      widget.patientLatitude,
+      widget.patientLongitude,
+    );
 
     return Column(
       children: [
@@ -117,7 +117,10 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
                         'count': '${_ranked.length}',
                         'emirate': widget.patientEmirate,
                       }),
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -147,7 +150,8 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
                         ),
                         children: [
                           TileLayer(
-                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                             userAgentPackageName: 'com.mounjaro.ncc',
                           ),
                           MarkerLayer(
@@ -163,16 +167,24 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
                                 ),
                               ),
                               ..._ranked.map((r) {
-                                final isSelected = _selectedCenter?.id == r.center.id;
+                                final isSelected =
+                                    _selectedCenter?.id == r.center.id;
                                 return Marker(
-                                  point: LatLng(r.center.latitude, r.center.longitude),
+                                  point: LatLng(
+                                    r.center.latitude,
+                                    r.center.longitude,
+                                  ),
                                   width: isSelected ? 50 : 42,
                                   height: isSelected ? 50 : 42,
                                   child: GestureDetector(
-                                    onTap: () => setState(() => _selectedCenter = r.center),
+                                    onTap: () => setState(
+                                      () => _selectedCenter = r.center,
+                                    ),
                                     child: Icon(
                                       LucideIcons.mapPin,
-                                      color: isSelected ? AppColors.primary : Colors.purple,
+                                      color: isSelected
+                                          ? AppColors.primary
+                                          : Colors.purple,
                                       size: isSelected ? 40 : 32,
                                     ),
                                   ),
@@ -200,7 +212,9 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
-                                color: isSelected ? AppColors.primary : AppColors.border,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.border,
                               ),
                             ),
                             child: ListTile(
@@ -219,13 +233,17 @@ class _TherapyCenterPickerState extends State<TherapyCenterPicker> {
                                   '${index + 1}',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: isSelected ? Colors.white : AppColors.primary,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppColors.primary,
                                   ),
                                 ),
                               ),
                               title: Text(
                                 c.getLocalizedName(context),
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,

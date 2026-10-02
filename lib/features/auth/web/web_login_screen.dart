@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/auth/access_control.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/theme/app_colors.dart';
@@ -39,17 +40,22 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
       });
 
       Widget nextScreen;
+      final access = context.read<AccessControlProvider>();
       switch (_selectedRole!) {
         case UserRole.admin:
+          access.setRole(AppRole.systemAdmin);
           nextScreen = const AdminShell();
           break;
         case UserRole.doctor:
+          access.setRole(AppRole.doctor);
           nextScreen = const DoctorShell();
           break;
         case UserRole.center:
+          access.setRole(AppRole.pharmacist);
           nextScreen = const CenterShell();
           break;
         case UserRole.patient:
+          access.setRole(AppRole.patient);
           nextScreen = const PatientShell();
           break;
       }
@@ -74,6 +80,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Left Side: Graphic / Branding
           Expanded(
@@ -208,10 +215,14 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.06),
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.06,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: AppColors.primary.withValues(alpha: 0.15),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.15,
+                                  ),
                                 ),
                               ),
                               child: Row(
@@ -259,8 +270,8 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               boxShadow: _selectedRole != null
                                   ? [
                                       BoxShadow(
-                                        color: AppColors.primary.withValues(alpha: 
-                                          0.3,
+                                        color: AppColors.primary.withValues(
+                                          alpha: 0.3,
                                         ),
                                         blurRadius: 24,
                                         offset: const Offset(0, 12),
@@ -334,7 +345,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.05),
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.05,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -419,16 +432,15 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
                 child: SizedBox(
                   height: 170, // Fixed height for the image to fill top section
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(
-                        imagePath,
-                        fit: BoxFit.cover,
-                      ),
+                      Image.asset(imagePath, fit: BoxFit.cover),
                       // Optional subtle overlay for selection state
                       if (isSelected)
                         Container(
@@ -449,8 +461,12 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                         maxLines: 1,
                         softWrap: false,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
+                          fontWeight: isSelected
+                              ? FontWeight.w800
+                              : FontWeight.w600,
                           fontSize: 18,
                         ),
                       ),

@@ -1,10 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/auth/access_control.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../dashboard/admin_shell.dart';
 import '../../dashboard/center_shell.dart';
@@ -20,10 +21,11 @@ class MobileLoginScreen extends StatefulWidget {
   State<MobileLoginScreen> createState() => _MobileLoginScreenState();
 }
 
-class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTickerProviderStateMixin {
+class _MobileLoginScreenState extends State<MobileLoginScreen>
+    with SingleTickerProviderStateMixin {
   UserRole? _selectedRole;
   bool _isLoading = false;
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -38,9 +40,13 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
     _animationController.forward();
   }
 
@@ -65,17 +71,22 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
       });
 
       Widget nextScreen;
+      final access = context.read<AccessControlProvider>();
       switch (_selectedRole!) {
         case UserRole.admin:
+          access.setRole(AppRole.systemAdmin);
           nextScreen = const AdminShell();
           break;
         case UserRole.doctor:
+          access.setRole(AppRole.doctor);
           nextScreen = const DoctorShell();
           break;
         case UserRole.center:
+          access.setRole(AppRole.pharmacist);
           nextScreen = const CenterShell();
           break;
         case UserRole.patient:
+          access.setRole(AppRole.patient);
           nextScreen = const PatientShell();
           break;
       }
@@ -118,7 +129,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
               ),
             ),
           ),
-          
+
           // Main Scrollable Content
           SafeArea(
             bottom: false,
@@ -173,7 +184,8 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                           const SizedBox(height: 24),
                           Text(
                             t.translate('login_title'),
-                            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            style: Theme.of(context).textTheme.displaySmall
+                                ?.copyWith(
                                   color: AppColors.surface,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.5,
@@ -182,8 +194,11 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                           const SizedBox(height: 8),
                           Text(
                             t.translate('login_subtitle'),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: AppColors.surface.withValues(alpha: 0.85),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: AppColors.surface.withValues(
+                                    alpha: 0.85,
+                                  ),
                                   letterSpacing: 2.0,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -194,7 +209,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                     ),
                   ),
                 ),
-                
+
                 // Login Form Card
                 SliverFillRemaining(
                   hasScrollBody: false,
@@ -223,7 +238,8 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                           children: [
                             Text(
                               t.translate('select_role'),
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.navy,
                                   ),
@@ -232,9 +248,8 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                             const SizedBox(height: 8),
                             Text(
                               t.translate('choose_portal'),
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyLarge
+                                  ?.copyWith(color: AppColors.textSecondary),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 32),
@@ -279,34 +294,50 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                 ),
                               ],
                             ),
-                            
+
                             const SizedBox(height: 24),
-                            
+
                             // Demo Credential Banner
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
                               child: _selectedRole != null
                                   ? Container(
                                       key: ValueKey<UserRole>(_selectedRole!),
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withValues(alpha: 0.06),
+                                        color: AppColors.primary.withValues(
+                                          alpha: 0.06,
+                                        ),
                                         borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
+                                        border: Border.all(
+                                          color: AppColors.primary.withValues(
+                                            alpha: 0.15,
+                                          ),
+                                        ),
                                       ),
                                       child: Row(
                                         children: [
-                                          Icon(LucideIcons.info, color: AppColors.primary, size: 20),
+                                          Icon(
+                                            LucideIcons.info,
+                                            color: AppColors.primary,
+                                            size: 20,
+                                          ),
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: Text(
                                               _selectedRole == UserRole.admin
                                                   ? 'Demo: admin@moh.gov.ae'
-                                                  : (_selectedRole == UserRole.doctor
-                                                      ? 'Demo: clinical@moh.gov.ae'
-                                                      : (_selectedRole == UserRole.center
-                                                          ? 'Demo: pharmacy@moh.gov.ae'
-                                                          : 'Demo: patient@mounjaro.ae')),
+                                                  : (_selectedRole ==
+                                                            UserRole.doctor
+                                                        ? 'Demo: clinical@moh.gov.ae'
+                                                        : (_selectedRole ==
+                                                                  UserRole
+                                                                      .center
+                                                              ? 'Demo: pharmacy@moh.gov.ae'
+                                                              : 'Demo: patient@mounjaro.ae')),
                                               style: TextStyle(
                                                 color: AppColors.textPrimary,
                                                 fontWeight: FontWeight.w700,
@@ -319,7 +350,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                     )
                                   : const SizedBox.shrink(),
                             ),
-                            
+
                             const Spacer(),
                             const SizedBox(height: 32),
 
@@ -331,16 +362,23 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                 borderRadius: BorderRadius.circular(20),
                                 gradient: _selectedRole != null
                                     ? LinearGradient(
-                                        colors: [AppColors.primary, AppColors.primaryDark],
+                                        colors: [
+                                          AppColors.primary,
+                                          AppColors.primaryDark,
+                                        ],
                                         begin: Alignment.centerLeft,
                                         end: Alignment.centerRight,
                                       )
                                     : null,
-                                color: _selectedRole == null ? AppColors.border.withValues(alpha: 0.5) : null,
+                                color: _selectedRole == null
+                                    ? AppColors.border.withValues(alpha: 0.5)
+                                    : null,
                                 boxShadow: _selectedRole != null
                                     ? [
                                         BoxShadow(
-                                          color: AppColors.primary.withValues(alpha: 0.4),
+                                          color: AppColors.primary.withValues(
+                                            alpha: 0.4,
+                                          ),
                                           blurRadius: 20,
                                           offset: const Offset(0, 8),
                                         ),
@@ -350,7 +388,9 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  onTap: _selectedRole != null && !_isLoading ? _handleLogin : null,
+                                  onTap: _selectedRole != null && !_isLoading
+                                      ? _handleLogin
+                                      : null,
                                   borderRadius: BorderRadius.circular(20),
                                   child: Center(
                                     child: _isLoading
@@ -366,8 +406,12 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                             t.translate('access_portal'),
                                             style: TextStyle(
                                               fontSize: 18,
-                                              fontWeight: _selectedRole != null ? FontWeight.w800 : FontWeight.w600,
-                                              color: _selectedRole != null ? Colors.white : AppColors.textSecondary,
+                                              fontWeight: _selectedRole != null
+                                                  ? FontWeight.w800
+                                                  : FontWeight.w600,
+                                              color: _selectedRole != null
+                                                  ? Colors.white
+                                                  : AppColors.textSecondary,
                                               letterSpacing: 0.5,
                                             ),
                                           ),
@@ -375,7 +419,10 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                                 ),
                               ),
                             ),
-                            SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).padding.bottom + 16,
+                            ),
                           ],
                         ),
                       ),
@@ -400,16 +447,24 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                       onPressed: () {
                         localeProvider.toggleLanguage();
                       },
-                      icon: const Icon(LucideIcons.globe, color: Colors.white, size: 18),
+                      icon: const Icon(
+                        LucideIcons.globe,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                       label: Text(
-                        localeProvider.locale.languageCode == 'en' ? 'العربية' : 'English',
+                        localeProvider.locale.languageCode == 'en'
+                            ? 'العربية'
+                            : 'English',
                         style: TextStyle(
                           color: AppColors.surface,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor: AppColors.background.withValues(alpha: 0.15),
+                        backgroundColor: AppColors.background.withValues(
+                          alpha: 0.15,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -449,7 +504,9 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
           color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? Colors.transparent : AppColors.border.withValues(alpha: 0.5),
+            color: isSelected
+                ? Colors.transparent
+                : AppColors.border.withValues(alpha: 0.5),
             width: 1.5,
           ),
           boxShadow: isSelected
@@ -476,18 +533,22 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.surface.withValues(alpha: 0.2) : Colors.transparent,
+                color: isSelected
+                    ? AppColors.surface.withValues(alpha: 0.2)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: isSelected
-                    ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)]
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                        ),
+                      ]
                     : [],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
-                ),
+                child: Image.asset(imagePath, fit: BoxFit.cover),
               ),
             ),
             const SizedBox(height: 12),
@@ -499,11 +560,11 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> with SingleTicker
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: isSelected  ? Colors.white : AppColors.textPrimary,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                      fontSize: 14,
-                      height: 1.2,
-                    ),
+                  color: isSelected ? Colors.white : AppColors.textPrimary,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  fontSize: 14,
+                  height: 1.2,
+                ),
               ),
             ),
           ],

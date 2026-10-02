@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/mock_data.dart';
@@ -71,21 +71,38 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
 
     String appBarTitle = context.tr('ministry_health');
     switch (_selectedIndex) {
-      case 1: appBarTitle = context.tr('manage_doctors_title'); break;
-      case 2: appBarTitle = context.tr('manage_therapy_centers_title'); break;
-      case 3: appBarTitle = context.tr('nav_clinical_ops'); break;
-      case 4: appBarTitle = context.tr('nav_inventory'); break;
-      case 5: appBarTitle = context.tr('nav_fraud_log'); break;
-      case 6: appBarTitle = context.tr('system_audit_log'); break;
+      case 1:
+        appBarTitle = context.tr('manage_doctors_title');
+        break;
+      case 2:
+        appBarTitle = context.tr('manage_therapy_centers_title');
+        break;
+      case 3:
+        appBarTitle = context.tr('nav_clinical_ops');
+        break;
+      case 4:
+        appBarTitle = context.tr('nav_inventory');
+        break;
+      case 5:
+        appBarTitle = context.tr('nav_fraud_log');
+        break;
+      case 6:
+        appBarTitle = context.tr('system_audit_log');
+        break;
     }
 
     final totalLogs = Provider.of<DataProvider>(context).logs.length;
-    final unreadLogs = _lastSeenLogsCount == -1 ? 0 : (totalLogs - _lastSeenLogsCount);
+    final unreadLogs = _lastSeenLogsCount == -1
+        ? 0
+        : (totalLogs - _lastSeenLogsCount);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(appBarTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text(
+          appBarTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
         elevation: 1,
@@ -115,7 +132,16 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                 padding: const EdgeInsets.all(24.0),
                 child: Row(
                   children: [
-                    Image.asset('assets/logo.png', width: 32, height: 32, errorBuilder: (c,e,s) => const Icon(LucideIcons.activity, color: Colors.white, size: 32)),
+                    Image.asset(
+                      'assets/logo.png',
+                      width: 32,
+                      height: 32,
+                      errorBuilder: (c, e, s) => const Icon(
+                        LucideIcons.activity,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -135,13 +161,49 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   children: [
-                    _buildDrawerItem(LucideIcons.layoutDashboard, context.tr('nav_dashboard'), 0, totalLogs),
-                    _buildDrawerItem(LucideIcons.stethoscope, context.tr('manage_doctors_title'), 1, totalLogs),
-                    _buildDrawerItem(LucideIcons.building2, context.tr('manage_therapy_centers_title'), 2, totalLogs),
-                    _buildDrawerItem(LucideIcons.map, context.tr('nav_clinical_ops'), 3, totalLogs),
-                    _buildDrawerItem(LucideIcons.packageSearch, context.tr('nav_inventory'), 4, totalLogs),
-                    _buildDrawerItem(LucideIcons.shieldAlert, context.tr('nav_fraud_log'), 5, totalLogs),
-                    _buildDrawerItem(LucideIcons.activitySquare, context.tr('system_audit_log'), 6, totalLogs, badgeCount: unreadLogs),
+                    _buildDrawerItem(
+                      LucideIcons.layoutDashboard,
+                      context.tr('nav_dashboard'),
+                      0,
+                      totalLogs,
+                    ),
+                    _buildDrawerItem(
+                      LucideIcons.stethoscope,
+                      context.tr('manage_doctors_title'),
+                      1,
+                      totalLogs,
+                    ),
+                    _buildDrawerItem(
+                      LucideIcons.building2,
+                      context.tr('manage_therapy_centers_title'),
+                      2,
+                      totalLogs,
+                    ),
+                    _buildDrawerItem(
+                      LucideIcons.map,
+                      context.tr('nav_clinical_ops'),
+                      3,
+                      totalLogs,
+                    ),
+                    _buildDrawerItem(
+                      LucideIcons.packageSearch,
+                      context.tr('nav_inventory'),
+                      4,
+                      totalLogs,
+                    ),
+                    _buildDrawerItem(
+                      LucideIcons.shieldAlert,
+                      context.tr('nav_fraud_log'),
+                      5,
+                      totalLogs,
+                    ),
+                    _buildDrawerItem(
+                      LucideIcons.activitySquare,
+                      context.tr('system_audit_log'),
+                      6,
+                      totalLogs,
+                      badgeCount: unreadLogs,
+                    ),
                   ],
                 ),
               ),
@@ -161,11 +223,23 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(context.tr('ministry_executive_user'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                          Text('admin@moh.gov.ae', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12)),
+                          Text(
+                            context.tr('ministry_executive_user'),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            'admin@moh.gov.ae',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 12,
+                            ),
+                          ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -177,27 +251,22 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
     );
   }
 
-  Widget _buildDrawerSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 8),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.5),
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrawerItem(IconData icon, String title, int index, int totalLogs, {int badgeCount = 0}) {
+  Widget _buildDrawerItem(
+    IconData icon,
+    String title,
+    int index,
+    int totalLogs, {
+    int badgeCount = 0,
+  }) {
     final isSelected = _selectedIndex == index;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       child: ListTile(
-        leading: Icon(icon, color: isSelected ? Colors.white : Colors.white60, size: 20),
+        leading: Icon(
+          icon,
+          color: isSelected ? Colors.white : Colors.white60,
+          size: 20,
+        ),
         title: Row(
           children: [
             Expanded(
@@ -219,7 +288,11 @@ class _MobileAdminShellState extends State<MobileAdminShell> {
                 ),
                 child: Text(
                   '$badgeCount',
-                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
           ],

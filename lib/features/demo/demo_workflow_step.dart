@@ -6,6 +6,7 @@ class DemoWorkflowStep {
   final String bodyKey;
   final String tipKey;
   final DemoPortalRole role;
+
   /// When [role] is [DemoPortalRole.admin], open this tab in [WebAdminShell].
   final int? adminNavIndex;
   final String? patientId;

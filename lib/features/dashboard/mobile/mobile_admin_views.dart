@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/demo_metrics.dart';
 import '../../../core/constants/mock_data.dart';
+import '../../../core/auth/access_control.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_colors.dart';
@@ -23,7 +24,7 @@ class MobileAdminDashboardView extends StatelessWidget {
         final tr = context.tr;
         final avgBmi = dp.averageBmi;
         final fraudPrevented = dp.fraudIncidentsPrevented;
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -31,7 +32,11 @@ class MobileAdminDashboardView extends StatelessWidget {
             children: [
               Text(
                 tr('nav_dashboard'),
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 16),
               // KPI Grid
@@ -45,7 +50,7 @@ class MobileAdminDashboardView extends StatelessWidget {
                 children: [
                   _MobileKpiCard(
                     icon: LucideIcons.users,
-                    value: DemoMetrics.formatCount(DemoMetrics.nationalEnrolled),
+                    value: DemoMetrics.formatCount(dp.totalPatientCount),
                     label: tr('registered_patients_national'),
                     accentColor: AppColors.primary,
                   ),
@@ -70,11 +75,15 @@ class MobileAdminDashboardView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Mobile compact center inventory summary
               Text(
                 tr('center_inventory_status'),
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 12),
               ListView.builder(
@@ -83,26 +92,56 @@ class MobileAdminDashboardView extends StatelessWidget {
                 itemCount: dp.centers.length,
                 itemBuilder: (context, index) {
                   final center = dp.centers[index];
-                  final totalStock = center.inventory2_5mg + center.inventory5mg + center.inventory7_5mg + center.inventory10mg;
+                  final totalStock =
+                      center.inventory2_5mg +
+                      center.inventory5mg +
+                      center.inventory7_5mg +
+                      center.inventory10mg;
                   return Card(
                     margin: const EdgeInsets.only(bottom: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     elevation: 0,
                     color: AppColors.surface,
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                        child: Icon(LucideIcons.building, color: AppColors.primary, size: 20),
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.1,
+                        ),
+                        child: Icon(
+                          LucideIcons.building,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
                       ),
-                      title: Text(center.getLocalizedName(context), style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text(
+                        center.getLocalizedName(context),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       subtitle: Text(center.getLocalizedRegion(context)),
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('$totalStock units', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                          Text(totalStock < 100 ? tr('replenishment_critical') : tr('stock_adequate'), 
-                            style: TextStyle(color: totalStock < 100 ? AppColors.error : AppColors.success, fontSize: 10)),
+                          Text(
+                            '$totalStock units',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            totalStock < 100
+                                ? tr('replenishment_critical')
+                                : tr('stock_adequate'),
+                            style: TextStyle(
+                              color: totalStock < 100
+                                  ? AppColors.error
+                                  : AppColors.success,
+                              fontSize: 10,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -124,7 +163,12 @@ class _MobileKpiCard extends StatelessWidget {
   final String label;
   final Color accentColor;
 
-  const _MobileKpiCard({required this.icon, required this.value, required this.label, required this.accentColor});
+  const _MobileKpiCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.accentColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +178,13 @@ class _MobileKpiCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,14 +201,22 @@ class _MobileKpiCard extends StatelessWidget {
           const Spacer(),
           Text(
             value,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -183,10 +241,12 @@ class MobileManageDoctorsView extends StatelessWidget {
       itemCount: dp.doctors.length,
       itemBuilder: (context, index) {
         final doctor = dp.doctors[index];
-        
+
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           elevation: 0,
           color: AppColors.surface,
           child: Padding(
@@ -206,20 +266,40 @@ class MobileManageDoctorsView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(doctor.getLocalizedName(context), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                          Text(doctor.specialty, style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600)),
+                          Text(
+                            doctor.getLocalizedName(context),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            doctor.specialty,
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.success.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         context.tr('active'),
-                        style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: AppColors.success,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -230,17 +310,41 @@ class MobileManageDoctorsView extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    Icon(LucideIcons.building, size: 14, color: AppColors.textSecondary),
+                    Icon(
+                      LucideIcons.building,
+                      size: 14,
+                      color: AppColors.textSecondary,
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(doctor.getLocalizedHospital(context), style: TextStyle(fontSize: 12, color: AppColors.textSecondary))),
+                    Expanded(
+                      child: Text(
+                        doctor.getLocalizedHospital(context),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(LucideIcons.mail, size: 14, color: AppColors.textSecondary),
+                    Icon(
+                      LucideIcons.mail,
+                      size: 14,
+                      color: AppColors.textSecondary,
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(doctor.email, style: TextStyle(fontSize: 12, color: AppColors.textSecondary))),
+                    Expanded(
+                      child: Text(
+                        doctor.email,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -248,11 +352,15 @@ class MobileManageDoctorsView extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Edit logic goes here')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Edit logic goes here')),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textPrimary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: Text(context.tr('nav_manage_doctors')),
                   ),
@@ -283,7 +391,9 @@ class MobileManageCentersView extends StatelessWidget {
         final center = dp.centers[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           elevation: 0,
           color: AppColors.surface,
           child: Padding(
@@ -300,15 +410,30 @@ class MobileManageCentersView extends StatelessWidget {
                         color: AppColors.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(LucideIcons.building2, color: AppColors.accent),
+                      child: Icon(
+                        LucideIcons.building2,
+                        color: AppColors.accent,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(center.getLocalizedName(context), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                          Text(center.getLocalizedRegion(context), style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                          Text(
+                            center.getLocalizedName(context),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            center.getLocalizedRegion(context),
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -321,18 +446,35 @@ class MobileManageCentersView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _InfoItem(icon: LucideIcons.mapPin, label: center.getLocalizedRegion(context)),
-                    _InfoItem(icon: LucideIcons.package, label: '${center.inventory2_5mg + center.inventory5mg} units'),
+                    _InfoItem(
+                      icon: LucideIcons.mapPin,
+                      label: center.getLocalizedRegion(context),
+                    ),
+                    _InfoItem(
+                      icon: LucideIcons.package,
+                      label:
+                          '${center.inventory2_5mg + center.inventory5mg} units',
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          context.isArabic
+                              ? 'تم تحميل أحدث بيانات العرض.'
+                              : 'Latest demo data loaded.',
+                        ),
+                      ),
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textPrimary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: Text(context.tr('nav_manage_centers')),
                   ),
@@ -358,7 +500,14 @@ class _InfoItem extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: AppColors.textSecondary),
         const SizedBox(width: 6),
-        Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
@@ -374,6 +523,11 @@ class MobileInventoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dp = context.watch<DataProvider>();
+    final canManageInventory =
+        context.read<AccessControlProvider?>()?.can(
+          AppPermission.managePharmacyInventory,
+        ) ??
+        false;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: dp.centers.length,
@@ -381,46 +535,111 @@ class MobileInventoryView extends StatelessWidget {
         final center = dp.centers[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           elevation: 0,
           color: AppColors.surface,
           clipBehavior: Clip.antiAlias,
           child: ExpansionTile(
-            title: Text(center.getLocalizedName(context), style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-            subtitle: Text(center.getLocalizedRegion(context), style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-            leading: CircleAvatar(backgroundColor: AppColors.background, child: Icon(LucideIcons.package, color: AppColors.primary, size: 18)),
+            title: Text(
+              center.getLocalizedName(context),
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              center.getLocalizedRegion(context),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            ),
+            leading: CircleAvatar(
+              backgroundColor: AppColors.background,
+              child: Icon(
+                LucideIcons.package,
+                color: AppColors.primary,
+                size: 18,
+              ),
+            ),
             children: [
               Container(
                 color: AppColors.background,
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _MobileDoseRow(dose: '2.5 mg', available: center.inventory2_5mg, dispensed: center.dispensed2_5mg, total: 200, context: context),
+                    _MobileDoseRow(
+                      dose: '2.5 mg',
+                      available: center.inventory2_5mg,
+                      dispensed: center.dispensed2_5mg,
+                      total: 200,
+                      context: context,
+                    ),
                     const SizedBox(height: 12),
-                    _MobileDoseRow(dose: '5.0 mg', available: center.inventory5mg, dispensed: center.dispensed5mg, total: 200, context: context),
+                    _MobileDoseRow(
+                      dose: '5.0 mg',
+                      available: center.inventory5mg,
+                      dispensed: center.dispensed5mg,
+                      total: 200,
+                      context: context,
+                    ),
                     const SizedBox(height: 12),
-                    _MobileDoseRow(dose: '7.5 mg', available: center.inventory7_5mg, dispensed: center.dispensed7_5mg, total: 200, context: context),
+                    _MobileDoseRow(
+                      dose: '7.5 mg',
+                      available: center.inventory7_5mg,
+                      dispensed: center.dispensed7_5mg,
+                      total: 200,
+                      context: context,
+                    ),
                     const SizedBox(height: 12),
-                    _MobileDoseRow(dose: '10.0 mg', available: center.inventory10mg, dispensed: center.dispensed10mg, total: 200, context: context),
+                    _MobileDoseRow(
+                      dose: '10.0 mg',
+                      available: center.inventory10mg,
+                      dispensed: center.dispensed10mg,
+                      total: 200,
+                      context: context,
+                    ),
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          dp.replenishInventory(center.id, '2.5 mg', 50);
-                          dp.replenishInventory(center.id, '5.0 mg', 50);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(context.tr('stock_restock_msg')),
-                              backgroundColor: AppColors.success,
-                            ),
-                          );
-                        },
-                        icon: const Icon(LucideIcons.truck, size: 16, color: Colors.white),
-                        label: Text(context.tr('manage_stock_replenishment'), style: const TextStyle(color: Colors.white)),
+                        onPressed: canManageInventory
+                            ? () {
+                                dp.replenishInventory(
+                                  center.id,
+                                  '2.5 mg',
+                                  50,
+                                  authorized: canManageInventory,
+                                );
+                                dp.replenishInventory(
+                                  center.id,
+                                  '5.0 mg',
+                                  50,
+                                  authorized: canManageInventory,
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      context.tr('stock_restock_msg'),
+                                    ),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                              }
+                            : null,
+                        icon: const Icon(
+                          LucideIcons.truck,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          context.tr('manage_stock_replenishment'),
+                          style: const TextStyle(color: Colors.white),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.navy,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                       ),
@@ -443,7 +662,13 @@ class _MobileDoseRow extends StatelessWidget {
   final int total;
   final BuildContext context;
 
-  const _MobileDoseRow({required this.dose, required this.available, required this.dispensed, required this.total, required this.context});
+  const _MobileDoseRow({
+    required this.dose,
+    required this.available,
+    required this.dispensed,
+    required this.total,
+    required this.context,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -456,10 +681,27 @@ class _MobileDoseRow extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-              child: Text(dose, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                dose,
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
             ),
-            Text('${context.tr('available')}: $available', style: TextStyle(color: isLow ? AppColors.error : AppColors.textSecondary, fontWeight: FontWeight.w600, fontSize: 12)),
+            Text(
+              '${context.tr('available')}: $available',
+              style: TextStyle(
+                color: isLow ? AppColors.error : AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -488,32 +730,43 @@ class MobileFraudAuditView extends StatelessWidget {
   Widget build(BuildContext context) {
     final dp = context.watch<DataProvider>();
     final fraudLog = fraudProgramAlerts(context, dp);
-    
+
     if (fraudLog.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.shieldCheck, size: 48, color: AppColors.success.withValues(alpha: 0.5)),
+            Icon(
+              LucideIcons.shieldCheck,
+              size: 48,
+              color: AppColors.success.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
-            Text(context.tr('no_fraud_alerts'), style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+            Text(
+              context.tr('no_fraud_alerts'),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+            ),
           ],
         ),
       );
     }
-    
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: fraudLog.length,
       itemBuilder: (context, index) {
         final log = fraudLog[index];
         final isCritical = log.kind == ProgramAlertKind.flagged;
-        
+
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: isCritical ? AppColors.error.withValues(alpha: 0.5) : Colors.transparent),
+            side: BorderSide(
+              color: isCritical
+                  ? AppColors.error.withValues(alpha: 0.5)
+                  : Colors.transparent,
+            ),
           ),
           elevation: 0,
           color: AppColors.surface,
@@ -524,31 +777,58 @@ class MobileFraudAuditView extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      log.icon, 
-                      color: log.color,
-                      size: 20,
-                    ),
+                    Icon(log.icon, color: log.color, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        isCritical ? context.tr('alert_flagged') : context.tr('alert_override'),
-                        style: TextStyle(fontWeight: FontWeight.bold, color: log.color),
+                        isCritical
+                            ? context.tr('alert_flagged')
+                            : context.tr('alert_override'),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: log.color,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(log.message, style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4)),
+                Text(
+                  log.message,
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(log.time, style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                    Text(
+                      log.time,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                      ),
+                    ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(4)),
-                      child: Text(isCritical ? 'FLAGGED' : 'OVERRIDDEN', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        isCritical ? 'FLAGGED' : 'OVERRIDDEN',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -569,17 +849,19 @@ class MobileRegionalAnalyticsView extends StatefulWidget {
   const MobileRegionalAnalyticsView({super.key, required this.t});
 
   @override
-  State<MobileRegionalAnalyticsView> createState() => _MobileRegionalAnalyticsViewState();
+  State<MobileRegionalAnalyticsView> createState() =>
+      _MobileRegionalAnalyticsViewState();
 }
 
-class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsView> {
+class _MobileRegionalAnalyticsViewState
+    extends State<MobileRegionalAnalyticsView> {
   String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
     final dataProvider = Provider.of<DataProvider>(context);
     final tr = context.tr;
-    
+
     // Group patients by Emirate
     final Map<String, List<Patient>> patientsByEmirate = {};
     for (var p in dataProvider.patients) {
@@ -590,7 +872,11 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
     }
 
     final sortedEmirates = patientsByEmirate.keys.toList()
-      ..sort((a, b) => patientsByEmirate[b]!.length.compareTo(patientsByEmirate[a]!.length));
+      ..sort(
+        (a, b) => patientsByEmirate[b]!.length.compareTo(
+          patientsByEmirate[a]!.length,
+        ),
+      );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -606,7 +892,11 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
             ),
             child: Row(
               children: [
-                Icon(LucideIcons.search, size: 20, color: AppColors.textSecondary),
+                Icon(
+                  LucideIcons.search,
+                  size: 20,
+                  color: AppColors.textSecondary,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
@@ -628,22 +918,31 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
             itemCount: sortedEmirates.length,
             itemBuilder: (context, index) {
               final emirate = sortedEmirates[index];
-              final localizedEmirate = patientsByEmirate[emirate]!.first.getLocalizedEmirate(context);
-              
-              if (_searchQuery.isNotEmpty && 
-                  !localizedEmirate.toLowerCase().contains(_searchQuery.toLowerCase()) &&
+              final localizedEmirate = patientsByEmirate[emirate]!.first
+                  .getLocalizedEmirate(context);
+
+              if (_searchQuery.isNotEmpty &&
+                  !localizedEmirate.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ) &&
                   !emirate.toLowerCase().contains(_searchQuery.toLowerCase())) {
                 return const SizedBox.shrink();
               }
 
               final count = patientsByEmirate[emirate]!.length;
-              final avgBMI = patientsByEmirate[emirate]!.map((p) => p.bmi).reduce((a, b) => a + b) / count;
+              final avgBMI =
+                  patientsByEmirate[emirate]!
+                      .map((p) => p.bmi)
+                      .reduce((a, b) => a + b) /
+                  count;
               final progressValue = 0.7 + (index * 0.05);
               final progressPercentage = (70 + (index * 5)).toString();
-              
+
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 0,
                 color: AppColors.surface,
                 child: Padding(
@@ -656,19 +955,37 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                         children: [
                           Text(
                             localizedEmirate,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               children: [
-                                Text(avgBMI.toStringAsFixed(1), style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13)),
+                                Text(
+                                  avgBMI.toStringAsFixed(1),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                    fontSize: 13,
+                                  ),
+                                ),
                                 const SizedBox(width: 4),
-                                Icon(LucideIcons.activity, size: 12, color: AppColors.primary),
+                                Icon(
+                                  LucideIcons.activity,
+                                  size: 12,
+                                  color: AppColors.primary,
+                                ),
                               ],
                             ),
                           ),
@@ -678,15 +995,30 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                       Row(
                         children: [
                           Expanded(
-                            child: _buildStatItem(tr('filter_patients'), '$count', LucideIcons.users),
+                            child: _buildStatItem(
+                              tr('filter_patients'),
+                              '$count',
+                              LucideIcons.users,
+                            ),
                           ),
                           Expanded(
-                            child: _buildStatItem(tr('actual_dispensed'), '${count * 4}', LucideIcons.package),
+                            child: _buildStatItem(
+                              tr('actual_dispensed'),
+                              '${count * 4}',
+                              LucideIcons.package,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Text(tr('dispensing_vs_goals'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                      Text(
+                        tr('dispensing_vs_goals'),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -696,13 +1028,21 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
                               child: LinearProgressIndicator(
                                 value: progressValue,
                                 backgroundColor: AppColors.border,
-                                valueColor: AlwaysStoppedAnimation<Color>(AppColors.accent),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.accent,
+                                ),
                                 minHeight: 8,
                               ),
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Text('$progressPercentage%', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                          Text(
+                            '$progressPercentage%',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -724,8 +1064,18 @@ class _MobileRegionalAnalyticsViewState extends State<MobileRegionalAnalyticsVie
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-            Text(label, style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+            ),
           ],
         ),
       ],

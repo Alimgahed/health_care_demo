@@ -8,17 +8,12 @@ import '../eligibility/clinical_assessment_card.dart';
 class PatientProfileScreen extends StatelessWidget {
   final Patient patient;
 
-  const PatientProfileScreen({
-    super.key,
-    required this.patient,
-  });
+  const PatientProfileScreen({super.key, required this.patient});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('patient_profile')),
-      ),
+      appBar: AppBar(title: Text(context.tr('patient_profile'))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -64,9 +59,9 @@ class PatientProfileScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '${context.tr('emirates_id')}: ${patient.emiratesId}',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 4),
               Text(
@@ -81,8 +76,10 @@ class PatientProfileScreen extends StatelessWidget {
   }
 
   Widget _buildMedicalConditions(BuildContext context) {
-    if (patient.getLocalizedMedicalConditions(context).isEmpty) return const SizedBox.shrink();
-    
+    if (patient.getLocalizedMedicalConditions(context).isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -97,7 +94,9 @@ class PatientProfileScreen extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: patient.getLocalizedMedicalConditions(context).map((condition) {
+              children: patient.getLocalizedMedicalConditions(context).map((
+                condition,
+              ) {
                 return Chip(
                   label: Text(condition),
                   backgroundColor: AppColors.error.withValues(alpha: 0.1),

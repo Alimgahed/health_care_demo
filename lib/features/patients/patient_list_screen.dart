@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/constants/mock_data.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
-import 'patient_profile_screen.dart';
+import '../treatment_plan/web/patient_360_view.dart';
 
 class PatientListScreen extends StatefulWidget {
   final String? highlightPatientId;
@@ -36,17 +36,18 @@ class _PatientListScreenState extends State<PatientListScreen> {
   @override
   Widget build(BuildContext context) {
     final dataProvider = Provider.of<DataProvider>(context);
-    
+
     // Filter patients based on search
     final filteredPatients = dataProvider.patients.where((p) {
-      return p.getLocalizedFullName(context).toLowerCase().contains(_searchQuery.toLowerCase()) ||
+      return p
+              .getLocalizedFullName(context)
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase()) ||
           p.emiratesId.contains(_searchQuery);
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('patients_registry_title')),
-      ),
+      appBar: AppBar(title: Text(context.tr('patients_registry_title'))),
       body: Column(
         children: [
           Padding(
@@ -77,22 +78,32 @@ class _PatientListScreenState extends State<PatientListScreen> {
           ),
           Expanded(
             child: filteredPatients.isEmpty
-                ? Center(
-                    child: Text(context.tr('no_matching_patients')),
-                  )
+                ? Center(child: Text(context.tr('no_matching_patients')))
                 : ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     itemCount: filteredPatients.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final patient = filteredPatients[index];
                       return Card(
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           leading: CircleAvatar(
-                            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                            backgroundColor: AppColors.primary.withValues(
+                              alpha: 0.1,
+                            ),
                             child: Text(
-                              patient.getLocalizedFullName(context).substring(0, 1).toUpperCase(),
+                              patient
+                                  .getLocalizedFullName(context)
+                                  .substring(0, 1)
+                                  .toUpperCase(),
                               style: TextStyle(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.bold,
@@ -101,15 +112,20 @@ class _PatientListScreenState extends State<PatientListScreen> {
                           ),
                           title: Text(
                             patient.getLocalizedFullName(context),
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(fontSize: 16),
                           ),
-                          subtitle: Text('${context.tr('patients_list_subtitle')}: ${patient.emiratesId}'),
+                          subtitle: Text(
+                            '${context.tr('patients_list_subtitle')}: ${patient.emiratesId}',
+                          ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PatientProfileScreen(patient: patient),
+                                builder: (context) =>
+                                    Patient360View(patient: patient),
                               ),
                             );
                           },

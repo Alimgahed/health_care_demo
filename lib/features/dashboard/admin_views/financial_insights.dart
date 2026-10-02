@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -74,21 +74,33 @@ class FinancialInsights extends StatelessWidget {
                     value: 65,
                     title: '65%',
                     radius: 40,
-                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                    titleStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   PieChartSectionData(
                     color: AppColors.accent,
                     value: 25,
                     title: '25%',
                     radius: 40,
-                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                    titleStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   PieChartSectionData(
                     color: AppColors.border,
                     value: 10,
                     title: '10%',
                     radius: 40,
-                    titleStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    titleStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ],
               ),
@@ -98,9 +110,17 @@ class FinancialInsights extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegend(context, AppColors.primary, context.tr('legend_citizens_full_coverage')),
+              _buildLegend(
+                context,
+                AppColors.primary,
+                context.tr('legend_citizens_full_coverage'),
+              ),
               const SizedBox(width: 16),
-              _buildLegend(context, AppColors.accent, context.tr('legend_residents_half_coverage')),
+              _buildLegend(
+                context,
+                AppColors.accent,
+                context.tr('legend_residents_half_coverage'),
+              ),
             ],
           ),
         ],
@@ -111,9 +131,20 @@ class FinancialInsights extends StatelessWidget {
   Widget _buildLegend(BuildContext context, Color color, String text) {
     return Row(
       children: [
-        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 8),
-        Text(text, style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text(
+          text,
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ],
     );
   }
@@ -143,7 +174,11 @@ class FinancialInsights extends StatelessWidget {
                   color: AppColors.surface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(LucideIcons.calculator, color: AppColors.accent, size: 28),
+                child: Icon(
+                  LucideIcons.calculator,
+                  color: AppColors.accent,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -159,7 +194,10 @@ class FinancialInsights extends StatelessWidget {
                     ),
                     Text(
                       context.tr('next_quarter_projection'),
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
@@ -169,7 +207,10 @@ class FinancialInsights extends StatelessWidget {
           const SizedBox(height: 32),
           Text(
             context.tr('estimated_q3_subsidy_requirement'),
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -187,7 +228,9 @@ class FinancialInsights extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.surface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.surface.withValues(alpha: 0.1)),
+              border: Border.all(
+                color: AppColors.surface.withValues(alpha: 0.1),
+              ),
             ),
             child: Row(
               children: [
@@ -196,7 +239,11 @@ class FinancialInsights extends StatelessWidget {
                 Expanded(
                   child: Text(
                     context.tr('budget_forecast_abu_dhabi_dubai'),
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13, height: 1.5),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 13,
+                      height: 1.5,
+                    ),
                   ),
                 ),
               ],

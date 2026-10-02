@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../../core/theme/app_colors.dart';
@@ -13,7 +13,8 @@ class ActivityFeedTicker extends StatefulWidget {
   State<ActivityFeedTicker> createState() => _ActivityFeedTickerState();
 }
 
-class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTickerProviderStateMixin {
+class _ActivityFeedTickerState extends State<ActivityFeedTicker>
+    with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
 
   @override
@@ -36,7 +37,7 @@ class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTick
     return Consumer<DataProvider>(
       builder: (context, dp, _) {
         final recentLogs = dp.logs.take(5).toList();
-        
+
         if (recentLogs.isEmpty) return const SizedBox.shrink();
 
         return Container(
@@ -57,11 +58,21 @@ class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTick
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.5))),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.border.withValues(alpha: 0.5),
+                    ),
+                  ),
                   color: AppColors.primary.withValues(alpha: 0.02),
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -71,7 +82,11 @@ class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTick
                         color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(LucideIcons.activity, color: AppColors.primary, size: 18),
+                      child: Icon(
+                        LucideIcons.activity,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -84,11 +99,16 @@ class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTick
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+                        border: Border.all(
+                          color: AppColors.error.withValues(alpha: 0.2),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -99,11 +119,15 @@ class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTick
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: AppColors.error.withValues(alpha: 0.5 + (_pulseController.value * 0.5)),
+                                  color: AppColors.error.withValues(
+                                    alpha: 0.5 + (_pulseController.value * 0.5),
+                                  ),
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.error.withValues(alpha: _pulseController.value * 0.5),
+                                      color: AppColors.error.withValues(
+                                        alpha: _pulseController.value * 0.5,
+                                      ),
                                       blurRadius: 6,
                                       spreadRadius: 1,
                                     ),
@@ -124,14 +148,16 @@ class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTick
                           ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
-                  children: recentLogs.map((log) => _buildLogItem(context, log)).toList(),
+                  children: recentLogs
+                      .map((log) => _buildLogItem(context, log))
+                      .toList(),
                 ),
               ),
             ],
@@ -207,7 +233,11 @@ class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTick
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(LucideIcons.user, size: 12, color: AppColors.textSecondary),
+                    Icon(
+                      LucideIcons.user,
+                      size: 12,
+                      color: AppColors.textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       log.getLocalizedPatientName(context),
@@ -218,7 +248,11 @@ class _ActivityFeedTickerState extends State<ActivityFeedTicker> with SingleTick
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(LucideIcons.mapPin, size: 12, color: AppColors.textSecondary),
+                    Icon(
+                      LucideIcons.mapPin,
+                      size: 12,
+                      color: AppColors.textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(

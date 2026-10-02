@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/app_colors.dart';
 
 class KpiCard extends StatelessWidget {
@@ -54,34 +54,33 @@ class KpiCard extends StatelessWidget {
                     color: iconColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 20,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 20),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            Text(
-              value,
-              style: theme.textTheme.displaySmall,
-            ),
+            Text(value, style: theme.textTheme.displaySmall),
             if (subtitle != null || trend != null) ...[
               const SizedBox(height: 8),
               Row(
                 children: [
                   if (trend != null) ...[
                     Icon(
-                      isTrendPositive ? LucideIcons.trendingUp : LucideIcons.trendingDown,
-                      color: isTrendPositive ? AppColors.success : AppColors.error,
+                      isTrendPositive
+                          ? LucideIcons.trendingUp
+                          : LucideIcons.trendingDown,
+                      color: isTrendPositive
+                          ? AppColors.success
+                          : AppColors.error,
                       size: 16,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       trend!,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isTrendPositive ? AppColors.success : AppColors.error,
+                        color: isTrendPositive
+                            ? AppColors.success
+                            : AppColors.error,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

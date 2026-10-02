@@ -7,8 +7,7 @@ extension L10nExtension on BuildContext {
   String tr(String key, [Map<String, String>? params]) =>
       l10n.translate(key, params);
 
-  bool get isArabic =>
-      Localizations.localeOf(this).languageCode == 'ar';
+  bool get isArabic => Localizations.localeOf(this).languageCode == 'ar';
 
   String emirateLabel(String emirate) {
     switch (emirate) {

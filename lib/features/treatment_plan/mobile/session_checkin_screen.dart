@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/localization/l10n_extension.dart';
@@ -10,7 +10,11 @@ class SessionCheckinScreen extends StatefulWidget {
   final TreatmentPlan plan;
   final TherapySession session;
 
-  const SessionCheckinScreen({super.key, required this.plan, required this.session});
+  const SessionCheckinScreen({
+    super.key,
+    required this.plan,
+    required this.session,
+  });
 
   @override
   State<SessionCheckinScreen> createState() => _SessionCheckinScreenState();
@@ -32,9 +36,11 @@ class _SessionCheckinScreenState extends State<SessionCheckinScreen> {
 
     final provider = Provider.of<DataProvider>(context, listen: false);
     provider.checkInSession(widget.plan.id, widget.session.id, weight);
-    
+
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr('success'))));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.tr('success'))));
   }
 
   @override
@@ -42,9 +48,7 @@ class _SessionCheckinScreenState extends State<SessionCheckinScreen> {
     final provider = Provider.of<DataProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('session_checkin')),
-      ),
+      appBar: AppBar(title: Text(context.tr('session_checkin'))),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -67,10 +71,20 @@ class _SessionCheckinScreenState extends State<SessionCheckinScreen> {
                         Text(
                           widget.plan.assignedCenterId == null
                               ? context.tr('not_assigned')
-                              : provider.therapyCenterLabel(context, widget.plan.assignedCenterId),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                              : provider.therapyCenterLabel(
+                                  context,
+                                  widget.plan.assignedCenterId,
+                                ),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
-                        Text(context.tr('session_n', {'n': '${widget.session.sessionNumber}'})),
+                        Text(
+                          context.tr('session_n', {
+                            'n': '${widget.session.sessionNumber}',
+                          }),
+                        ),
                       ],
                     ),
                   ),
@@ -78,11 +92,16 @@ class _SessionCheckinScreenState extends State<SessionCheckinScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            Text(context.tr('post_session_log'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              context.tr('post_session_log'),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: _weightController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 labelText: context.tr('weight_after_session'),
                 border: const OutlineInputBorder(),

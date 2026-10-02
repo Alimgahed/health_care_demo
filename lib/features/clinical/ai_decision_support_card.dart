@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -40,7 +40,11 @@ class AiDecisionSupportCard extends StatelessWidget {
                   color: AppColors.surface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(LucideIcons.sparkles, color: AppColors.accent, size: 20),
+                child: Icon(
+                  LucideIcons.sparkles,
+                  color: AppColors.accent,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Text(
@@ -53,28 +57,6 @@ class AiDecisionSupportCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.success.withValues(alpha: 0.5)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(LucideIcons.checkCircle, color: AppColors.success, size: 12),
-                    const SizedBox(width: 4),
-                    Text(
-                      context.tr('confidence_high'),
-                      style: const TextStyle(
-                        color: AppColors.success,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -84,16 +66,18 @@ class AiDecisionSupportCard extends StatelessWidget {
             children: [
               _buildMetricChip(
                 context,
-                LucideIcons.trendingDown,
-                '${context.tr('bmi_trend')}: -1.2',
-                AppColors.success,
+                LucideIcons.activity,
+                'BMI: ${patient.bmi.toStringAsFixed(1)}',
+                AppColors.accent,
               ),
               const SizedBox(width: 8),
               _buildMetricChip(
                 context,
                 LucideIcons.activity,
                 '${context.tr('adherence')}: ${(patient.complianceRate * 100).toInt()}%',
-                patient.complianceRate > 0.8 ? AppColors.success : AppColors.warning,
+                patient.complianceRate > 0.8
+                    ? AppColors.success
+                    : AppColors.warning,
               ),
             ],
           ),
@@ -107,9 +91,11 @@ class AiDecisionSupportCard extends StatelessWidget {
     IconData icon = LucideIcons.info;
     Color color = Colors.white;
 
-    if (patient.bmi > 35 && patient.complianceRate > 0.8) {
-      message = context.tr('ai_rec_increase_dose');
-      icon = LucideIcons.arrowUpCircle;
+    if (patient.bmi > 35) {
+      message = context.isArabic
+          ? 'مؤشر كتلة الجسم مرتفع. راجع الخطة والبيانات السريرية مع الطبيب قبل أي تعديل علاجي.'
+          : 'BMI is elevated. Review the care plan and clinical record with the physician before changing treatment.';
+      icon = LucideIcons.info;
       color = AppColors.warning;
     } else if (patient.complianceRate <= 0.6) {
       message = context.tr('ai_rec_adherence');
@@ -140,7 +126,12 @@ class AiDecisionSupportCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMetricChip(BuildContext context, IconData icon, String label, Color color) {
+  Widget _buildMetricChip(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(

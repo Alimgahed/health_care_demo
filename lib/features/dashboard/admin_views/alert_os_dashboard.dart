@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/constants/mock_data.dart';
@@ -105,11 +105,13 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _chatMessages.add(ChatMessage(
-        isUser: false,
-        text: context.tr('ai_welcome_msg'),
-        time: DateTime.now(),
-      ));
+      _chatMessages.add(
+        ChatMessage(
+          isUser: false,
+          text: context.tr('ai_welcome_msg'),
+          time: DateTime.now(),
+        ),
+      );
       _bootstrapLiveFeed();
     });
 
@@ -167,14 +169,20 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
     super.dispose();
   }
 
-  List<ProgramAlert> _filteredAlerts(List<ProgramAlert> allAlerts, {AlertCategory? forceCategory}) {
+  List<ProgramAlert> _filteredAlerts(
+    List<ProgramAlert> allAlerts, {
+    AlertCategory? forceCategory,
+  }) {
     final categoryFilter = forceCategory ?? _filterCategory;
     var list = allAlerts.where((a) {
       if (a.kind == ProgramAlertKind.allClear) return false;
       if (categoryFilter != null && a.category != categoryFilter) return false;
       if (_searchQuery.isNotEmpty &&
           !a.message.toLowerCase().contains(_searchQuery.toLowerCase()) &&
-          !a.localizedKindLabel(context).toLowerCase().contains(_searchQuery.toLowerCase())) {
+          !a
+              .localizedKindLabel(context)
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase())) {
         return false;
       }
       return true;
@@ -194,18 +202,26 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
     if (text.trim().isEmpty) return;
     _chatCtrl.clear();
     setState(() {
-      _chatMessages.add(ChatMessage(isUser: true, text: text, time: DateTime.now()));
+      _chatMessages.add(
+        ChatMessage(isUser: true, text: text, time: DateTime.now()),
+      );
       _aiTyping = true;
     });
     await Future.delayed(const Duration(milliseconds: 200));
     _scrollChat();
     await Future.delayed(Duration(milliseconds: 1000 + Random().nextInt(800)));
     if (!mounted) return;
-    final reply = AlertOsAiAssistant.reply(context, context.read<DataProvider>(), text);
+    final reply = AlertOsAiAssistant.reply(
+      context,
+      context.read<DataProvider>(),
+      text,
+    );
     if (mounted) {
       setState(() {
         _aiTyping = false;
-        _chatMessages.add(ChatMessage(isUser: false, text: reply, time: DateTime.now()));
+        _chatMessages.add(
+          ChatMessage(isUser: false, text: reply, time: DateTime.now()),
+        );
       });
       await Future.delayed(const Duration(milliseconds: 100));
       _scrollChat();
@@ -229,14 +245,17 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
     }
   }
 
-  int _countForCategory(List<ProgramAlert> alerts, AlertCategory cat) =>
-      alerts.where((a) => a.category == cat && a.kind != ProgramAlertKind.allClear).length;
+  int _countForCategory(List<ProgramAlert> alerts, AlertCategory cat) => alerts
+      .where((a) => a.category == cat && a.kind != ProgramAlertKind.allClear)
+      .length;
 
   @override
   Widget build(BuildContext context) {
     final dp = context.watch<DataProvider>();
     final allAlerts = collectProgramAlerts(context, dp);
-    final activeAlerts = allAlerts.where((a) => a.kind != ProgramAlertKind.allClear).toList();
+    final activeAlerts = allAlerts
+        .where((a) => a.kind != ProgramAlertKind.allClear)
+        .toList();
     final timeStr =
         '${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')}:${_now.second.toString().padLeft(2, '0')}';
 
@@ -260,20 +279,20 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
   Widget _buildPageHeader(String time, int totalAlerts) {
     final (title, subtitle, icon) = switch (widget.section) {
       AlertOSSection.overview => (
-          context.tr('nav_ai_alerts'),
-          context.tr('ai_command_center_desc'),
-          LucideIcons.bot,
-        ),
+        context.tr('nav_ai_alerts'),
+        context.tr('ai_command_center_desc'),
+        LucideIcons.bot,
+      ),
       AlertOSSection.liveFeed => (
-          context.tr('live_activity_feed'),
-          context.tr('live_activity_feed_desc'),
-          LucideIcons.radio,
-        ),
+        context.tr('live_activity_feed'),
+        context.tr('live_activity_feed_desc'),
+        LucideIcons.radio,
+      ),
       AlertOSSection.aiChat => (
-          context.tr('ai_assistant_title'),
-          context.tr('ai_assistant_subtitle'),
-          LucideIcons.bot,
-        ),
+        context.tr('ai_assistant_title'),
+        context.tr('ai_assistant_subtitle'),
+        LucideIcons.bot,
+      ),
     };
 
     return Row(
@@ -309,7 +328,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
               ),
             ],
           ),
@@ -336,7 +359,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           const SizedBox(width: 8),
           Text(
             context.tr('live_badge'),
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -346,7 +373,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           ),
           Text(
             time,
-            style: TextStyle(color: AppColors.textPrimary, fontSize: 12, fontFamily: 'monospace'),
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 12,
+              fontFamily: 'monospace',
+            ),
           ),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -375,7 +406,9 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
       decoration: const BoxDecoration(
         color: AppColors.error,
         shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: AppColors.error, blurRadius: 4, spreadRadius: 1)],
+        boxShadow: [
+          BoxShadow(color: AppColors.error, blurRadius: 4, spreadRadius: 1),
+        ],
       ),
     );
   }
@@ -383,10 +416,17 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
   Widget _badge(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Text(
         text,
-        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -441,7 +481,13 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
     );
   }
 
-  Widget _metricCard(String title, int count, Color color, IconData icon, {VoidCallback? onTap}) {
+  Widget _metricCard(
+    String title,
+    int count,
+    Color color,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -454,7 +500,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: AppColors.border),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
             ],
           ),
           child: Row(
@@ -474,7 +524,10 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
@@ -512,7 +565,12 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: child,
@@ -534,7 +592,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           Expanded(
             child: Text(
               title ?? context.tr('active_alerts'),
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
           SizedBox(
@@ -545,8 +607,15 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
               style: TextStyle(fontSize: 12, color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: context.tr('search'),
-                hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                prefixIcon: Icon(Icons.search, size: 16, color: AppColors.textSecondary),
+                hintStyle: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  size: 16,
+                  color: AppColors.textSecondary,
+                ),
                 filled: true,
                 fillColor: AppColors.background,
                 border: OutlineInputBorder(
@@ -571,9 +640,24 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
 
   Widget _buildOverviewContent(List<ProgramAlert> allAlerts) {
     final categories = [
-      (AlertCategory.fraud, context.tr('security_fraud'), LucideIcons.shieldAlert, AppColors.error),
-      (AlertCategory.clinical, context.tr('clinical_followup'), LucideIcons.stethoscope, AppColors.accent),
-      (AlertCategory.supply, context.tr('supply_crises'), LucideIcons.package, AppColors.warning),
+      (
+        AlertCategory.fraud,
+        context.tr('security_fraud'),
+        LucideIcons.shieldAlert,
+        AppColors.error,
+      ),
+      (
+        AlertCategory.clinical,
+        context.tr('clinical_followup'),
+        LucideIcons.stethoscope,
+        AppColors.accent,
+      ),
+      (
+        AlertCategory.supply,
+        context.tr('supply_crises'),
+        LucideIcons.package,
+        AppColors.warning,
+      ),
     ];
 
     final filtered = _filteredAlerts(allAlerts);
@@ -609,14 +693,14 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   ],
                 )
               : filtered.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.separated(
-                      controller: _contentScroll,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: filtered.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 10),
-                      itemBuilder: (_, i) => _alertListTile(filtered[i]),
-                    ),
+              ? _buildEmptyState()
+              : ListView.separated(
+                  controller: _contentScroll,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (_, i) => _alertListTile(filtered[i]),
+                ),
         ),
       ],
     );
@@ -680,14 +764,20 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-            color: isActive ? color.withValues(alpha: 0.12) : AppColors.background,
+            color: isActive
+                ? color.withValues(alpha: 0.12)
+                : AppColors.background,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: isActive ? color : AppColors.border),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 13, color: isActive ? color : AppColors.textSecondary),
+              Icon(
+                icon,
+                size: 13,
+                color: isActive ? color : AppColors.textSecondary,
+              ),
               const SizedBox(width: 6),
               Text(
                 label,
@@ -700,7 +790,10 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
               if (count > 0) ...[
                 const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive ? color : AppColors.border,
                     borderRadius: BorderRadius.circular(10),
@@ -767,7 +860,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   icon: Icon(Icons.filter_alt_outlined, size: 14, color: color),
                   label: Text(
                     context.tr('view_all'),
-                    style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -813,7 +910,9 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   width: 4,
                   decoration: BoxDecoration(
                     color: alert.color,
-                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                    borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(12),
+                    ),
                   ),
                 ),
                 Expanded(
@@ -828,7 +927,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                             color: alert.color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(alert.kindIcon, color: alert.color, size: 18),
+                          child: Icon(
+                            alert.kindIcon,
+                            color: alert.color,
+                            size: 18,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -838,7 +941,10 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: alert.color.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(4),
@@ -853,11 +959,18 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                                     ),
                                   ),
                                   const Spacer(),
-                                  Icon(Icons.access_time, size: 11, color: AppColors.textSecondary),
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 11,
+                                    color: AppColors.textSecondary,
+                                  ),
                                   const SizedBox(width: 3),
                                   Text(
                                     alert.time,
-                                    style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -881,22 +994,33 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                                       child: Icon(
                                         Icons.circle,
                                         size: 6,
-                                        color: i < alert.severity ? alert.color : AppColors.border,
+                                        color: i < alert.severity
+                                            ? alert.color
+                                            : AppColors.border,
                                       ),
                                     ),
                                   ),
                                   const Spacer(),
                                   if (alert.action.isNotEmpty)
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: alert.color.withValues(alpha: 0.08),
+                                        color: alert.color.withValues(
+                                          alpha: 0.08,
+                                        ),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(alert.actionIcon, size: 12, color: alert.color),
+                                          Icon(
+                                            alert.actionIcon,
+                                            size: 12,
+                                            color: alert.color,
+                                          ),
                                           const SizedBox(width: 4),
                                           Text(
                                             alert.action,
@@ -933,7 +1057,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.check_circle_outline, size: 48, color: AppColors.success),
+            Icon(
+              Icons.check_circle_outline,
+              size: 48,
+              color: AppColors.success,
+            ),
             const SizedBox(height: 12),
             Text(
               context.tr('no_matching_alerts'),
@@ -957,13 +1085,20 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: alert.color.withValues(alpha: 0.1), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: alert.color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
               child: Icon(alert.kindIcon, color: alert.color, size: 20),
             ),
             const SizedBox(width: 10),
             Text(
               context.tr('alert_details'),
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
           ],
         ),
@@ -971,7 +1106,14 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(alert.message, style: TextStyle(fontSize: 14, color: AppColors.textPrimary, height: 1.5)),
+            Text(
+              alert.message,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textPrimary,
+                height: 1.5,
+              ),
+            ),
             const SizedBox(height: 12),
             Text(
               '${context.tr('suggested_action')} ${alert.action}',
@@ -987,18 +1129,28 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(context.tr('close'), style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(
+              context.tr('close'),
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('${context.tr('action_executed_successfully')} ${alert.action}'),
-                backgroundColor: AppColors.success,
-                duration: const Duration(seconds: 2),
-              ));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${context.tr('action_executed_successfully')} ${alert.action}',
+                  ),
+                  backgroundColor: AppColors.success,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: alert.color, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: alert.color,
+              foregroundColor: Colors.white,
+            ),
             icon: Icon(alert.actionIcon, size: 16),
             label: Text(alert.action, style: const TextStyle(fontSize: 13)),
           ),
@@ -1023,9 +1175,18 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           style: TextStyle(fontSize: 11, color: AppColors.textPrimary),
           dropdownColor: AppColors.surface,
           items: [
-            DropdownMenuItem(value: 'newest', child: Text(context.tr('sort_newest'))),
-            DropdownMenuItem(value: 'oldest', child: Text(context.tr('sort_oldest'))),
-            DropdownMenuItem(value: 'severity', child: Text(context.tr('sort_severity'))),
+            DropdownMenuItem(
+              value: 'newest',
+              child: Text(context.tr('sort_newest')),
+            ),
+            DropdownMenuItem(
+              value: 'oldest',
+              child: Text(context.tr('sort_oldest')),
+            ),
+            DropdownMenuItem(
+              value: 'severity',
+              child: Text(context.tr('sort_severity')),
+            ),
           ],
           onChanged: (v) => setState(() => _sortMode = v!),
         ),
@@ -1045,16 +1206,30 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
               const SizedBox(width: 8),
               Text(
                 context.tr('live_activity_feed'),
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const Spacer(),
-              Text('${_feedItems.length}', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text(
+                '${_feedItems.length}',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
               const SizedBox(width: 4),
-              Text(context.tr('alert_count'), style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text(
+                context.tr('alert_count'),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
               const SizedBox(width: 8),
               IconButton(
                 onPressed: () => setState(_bootstrapLiveFeed),
-                icon: Icon(Icons.delete_outline, size: 18, color: AppColors.textSecondary),
+                icon: Icon(
+                  Icons.delete_outline,
+                  size: 18,
+                  color: AppColors.textSecondary,
+                ),
                 tooltip: context.tr('clear'),
               ),
             ],
@@ -1068,21 +1243,27 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   controller: _feedScroll,
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   itemCount: _feedItems.length,
-                  separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.border.withValues(alpha: 0.5)),
+                  separatorBuilder: (_, _) => Divider(
+                    height: 1,
+                    color: AppColors.border.withValues(alpha: 0.5),
+                  ),
                   itemBuilder: (ctx, i) {
                     final item = _feedItems[i];
                     final color = item.category == AlertCategory.fraud
                         ? AppColors.error
                         : item.category == AlertCategory.clinical
-                            ? AppColors.accent
-                            : AppColors.warning;
+                        ? AppColors.accent
+                        : AppColors.warning;
                     final label = item.category == AlertCategory.fraud
                         ? (context.tr('security_fraud_short'))
                         : item.category == AlertCategory.clinical
-                            ? (context.tr('clinical_short'))
-                            : (context.tr('supply_short'));
+                        ? (context.tr('clinical_short'))
+                        : (context.tr('supply_short'));
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1090,7 +1271,10 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                             width: 8,
                             height: 8,
                             margin: const EdgeInsets.only(top: 4),
-                            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -1099,26 +1283,40 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                               children: [
                                 Text(
                                   item.message,
-                                  style: TextStyle(fontSize: 12, color: AppColors.textPrimary, height: 1.4),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textPrimary,
+                                    height: 1.4,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 1,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: color.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
                                         label,
-                                        style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.bold),
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          color: color,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                     const Spacer(),
                                     Text(
                                       '${item.time.hour.toString().padLeft(2, '0')}:${item.time.minute.toString().padLeft(2, '0')}:${item.time.second.toString().padLeft(2, '0')}',
-                                      style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: AppColors.textSecondary,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1145,7 +1343,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
           padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.navy, AppColors.primaryDark, AppColors.primary],
+              colors: [
+                AppColors.navy,
+                AppColors.primaryDark,
+                AppColors.primary,
+              ],
               begin: Alignment.centerRight,
               end: Alignment.centerLeft,
             ),
@@ -1158,9 +1360,15 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.accent.withValues(alpha: 0.45)),
+                  border: Border.all(
+                    color: AppColors.accent.withValues(alpha: 0.45),
+                  ),
                 ),
-                child: const Icon(LucideIcons.sparkles, color: AppColors.accent, size: 22),
+                child: const Icon(
+                  LucideIcons.sparkles,
+                  color: AppColors.accent,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1169,12 +1377,19 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   children: [
                     Text(
                       context.tr('ai_assistant_title'),
-                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       context.tr('ai_assistant_subtitle'),
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 11),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.75),
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),
@@ -1184,7 +1399,9 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                 decoration: BoxDecoration(
                   color: AppColors.accent.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.accent.withValues(alpha: 0.35)),
+                  border: Border.all(
+                    color: AppColors.accent.withValues(alpha: 0.35),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1192,12 +1409,19 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                     Container(
                       width: 6,
                       height: 6,
-                      decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
+                      decoration: const BoxDecoration(
+                        color: AppColors.success,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                     const SizedBox(width: 5),
                     Text(
                       context.tr('ai_assistant_live'),
-                      style: const TextStyle(color: AppColors.accent, fontSize: 10, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        color: AppColors.accent,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -1229,7 +1453,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
             children: [
               Text(
                 context.tr('ai_suggestions_label'),
-                style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 8),
               SizedBox(
@@ -1239,7 +1467,10 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   itemCount: suggestions.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) => ActionChip(
-                    label: Text(suggestions[i], style: const TextStyle(fontSize: 11)),
+                    label: Text(
+                      suggestions[i],
+                      style: const TextStyle(fontSize: 11),
+                    ),
                     backgroundColor: AppColors.background,
                     side: BorderSide(color: AppColors.border),
                     padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -1267,7 +1498,10 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
                   decoration: InputDecoration(
                     hintText: context.tr('ai_chat_hint'),
-                    hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    hintStyle: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
                     filled: true,
                     fillColor: AppColors.background,
                     border: OutlineInputBorder(
@@ -1280,9 +1514,15 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                      borderSide: BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ),
@@ -1297,7 +1537,11 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   borderRadius: BorderRadius.circular(14),
                   child: const Padding(
                     padding: EdgeInsets.all(13),
-                    child: Icon(Icons.send_rounded, color: Colors.white, size: 18),
+                    child: Icon(
+                      Icons.send_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
@@ -1331,7 +1575,9 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                   height: 7,
                   margin: EdgeInsets.only(left: i == 0 ? 0 : 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.35 + (i * 0.2)),
+                    color: AppColors.primary.withValues(
+                      alpha: 0.35 + (i * 0.2),
+                    ),
                     shape: BoxShape.circle,
                   ),
                 );
@@ -1348,7 +1594,9 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
       width: 28,
       height: 28,
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.primaryLight],
+        ),
         shape: BoxShape.circle,
       ),
       child: const Icon(LucideIcons.bot, color: Colors.white, size: 14),
@@ -1379,19 +1627,23 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
       padding: const EdgeInsets.only(bottom: 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         children: [
-          if (!isUser) ...[
-            _botAvatar(),
-            const SizedBox(width: 8),
-          ],
+          if (!isUser) ...[_botAvatar(), const SizedBox(width: 8)],
           Flexible(
             child: Column(
-              crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: isUser
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Container(
                   constraints: const BoxConstraints(maxWidth: 560),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: isUser ? AppColors.primary : AppColors.surface,
                     borderRadius: BorderRadius.only(
@@ -1403,7 +1655,9 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                     border: isUser ? null : Border.all(color: AppColors.border),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isUser ? 0.08 : 0.04),
+                        color: Colors.black.withValues(
+                          alpha: isUser ? 0.08 : 0.04,
+                        ),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -1421,15 +1675,15 @@ class _AlertOSDashboardState extends State<AlertOSDashboard> {
                 const SizedBox(height: 4),
                 Text(
                   _formatChatTime(msg.time),
-                  style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
           ),
-          if (isUser) ...[
-            const SizedBox(width: 8),
-            _userAvatar(),
-          ],
+          if (isUser) ...[const SizedBox(width: 8), _userAvatar()],
         ],
       ),
     );

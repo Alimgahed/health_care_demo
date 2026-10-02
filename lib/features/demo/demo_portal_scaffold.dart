@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
@@ -31,7 +31,10 @@ class DemoPortalScaffold extends StatelessWidget {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     IconButton(
@@ -39,7 +42,11 @@ class DemoPortalScaffold extends StatelessWidget {
                         flow.endPortal();
                         Navigator.of(context).pop();
                       },
-                      icon: const Icon(LucideIcons.arrowLeft, color: Colors.white, size: 20),
+                      icon: const Icon(
+                        LucideIcons.arrowLeft,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       tooltip: context.tr('demo_back_to_workflow'),
                     ),
                     Expanded(
@@ -51,11 +58,19 @@ class DemoPortalScaffold extends StatelessWidget {
                               'n': '${stepIndex + 1}',
                               'total': '$kDemoWorkflowStepCount',
                             }),
-                            style: TextStyle(color: AppColors.accent, fontSize: 11, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: AppColors.accent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           Text(
                             context.tr(step.titleKey),
-                            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -70,7 +85,9 @@ class DemoPortalScaffold extends StatelessWidget {
                       },
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.accent,
-                        backgroundColor: AppColors.background.withValues(alpha: 0.12),
+                        backgroundColor: AppColors.background.withValues(
+                          alpha: 0.12,
+                        ),
                       ),
                       child: Text(context.tr('demo_mark_done')),
                     ),

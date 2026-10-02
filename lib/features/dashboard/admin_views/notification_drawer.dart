@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mounjaro_demo/core/models/activity_log.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/mock_data.dart';
@@ -46,18 +46,26 @@ class NotificationDrawer extends StatelessWidget {
               child: Consumer<DataProvider>(
                 builder: (context, dp, _) {
                   // We'll show logs that might be considered "alerts"
-                  final alertLogs = dp.logs.where((l) => 
-                    l.eventType == ActivityEventType.adminAction ||
-                    l.eventType == ActivityEventType.clinicalReview ||
-                    l.status == 'Overridden'
-                  ).take(10).toList();
+                  final alertLogs = dp.logs
+                      .where(
+                        (l) =>
+                            l.eventType == ActivityEventType.adminAction ||
+                            l.eventType == ActivityEventType.clinicalReview ||
+                            l.status == 'Overridden',
+                      )
+                      .take(10)
+                      .toList();
 
                   if (alertLogs.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(LucideIcons.bellOff, size: 48, color: AppColors.border),
+                          Icon(
+                            LucideIcons.bellOff,
+                            size: 48,
+                            color: AppColors.border,
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             context.tr('no_notifications'),
@@ -80,9 +88,9 @@ class NotificationDrawer extends StatelessWidget {
                           color: AppColors.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: log.status == 'Overridden' 
-                              ? AppColors.error.withValues(alpha: 0.5)
-                              : AppColors.border,
+                            color: log.status == 'Overridden'
+                                ? AppColors.error.withValues(alpha: 0.5)
+                                : AppColors.border,
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -104,9 +112,13 @@ class NotificationDrawer extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                log.status == 'Overridden' ? LucideIcons.alertTriangle : LucideIcons.info,
+                                log.status == 'Overridden'
+                                    ? LucideIcons.alertTriangle
+                                    : LucideIcons.info,
                                 size: 16,
-                                color: log.status == 'Overridden' ? AppColors.error : AppColors.primary,
+                                color: log.status == 'Overridden'
+                                    ? AppColors.error
+                                    : AppColors.primary,
                               ),
                             ),
                             const SizedBox(width: 12),

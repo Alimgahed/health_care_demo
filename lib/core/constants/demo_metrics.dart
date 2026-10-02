@@ -7,6 +7,10 @@ class DemoMetrics {
   static const double nationalSubsidyBaseAed = 42.5e6;
   static const int nationalFraudPreventedBase = 342;
   static const double baselineNationalBmi = 33.5;
+  static const int registryPatients = 245;
+  static const int registryActive = 156;
+  static const int registryFlagged = 18;
+  static const int registryReviews = 24;
 
   static String formatCount(int n) {
     if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
@@ -20,5 +24,6 @@ class DemoMetrics {
     return '${amount.toStringAsFixed(0)} AED';
   }
 
-  static String formatPercent(double value) => '${(value * 100).toStringAsFixed(1)}%';
+  static String formatPercent(double value) =>
+      '${(value * 100).toStringAsFixed(1)}%';
 }

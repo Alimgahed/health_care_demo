@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_colors.dart';
@@ -18,7 +18,15 @@ class NationalCommandCenter extends StatelessWidget {
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         actions: [
-          IconButton(icon: const Icon(LucideIcons.bell), onPressed: () {}),
+          IconButton(
+            icon: const Icon(LucideIcons.bell),
+            tooltip: 'Notifications',
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No new command-center notifications.'),
+              ),
+            ),
+          ),
           const SizedBox(width: 16),
         ],
       ),

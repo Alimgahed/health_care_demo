@@ -96,7 +96,10 @@ abstract final class HomeExerciseCatalog {
       isArabic ? e.nameAr : e.name;
 
   /// All exercises assigned on any care plan for this beneficiary (deduped by id).
-  static List<HomeExercise> forPatientPlans(Iterable<TreatmentPlan> plans, String patientId) {
+  static List<HomeExercise> forPatientPlans(
+    Iterable<TreatmentPlan> plans,
+    String patientId,
+  ) {
     final seen = <String>{};
     final out = <HomeExercise>[];
     for (final plan in plans) {

@@ -1,22 +1,29 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mounjaro_demo/features/treatment_plan/models/treatment_plan.dart';
 import 'package:provider/provider.dart';
 
-import '../../patient_app/medication_order/medication_order_wizard.dart' as mounjaro_demo;
+import '../../patient_app/medication_order/medication_order_wizard.dart'
+    as mounjaro_demo;
 import '../../../core/constants/mock_data.dart';
+import '../../../core/demo/demo_session_provider.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_tokens.dart';
+import '../../../core/widgets/platform_state_view.dart';
 import '../../auth/login_screen.dart';
+import '../../patient_app/patient_notifications_sheet.dart';
 import '../../treatment_plan/web/web_plan_exercises_view.dart';
 import '../../treatment_plan/web/web_plan_medication_view.dart';
 import '../../treatment_plan/web/web_plan_overview_view.dart';
 import '../../treatment_plan/web/web_plan_sessions_view.dart';
 
 class WebPatientShell extends StatefulWidget {
-  const WebPatientShell({super.key});
+  final bool embeddedInAdmin;
+
+  const WebPatientShell({super.key, this.embeddedInAdmin = false});
 
   @override
   State<WebPatientShell> createState() => _WebPatientShellState();
@@ -25,10 +32,6 @@ class WebPatientShell extends StatefulWidget {
 class _WebPatientShellState extends State<WebPatientShell>
     with TickerProviderStateMixin {
   int _selectedIndex = 0; // 0 = Home / Dashboard, 1 = My Profile
-  final String _patientId =
-      'P001'; // Mocked as Ahmed Al Mansoori for the patient app
-
-  bool _injectionDone = false;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   late AnimationController _progressController;
@@ -68,49 +71,146 @@ class _WebPatientShellState extends State<WebPatientShell>
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
     final dataProvider = Provider.of<DataProvider>(context);
+    final patientId = context.watch<DemoSessionProvider>().patientId;
 
     // Fetch active patient from provider to keep it reactive
-    final patient = dataProvider.patients.firstWhere(
-      (p) => p.id == _patientId,
-      orElse: () => dataProvider.patients.first,
-    );
+    final patient = dataProvider.getPatientById(patientId);
+    if (patient == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(context.isArabic ? 'ملف المريض' : 'Patient profile'),
+        ),
+        body: PlatformStateView(
+          kind: PlatformStateKind.error,
+          title: context.isArabic
+              ? 'ملف المريض غير متاح'
+              : 'Patient record unavailable',
+          message: context.isArabic
+              ? 'ارجع إلى اختيار الحساب ثم حاول مرة أخرى.'
+              : 'Return to access selection and choose a patient account.',
+          actionLabel: context.isArabic ? 'اختيار الحساب' : 'Choose account',
+          onAction: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          ),
+        ),
+      );
+    }
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      drawer: Drawer(child: _buildSidebar(context, patient)),
-      body: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                _buildTopbar(context, localeProvider, dataProvider, patient),
-                Expanded(
-                  child: _getScreenForIndex(
-                    _selectedIndex,
-                    context,
-                    patient,
-                    dataProvider,
+    if (widget.embeddedInAdmin) {
+      final labels = [
+        context.tr('home_dashboard'),
+        context.tr('my_health_profile_title'),
+        context.tr('nav_overview_plan'),
+        context.tr('nav_medication'),
+        context.tr('nav_sessions'),
+        context.tr('nav_exercises'),
+      ];
+      return ColoredBox(
+        color: AppColors.background,
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border(bottom: BorderSide(color: AppColors.border)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    patient.getLocalizedFullName(context),
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: List.generate(
+                      labels.length,
+                      (index) => ChoiceChip(
+                        label: Text(labels[index]),
+                        selected: _selectedIndex == index,
+                        onSelected: (_) =>
+                            setState(() => _selectedIndex = index),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: _getScreenForIndex(
+                _selectedIndex,
+                context,
+                patient,
+                dataProvider,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final showSidebar = constraints.maxWidth >= AppLayout.desktopBreakpoint;
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          drawer: showSidebar
+              ? null
+              : Drawer(child: _buildSidebar(context, patient)),
+          body: Row(
+            children: [
+              if (showSidebar)
+                SizedBox(
+                  width: AppLayout.desktopSidebar,
+                  child: _buildSidebar(context, patient),
                 ),
-              ],
+              Expanded(
+                child: Column(
+                  children: [
+                    _buildTopbar(
+                      context,
+                      localeProvider,
+                      dataProvider,
+                      patient,
+                      showMenuButton: !showSidebar,
+                    ),
+                    Expanded(
+                      child: _getScreenForIndex(
+                        _selectedIndex,
+                        context,
+                        patient,
+                        dataProvider,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const _AIHealthAssistantDialog(),
+              );
+            },
+            backgroundColor: AppColors.accent,
+            icon: const Icon(LucideIcons.sparkles, color: Colors.white),
+            label: Text(
+              context.tr('ai_patient_fab'),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => const _AIHealthAssistantDialog(),
-          );
-        },
-        backgroundColor: AppColors.accent,
-        icon: const Icon(LucideIcons.sparkles, color: Colors.white),
-        label: Text(
-          context.tr('ai_patient_fab'),
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -118,8 +218,9 @@ class _WebPatientShellState extends State<WebPatientShell>
     BuildContext context,
     LocaleProvider localeProvider,
     DataProvider dataProvider,
-    Patient patient,
-  ) {
+    Patient patient, {
+    required bool showMenuButton,
+  }) {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -129,14 +230,15 @@ class _WebPatientShellState extends State<WebPatientShell>
       ),
       child: Row(
         children: [
-          Builder(
-            builder: (ctx) => IconButton(
-              icon: Icon(Icons.menu, color: AppColors.textPrimary),
-              onPressed: () {
-                Scaffold.of(ctx).openDrawer();
-              },
+          if (showMenuButton)
+            Builder(
+              builder: (ctx) => IconButton(
+                icon: Icon(Icons.menu, color: AppColors.textPrimary),
+                onPressed: () {
+                  Scaffold.of(ctx).openDrawer();
+                },
+              ),
             ),
-          ),
           const SizedBox(width: 16),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -152,18 +254,23 @@ class _WebPatientShellState extends State<WebPatientShell>
               ),
               Text(
                 context.tr('welcome_back_name', {
-                      'name': patient
-                          .getLocalizedFullName(context)
-                          .split(' ')[0],
-                    }),
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                ),
+                  'name': patient.getLocalizedFullName(context).split(' ')[0],
+                }),
+                style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
               ),
             ],
           ),
           const Spacer(),
+          IconButton(
+            tooltip: context.isArabic ? 'الإشعارات' : 'Notifications',
+            onPressed: () => PatientNotificationsSheet.show(context),
+            icon: Icon(
+              LucideIcons.bell,
+              size: 18,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(width: 8),
           OutlinedButton.icon(
             onPressed: localeProvider.toggleLanguage,
             icon: Icon(
@@ -481,8 +588,10 @@ class _WebPatientShellState extends State<WebPatientShell>
     final double weightLost = patient.weightHistory.isNotEmpty
         ? patient.weightHistory.first - patient.weight
         : 0;
-    final double targetWeight = plan?.targetWeight ?? 85.0;
-    final double rawProgress = patient.weightHistory.isNotEmpty
+    final double targetWeight = plan?.targetWeight ?? patient.weight;
+    final double rawProgress =
+        patient.weightHistory.isNotEmpty &&
+            patient.weightHistory.first != targetWeight
         ? ((patient.weightHistory.first - patient.weight) /
               (patient.weightHistory.first - targetWeight))
         : 0.0;
@@ -490,6 +599,29 @@ class _WebPatientShellState extends State<WebPatientShell>
     final int sessionsAttended =
         plan?.sessions.where((s) => s.isAttended).length ?? 0;
     final int totalSessions = plan?.totalSessions ?? 0;
+    final recordedDoses = provider.medicationEventsFor(patient.id);
+    final takenCount = recordedDoses
+        .where((event) => event.status == MedicationDoseStatus.taken)
+        .length;
+    final medicationMilestone =
+        recordedDoses.length >= 4 && takenCount == recordedDoses.length;
+    final now = DateTime.now();
+    final doseInterval = plan?.medicationFrequencyDays ?? 0;
+    final doseSlot = plan == null || doseInterval < 1
+        ? null
+        : now.difference(plan.createdAt).inDays ~/ doseInterval;
+    final doseTaken =
+        plan != null &&
+        provider
+            .medicationEventsFor(patient.id)
+            .any(
+              (event) =>
+                  event.planId == plan.id &&
+                  event.status == MedicationDoseStatus.taken &&
+                  event.scheduledAt.difference(plan.createdAt).inDays ~/
+                          doseInterval ==
+                      doseSlot,
+            );
     final hour = DateTime.now().hour;
     final greeting = hour < 12
         ? '🌅 ${context.tr('good_morning_comma')}'
@@ -552,13 +684,23 @@ class _WebPatientShellState extends State<WebPatientShell>
                   const SizedBox(width: 12),
                   _buildKpiChip(
                     LucideIcons.shieldCheck,
-                    '${(patient.complianceRate * 100).toStringAsFixed(0)}% Adherence',
+                    recordedDoses.isEmpty
+                        ? (context.isArabic
+                              ? 'الالتزام غير موثق'
+                              : 'Adherence not recorded')
+                        : '${(takenCount / recordedDoses.length * 100).toStringAsFixed(0)}% ${context.isArabic ? 'التزام' : 'Adherence'}',
                     AppColors.primary,
                   ),
                   const SizedBox(width: 12),
                   _buildKpiChip(
                     LucideIcons.syringe,
-                    'Next Dose: 4 Days',
+                    doseInterval < 1
+                        ? (context.isArabic
+                              ? 'لا يوجد جدول جرعات'
+                              : 'No dose schedule')
+                        : (context.isArabic
+                              ? 'الجرعة كل $doseInterval أيام'
+                              : 'Dose every $doseInterval days'),
                     AppColors.accent,
                   ),
                 ],
@@ -582,7 +724,9 @@ class _WebPatientShellState extends State<WebPatientShell>
                   decoration: BoxDecoration(
                     color: AppColors.primaryDark,
                     image: const DecorationImage(
-                      image: AssetImage('assets/illustrations/dashboard_hero.png'),
+                      image: AssetImage(
+                        'assets/illustrations/dashboard_hero.png',
+                      ),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
                         Colors.black45, // Darken for text readability
@@ -652,8 +796,8 @@ class _WebPatientShellState extends State<WebPatientShell>
                                       const SizedBox(width: 6),
                                       Text(
                                         context.tr('prescribed_dose_line', {
-                                              'dose': patient.currentDose,
-                                            }),
+                                          'dose': patient.currentDose,
+                                        }),
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
@@ -673,7 +817,11 @@ class _WebPatientShellState extends State<WebPatientShell>
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
-                                    context.tr('in_4_days'),
+                                    doseInterval < 1
+                                        ? '—'
+                                        : (context.isArabic
+                                              ? 'كل $doseInterval أيام'
+                                              : 'Every $doseInterval days'),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
@@ -732,7 +880,9 @@ class _WebPatientShellState extends State<WebPatientShell>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        context.tr('next_injection_reminder'),
+                                        context.isArabic
+                                            ? 'جدول الدواء المسجل'
+                                            : 'Your recorded medication schedule',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 24,
@@ -742,7 +892,9 @@ class _WebPatientShellState extends State<WebPatientShell>
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        context.tr('dont_forget_weekly_injection'),
+                                        context.tr(
+                                          'dont_forget_weekly_injection',
+                                        ),
                                         style: TextStyle(
                                           color: Colors.white.withValues(
                                             alpha: 0.8,
@@ -756,109 +908,82 @@ class _WebPatientShellState extends State<WebPatientShell>
                               ],
                             ),
                             const SizedBox(height: 32),
-                            Row(
-                              children: List.generate(7, (i) {
-                                final isToday = i == 1;
-                                final isPast = i == 0;
-                                final isNext = i == 6;
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 2,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          height: 6,
-                                          decoration: BoxDecoration(
-                                            color: isPast
-                                                ? Colors.white.withValues(
-                                                    alpha: 0.9,
-                                                  )
-                                                : (isToday
-                                                      ? AppColors.accent
-                                                      : (isNext
-                                                            ? AppColors.accent
-                                                                  .withValues(
-                                                                    alpha: 0.5,
-                                                                  )
-                                                            : Colors.white
-                                                                  .withValues(
-                                                                    alpha: 0.2,
-                                                                  ))),
-                                            borderRadius: BorderRadius.circular(
-                                              3,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          [
-                                            'M',
-                                            'T',
-                                            'W',
-                                            'T',
-                                            'F',
-                                            'S',
-                                            'S',
-                                          ][i],
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: isToday
-                                                ? AppColors.accent
-                                                : Colors.white60,
-                                            fontWeight: isToday
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
+                            Text(
+                              context.isArabic
+                                  ? '${provider.medicationEventsFor(patient.id).length} جرعات موثقة في سجل الرعاية'
+                                  : '${provider.medicationEventsFor(patient.id).length} dose events recorded in your care record',
+                              style: const TextStyle(color: Colors.white70),
                             ),
                             const SizedBox(height: 32),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton.icon(
-                                onPressed: () {
-                                  setState(() {
-                                    _injectionDone = !_injectionDone;
-                                  });
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        _injectionDone
-                                            ? 'Injection recorded successfully.'
-                                            : 'Injection unmarked.',
-                                      ),
-                                      backgroundColor: _injectionDone
-                                          ? AppColors.success
-                                          : AppColors.primary,
-                                    ),
-                                  );
-                                },
+                                onPressed: plan == null || doseTaken
+                                    ? null
+                                    : () {
+                                        provider.logMedication(
+                                          plan.id,
+                                          DateTime.now(),
+                                        );
+                                        final saved = provider
+                                            .medicationEventsFor(patient.id)
+                                            .any(
+                                              (event) =>
+                                                  event.planId == plan.id &&
+                                                  event.status ==
+                                                      MedicationDoseStatus
+                                                          .taken &&
+                                                  event.scheduledAt
+                                                              .difference(
+                                                                plan.createdAt,
+                                                              )
+                                                              .inDays ~/
+                                                          doseInterval ==
+                                                      doseSlot,
+                                            );
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              saved
+                                                  ? (context.isArabic
+                                                        ? 'تم توثيق الجرعة في سجل الرعاية.'
+                                                        : 'Dose recorded in your care record.')
+                                                  : (context.isArabic
+                                                        ? 'تعذر توثيق الجرعة. راجع صلاحياتك وخطة العلاج.'
+                                                        : 'Unable to record dose. Check your access and care plan.'),
+                                            ),
+                                            backgroundColor: saved
+                                                ? AppColors.success
+                                                : AppColors.error,
+                                          ),
+                                        );
+                                      },
                                 icon: Icon(
-                                  _injectionDone
+                                  doseTaken
                                       ? LucideIcons.checkCircle
                                       : LucideIcons.check,
                                   size: 18,
                                 ),
                                 label: Text(
-                                  _injectionDone
-                                      ? context.tr('dashboard_injection_taken_btn')
-                                      : context.tr('dashboard_take_injection_btn'),
+                                  doseTaken
+                                      ? context.tr(
+                                          'dashboard_injection_taken_btn',
+                                        )
+                                      : context.tr(
+                                          'dashboard_take_injection_btn',
+                                        ),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
                                   ),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _injectionDone
+                                  backgroundColor: doseTaken
                                       ? AppColors.success
                                       : Colors.white,
-                                  foregroundColor: _injectionDone
+                                  foregroundColor: doseTaken
                                       ? Colors.white
                                       : AppColors.primary,
                                   elevation: 0,
@@ -1090,7 +1215,10 @@ class _WebPatientShellState extends State<WebPatientShell>
                           decoration: BoxDecoration(
                             color: AppColors.error,
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.surface, width: 3),
+                            border: Border.all(
+                              color: AppColors.surface,
+                              width: 3,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: AppColors.error.withValues(alpha: 0.4),
@@ -1183,7 +1311,10 @@ class _WebPatientShellState extends State<WebPatientShell>
                           decoration: BoxDecoration(
                             color: AppColors.success,
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.surface, width: 3),
+                            border: Border.all(
+                              color: AppColors.surface,
+                              width: 3,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: AppColors.success.withValues(alpha: 0.4),
@@ -1236,7 +1367,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children:  [
+                                children: [
                                   Text(
                                     'Improving',
                                     style: TextStyle(
@@ -1281,9 +1412,9 @@ class _WebPatientShellState extends State<WebPatientShell>
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children:  [
+                                children: [
                                   Text(
-                                    '8 weeks',
+                                    '$totalSessions',
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
@@ -1291,7 +1422,9 @@ class _WebPatientShellState extends State<WebPatientShell>
                                     ),
                                   ),
                                   Text(
-                                    'Est. Completion',
+                                    context.isArabic
+                                        ? 'جلسات مخططة'
+                                        : 'Planned sessions',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondary,
@@ -1334,19 +1467,42 @@ class _WebPatientShellState extends State<WebPatientShell>
                         decoration: BoxDecoration(
                           color: AppColors.accent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+                          border: Border.all(
+                            color: AppColors.accent.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            Icon(LucideIcons.sparkles, color: AppColors.accent, size: 20),
+                            Icon(
+                              LucideIcons.sparkles,
+                              color: AppColors.accent,
+                              size: 20,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(context.tr('ai_weight_prediction_title'), style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent, fontSize: 14)),
+                                  Text(
+                                    context.isArabic
+                                        ? 'الهدف المسجل في الخطة'
+                                        : 'Care plan target',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.accent,
+                                      fontSize: 14,
+                                    ),
+                                  ),
                                   const SizedBox(height: 2),
-                                  Text(context.tr('ai_weight_prediction_desc', {'target': targetWeight.toStringAsFixed(0)}), style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                                  Text(
+                                    context.isArabic
+                                        ? 'الوزن المستهدف: ${targetWeight.toStringAsFixed(0)} كجم'
+                                        : 'Target weight: ${targetWeight.toStringAsFixed(0)} kg',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -1413,18 +1569,23 @@ class _WebPatientShellState extends State<WebPatientShell>
                                         idx < patient.weightHistory.length) {
                                       return Text(
                                         context.tr('check_reading', {
-                                              'n': '${idx + 1}',
-                                            }),
+                                          'n': '${idx + 1}',
+                                        }),
                                         style: TextStyle(
                                           fontSize: 11,
                                           color: AppColors.textSecondary,
                                         ),
                                       );
-                                    } else if (idx == patient.weightHistory.length + 2) {
+                                    } else if (idx ==
+                                        patient.weightHistory.length + 2) {
                                       return Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(LucideIcons.sparkles, size: 10, color: AppColors.accent),
+                                          Icon(
+                                            LucideIcons.sparkles,
+                                            size: 10,
+                                            color: AppColors.accent,
+                                          ),
                                           const SizedBox(width: 2),
                                           Text(
                                             'Target',
@@ -1486,20 +1647,33 @@ class _WebPatientShellState extends State<WebPatientShell>
                               ),
                               LineChartBarData(
                                 spots: [
-                                  FlSpot((patient.weightHistory.length - 1).toDouble(), patient.weightHistory.last),
-                                  FlSpot((patient.weightHistory.length + 2).toDouble(), targetWeight),
+                                  FlSpot(
+                                    (patient.weightHistory.length - 1)
+                                        .toDouble(),
+                                    patient.weightHistory.last,
+                                  ),
+                                  FlSpot(
+                                    (patient.weightHistory.length + 2)
+                                        .toDouble(),
+                                    targetWeight,
+                                  ),
                                 ],
                                 isCurved: false,
                                 color: AppColors.accent,
                                 barWidth: 3,
                                 dashArray: [8, 4],
                                 shadow: Shadow(
-                                  color: AppColors.accent.withValues(alpha: 0.4),
+                                  color: AppColors.accent.withValues(
+                                    alpha: 0.4,
+                                  ),
                                   blurRadius: 6,
                                 ),
                                 dotData: FlDotData(
                                   show: true,
-                                  checkToShowDot: (spot, data) => spot.x == (patient.weightHistory.length + 2).toDouble(),
+                                  checkToShowDot: (spot, data) =>
+                                      spot.x ==
+                                      (patient.weightHistory.length + 2)
+                                          .toDouble(),
                                   getDotPainter: (spot, percent, bar, index) =>
                                       FlDotCirclePainter(
                                         radius: 5,
@@ -1577,7 +1751,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                               color: AppColors.border.withValues(alpha: 0.5),
                             ),
                           ),
-                          child:  Row(
+                          child: Row(
                             children: [
                               Icon(
                                 LucideIcons.checkCircle,
@@ -1692,36 +1866,54 @@ class _WebPatientShellState extends State<WebPatientShell>
             ),
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              _buildBadgeCard(
-                context,
-                LucideIcons.medal,
-                context.tr('badge_month_streak'),
-                context.tr('badge_month_streak_sub'),
-                AppColors.accent,
-                shadow,
+          if (!medicationMilestone &&
+              weightLost < 5 &&
+              (totalSessions == 0 || sessionsAttended < totalSessions))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Text(
+                context.isArabic
+                    ? 'ستظهر الإنجازات بعد توثيق الجرعات أو بلوغ أهداف خطة الرعاية.'
+                    : 'Milestones appear as doses and care plan goals are recorded.',
+                style: TextStyle(color: AppColors.textSecondary),
               ),
-              const SizedBox(width: 24),
-              _buildBadgeCard(
-                context,
-                LucideIcons.flame,
-                context.tr('badge_weight_reduction'),
-                context.tr('badge_weight_reduction_sub'),
-                AppColors.error,
-                shadow,
-              ),
-              const SizedBox(width: 24),
-              _buildBadgeCard(
-                context,
-                LucideIcons.award,
-                context.tr('badge_clinical_compliance'),
-                context.tr('badge_clinical_compliance_sub'),
-                AppColors.primary,
-                shadow,
-              ),
-            ],
-          ),
+            )
+          else
+            Row(
+              children: [
+                if (medicationMilestone)
+                  _buildBadgeCard(
+                    context,
+                    LucideIcons.medal,
+                    context.tr('badge_month_streak'),
+                    context.tr('badge_month_streak_sub'),
+                    AppColors.accent,
+                    shadow,
+                  ),
+                if (weightLost >= 5) ...[
+                  const SizedBox(width: 24),
+                  _buildBadgeCard(
+                    context,
+                    LucideIcons.flame,
+                    context.tr('badge_weight_reduction'),
+                    context.tr('badge_weight_reduction_sub'),
+                    AppColors.error,
+                    shadow,
+                  ),
+                ],
+                if (totalSessions > 0 && sessionsAttended >= totalSessions) ...[
+                  const SizedBox(width: 24),
+                  _buildBadgeCard(
+                    context,
+                    LucideIcons.award,
+                    context.tr('badge_clinical_compliance'),
+                    context.tr('badge_clinical_compliance_sub'),
+                    AppColors.primary,
+                    shadow,
+                  ),
+                ],
+              ],
+            ),
         ],
       ),
     );
@@ -1760,10 +1952,14 @@ class _WebPatientShellState extends State<WebPatientShell>
                 color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(LucideIcons.shoppingBag, color: Colors.white, size: 32),
+              child: const Icon(
+                LucideIcons.shoppingBag,
+                color: Colors.white,
+                size: 32,
+              ),
             ),
             const SizedBox(width: 24),
-             Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1778,10 +1974,7 @@ class _WebPatientShellState extends State<WebPatientShell>
                   SizedBox(height: 8),
                   Text(
                     context.tr('check_eligibility_and_request'),
-                    style: TextStyle(
-                      color: AppColors.surface70,
-                      fontSize: 15,
-                    ),
+                    style: TextStyle(color: AppColors.surface70, fontSize: 15),
                   ),
                 ],
               ),
@@ -1792,7 +1985,6 @@ class _WebPatientShellState extends State<WebPatientShell>
       ),
     );
   }
-
 
   Widget _buildKpiChip(IconData icon, String text, Color color) {
     return Container(
@@ -1902,13 +2094,9 @@ class _WebPatientShellState extends State<WebPatientShell>
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              LucideIcons.calendar,
-              color: Colors.white,
-              size: 20,
-            ),
+            child: Icon(LucideIcons.calendar, color: Colors.white, size: 20),
           ),
-           SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2089,7 +2277,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               ),
                               const SizedBox(width: 14),
                               Text(
-                                context.tr('demographics') ,
+                                context.tr('demographics'),
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -2110,7 +2298,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                                 color: AppColors.success.withValues(alpha: 0.2),
                               ),
                             ),
-                            child:  Row(
+                            child: Row(
                               children: [
                                 Icon(
                                   LucideIcons.shieldCheck,
@@ -2163,7 +2351,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              context.tr('emirates_id') ,
+                              context.tr('emirates_id'),
                               style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 13,
@@ -2244,7 +2432,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                           ),
                           const SizedBox(width: 14),
                           Text(
-                            context.tr('gov_subsidy_details') ,
+                            context.tr('gov_subsidy_details'),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -2259,7 +2447,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                       ),
                       _buildPremiumRow(
                         context,
-                        context.tr('base_medication_price') ,
+                        context.tr('base_medication_price'),
                         '1,000.00 AED',
                       ),
 
@@ -2272,7 +2460,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  context.tr('coverage_rate') ,
+                                  context.tr('coverage_rate'),
                                   style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 13,
@@ -2308,7 +2496,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                       const SizedBox(height: 8),
                       _buildPremiumRow(
                         context,
-                        context.tr('govt_contribution') ,
+                        context.tr('govt_contribution'),
                         '${govtPays.toStringAsFixed(2)} AED',
                         color: AppColors.success,
                       ),
@@ -2334,7 +2522,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  context.tr('your_copay_per_checkin') ,
+                                  context.tr('your_copay_per_checkin'),
                                   style: TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 11,
@@ -2404,7 +2592,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.tr('my_health_profile') ,
+                  context.tr('my_health_profile'),
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -2476,7 +2664,7 @@ class _WebPatientProfileOverviewState extends State<WebPatientProfileOverview> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-           Row(
+          Row(
             children: [
               Icon(
                 LucideIcons.activity,
@@ -2601,7 +2789,8 @@ class _AIHealthAssistantDialog extends StatefulWidget {
   const _AIHealthAssistantDialog();
 
   @override
-  State<_AIHealthAssistantDialog> createState() => _AIHealthAssistantDialogState();
+  State<_AIHealthAssistantDialog> createState() =>
+      _AIHealthAssistantDialogState();
 }
 
 class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
@@ -2651,7 +2840,9 @@ class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
                 border: Border(bottom: BorderSide(color: AppColors.border)),
               ),
               child: Row(
@@ -2662,7 +2853,11 @@ class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
                       color: AppColors.accent.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(LucideIcons.sparkles, color: AppColors.accent, size: 24),
+                    child: Icon(
+                      LucideIcons.sparkles,
+                      color: AppColors.accent,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -2671,11 +2866,18 @@ class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
                       children: [
                         Text(
                           context.tr('ai_patient_chat_title'),
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: AppColors.navy,
+                          ),
                         ),
                         Text(
                           'Online',
-                          style: TextStyle(color: AppColors.success, fontSize: 12),
+                          style: TextStyle(
+                            color: AppColors.success,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -2687,7 +2889,7 @@ class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
                 ],
               ),
             ),
-            
+
             // Messages Area
             Expanded(
               child: ListView.builder(
@@ -2699,7 +2901,10 @@ class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
                       alignment: Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
                           borderRadius: BorderRadius.circular(16),
@@ -2712,14 +2917,19 @@ class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
                       ),
                     );
                   }
-                  
+
                   final msg = _messages[index];
                   final isUser = msg['isUser'];
                   return Align(
-                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isUser
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: isUser ? AppColors.primary : AppColors.surface,
                         borderRadius: BorderRadius.circular(16).copyWith(
@@ -2747,23 +2957,40 @@ class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
                 },
               ),
             ),
-            
+
             // Prompts Area
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(20),
+                ),
                 border: Border(top: BorderSide(color: AppColors.border)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildPromptChip(context, 1, 'ai_patient_prompt_1', 'ai_patient_response_1'),
+                  _buildPromptChip(
+                    context,
+                    1,
+                    'ai_patient_prompt_1',
+                    'ai_patient_response_1',
+                  ),
                   const SizedBox(height: 8),
-                  _buildPromptChip(context, 2, 'ai_patient_prompt_2', 'ai_patient_response_2'),
+                  _buildPromptChip(
+                    context,
+                    2,
+                    'ai_patient_prompt_2',
+                    'ai_patient_response_2',
+                  ),
                   const SizedBox(height: 8),
-                  _buildPromptChip(context, 3, 'ai_patient_prompt_3', 'ai_patient_response_3'),
+                  _buildPromptChip(
+                    context,
+                    3,
+                    'ai_patient_prompt_3',
+                    'ai_patient_response_3',
+                  ),
                 ],
               ),
             ),
@@ -2773,9 +3000,16 @@ class _AIHealthAssistantDialogState extends State<_AIHealthAssistantDialog> {
     );
   }
 
-  Widget _buildPromptChip(BuildContext context, int index, String promptKey, String responseKey) {
+  Widget _buildPromptChip(
+    BuildContext context,
+    int index,
+    String promptKey,
+    String responseKey,
+  ) {
     return InkWell(
-      onTap: _isTyping ? null : () => _handlePrompt(index, promptKey, responseKey),
+      onTap: _isTyping
+          ? null
+          : () => _handlePrompt(index, promptKey, responseKey),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

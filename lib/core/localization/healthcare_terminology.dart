@@ -11,10 +11,7 @@ class HealthcareTerminology {
       'ar': 'المستفيدون المسجلون',
     },
     'eligibility': {'en': 'Program Eligibility', 'ar': 'أهلية الاستحقاق'},
-    'gov_coverage': {
-      'en': 'Government Coverage',
-      'ar': 'التغطية الحكومية',
-    },
+    'gov_coverage': {'en': 'Government Coverage', 'ar': 'التغطية الحكومية'},
     'gov_contribution': {
       'en': 'Government Contribution',
       'ar': 'مساهمة الحكومة',
@@ -23,15 +20,9 @@ class HealthcareTerminology {
       'en': 'Beneficiary Co-payment',
       'ar': 'مساهمة المستفيد',
     },
-    'subsidy': {
-      'en': 'Government Subsidy',
-      'ar': 'الدعم الحكومي',
-    },
+    'subsidy': {'en': 'Government Subsidy', 'ar': 'الدعم الحكومي'},
     'dispensing': {'en': 'Medication Dispensing', 'ar': 'صرف العلاج'},
-    'dispensing_history': {
-      'en': 'Dispensing Record',
-      'ar': 'سجل صرف العلاج',
-    },
+    'dispensing_history': {'en': 'Dispensing Record', 'ar': 'سجل صرف العلاج'},
     'duplicate_dispensing': {
       'en': 'Duplicate Dispensing Attempt',
       'ar': 'محاولة صرف مكرر',
@@ -44,10 +35,7 @@ class HealthcareTerminology {
       'en': 'Weight Management Journey',
       'ar': 'مسار إنقاص الوزن',
     },
-    'injection_schedule': {
-      'en': 'Injection Schedule',
-      'ar': 'جدول الحقن',
-    },
+    'injection_schedule': {'en': 'Injection Schedule', 'ar': 'جدول الحقن'},
     'approval_workflow': {
       'en': 'Physician Authorization Workflow',
       'ar': 'مسار اعتماد الطبيب المعالج',

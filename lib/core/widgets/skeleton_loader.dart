@@ -57,16 +57,8 @@ class _ShimmerContainerState extends State<ShimmerContainer>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                baseColor,
-                highlightColor,
-                baseColor,
-              ],
-              stops: [
-                0.0,
-                0.5 + (_animation.value / 4).clamp(-0.5, 0.5),
-                1.0,
-              ],
+              colors: [baseColor, highlightColor, baseColor],
+              stops: [0.0, 0.5 + (_animation.value / 4).clamp(-0.5, 0.5), 1.0],
             ),
           ),
         );

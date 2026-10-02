@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/demo_metrics.dart';
 import '../../core/constants/mock_data.dart';
@@ -15,6 +15,30 @@ class MinistryDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dp = context.watch<DataProvider>();
+    final now = DateTime.now();
+    final months = List.generate(
+      6,
+      (index) => DateTime(now.year, now.month - 5 + index),
+    );
+    final handovers = months
+        .map(
+          (month) => dp.patients.fold<int>(
+            0,
+            (total, patient) =>
+                total +
+                patient.dispenseRecords.where((record) {
+                  final date = DateTime.tryParse(record.date);
+                  return date != null &&
+                      date.year == month.year &&
+                      date.month == month.month;
+                }).length,
+          ),
+        )
+        .toList();
+    final maxHandovers = handovers.fold<int>(
+      1,
+      (max, count) => count > max ? count : max,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -45,8 +69,10 @@ class MinistryDashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '${context.tr('national_registry')}: ${DemoMetrics.formatCount(DemoMetrics.nationalEnrolled)} · ${context.tr('demo_cohort')}: ${dp.totalActivePatients}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+              '${context.tr('national_registry')}: ${DemoMetrics.formatCount(dp.totalPatientCount)} · ${context.tr('demo_cohort')}: ${dp.totalActivePatients}',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
             GridView.count(
@@ -58,19 +84,15 @@ class MinistryDashboardScreen extends StatelessWidget {
               children: [
                 KpiCard(
                   title: context.tr('total_patients'),
-                  value: DemoMetrics.formatCount(DemoMetrics.nationalEnrolled),
+                  value: DemoMetrics.formatCount(dp.totalPatientCount),
                   icon: LucideIcons.users,
                   iconColor: AppColors.primary,
-                  trend: '+12%',
-                  isTrendPositive: true,
                 ),
                 KpiCard(
                   title: context.tr('eligible'),
-                  value: DemoMetrics.formatCount(DemoMetrics.nationalEligible),
+                  value: DemoMetrics.formatCount(dp.eligiblePatientCount),
                   icon: LucideIcons.checkCircle,
                   iconColor: AppColors.success,
-                  trend: '+5%',
-                  isTrendPositive: true,
                 ),
                 KpiCard(
                   title: context.tr('govt_subsidy'),
@@ -84,8 +106,6 @@ class MinistryDashboardScreen extends StatelessWidget {
                   value: '${dp.fraudIncidentsPrevented}',
                   icon: LucideIcons.shieldAlert,
                   iconColor: AppColors.error,
-                  trend: '-2%',
-                  isTrendPositive: true,
                 ),
               ],
             ),
@@ -105,22 +125,25 @@ class MinistryDashboardScreen extends StatelessWidget {
                     LineChartData(
                       gridData: const FlGridData(show: false),
                       titlesData: const FlTitlesData(
-                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
                       ),
                       borderData: FlBorderData(show: false),
                       minY: 0,
-                      maxY: 50,
+                      maxY: (maxHandovers + 5).toDouble(),
                       lineBarsData: [
                         LineChartBarData(
-                          spots: const [
-                            FlSpot(0, 12),
-                            FlSpot(1, 18),
-                            FlSpot(2, 22),
-                            FlSpot(3, 28),
-                            FlSpot(4, 35),
-                            FlSpot(5, 40),
-                          ],
+                          spots: List.generate(
+                            handovers.length,
+                            (index) => FlSpot(
+                              index.toDouble(),
+                              handovers[index].toDouble(),
+                            ),
+                          ),
                           isCurved: true,
                           color: AppColors.primary,
                           barWidth: 3,

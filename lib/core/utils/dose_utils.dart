@@ -2,7 +2,12 @@
 class DoseUtils {
   DoseUtils._();
 
-  static const List<String> planDoseOptions = ['2.5 mg', '5.0 mg', '7.5 mg', '10.0 mg'];
+  static const List<String> planDoseOptions = [
+    '2.5 mg',
+    '5.0 mg',
+    '7.5 mg',
+    '10.0 mg',
+  ];
 
   static String toInventoryDose(String dose) {
     final d = dose.trim().toLowerCase();
@@ -13,5 +18,6 @@ class DoseUtils {
     return dose;
   }
 
-  static bool dosesMatch(String a, String b) => toInventoryDose(a) == toInventoryDose(b);
+  static bool dosesMatch(String a, String b) =>
+      toInventoryDose(a) == toInventoryDose(b);
 }
