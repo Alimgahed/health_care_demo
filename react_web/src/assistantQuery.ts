@@ -12,6 +12,39 @@ const name=(p:Patient,ar:boolean)=>ar?p.nameAr??p.name:p.name
 const t=(ar:boolean,en:string,arabic:string)=>ar?arabic:en
 const patientLink=(p:Patient,ar:boolean):AnswerLink=>({label:t(ar,'Open patient record','فتح ملف المريض'),page:'Patients',id:`patient:${p.id}`})
 const result=(title:string,body:string,facts:string[],links:AnswerLink[]):DataAnswer=>({title,body,facts,links,matched:true})
+const patientCues=new Set(['patient','patients','المريض','المريضه','مريض','مريضه'])
+const isPatientCue=(token:string)=>patientCues.has(token)||[...patientCues].some(cue=>cue.length>3&&token.endsWith(cue))
+const nonNameWords=new Set(['patient','patients','record','profile','file','latest','last','recent','result','results','lab','labs','appointment','appointments','request','requests','treatment','status','for','the','what','who','is','of','and','please','today','upcoming','show','find','get','my','all','patient','المريض','المريضه','مريض','مريضه','ملف','سجل','بيانات','اخر','آخر','تحاليل','تحليل','نتيجه','نتائج','موعد','مواعيد','طلب','طلبات','علاج','حاله','حالة','ايه','ما','عن','من','اليوم','القادم','القادمه','القادمة','اعرض','اريد','عايز','عاوزه','لو','سمحت','لها','له','هما','هو','هي','دبي','ابوظبي','الشارقه','الشارقة','عجمان','الفجيره','الفجيرة'])
+function editDistanceAtMostOne(a:string,b:string){
+ if(a===b)return true
+ if(Math.abs(a.length-b.length)>1)return false
+ let i=0,j=0,edits=0
+ while(i<a.length&&j<b.length){
+  if(a[i]===b[j]){i++;j++;continue}
+  if(++edits>1)return false
+  if(a.length>b.length)i++
+  else if(b.length>a.length)j++
+  else{i++;j++}
+ }
+ return edits+(i<a.length||j<b.length?1:0)<=1
+}
+function nameTokens(patient:Patient){return [patient.name,patient.nameAr??''].flatMap(value=>normalize(value).split(' ').filter(token=>token.length>2))}
+function matchingPatients(data:AppData,q:string,allowTypo:boolean){
+ const cueIndex=q.split(' ').findIndex(isPatientCue)
+ const identityWords=cueIndex<0?[]:q.split(' ').slice(cueIndex+1).filter(token=>token.length>2&&!nonNameWords.has(token)&&!/^p\d+$/i.test(token)&&!/^\d+$/.test(token))
+ const words=(identityWords.length?identityWords:q.split(' ').filter(token=>token.length>2&&!/^p\d+$/i.test(token))).filter(token=>!/^\d+$/.test(token))
+ const exact=data.patients.map(patient=>({patient,score:Math.max(...[patient.name,patient.nameAr??''].map(value=>normalize(value).split(' ').filter(token=>token.length>2&&words.includes(token)).length))})).filter(item=>item.score>0&&(!identityWords.length||item.score===identityWords.length))
+ if(exact.length){const best=Math.max(...exact.map(item=>item.score));return exact.filter(item=>item.score===best).map(item=>item.patient)}
+ if(!allowTypo)return []
+ const nameLike=identityWords
+ if(!nameLike.length)return []
+ return data.patients.filter(patient=>nameLike.every(token=>nameTokens(patient).some(name=>editDistanceAtMostOne(name,token))))
+}
+function patientCue(q:string){return q.split(' ').some(isPatientCue)}
+function identityWordsAfterCue(q:string){
+ const tokens=q.split(' '),index=tokens.findIndex(isPatientCue)
+ return index<0?[]:tokens.slice(index+1).filter(token=>token.length>2&&!nonNameWords.has(token)&&!/^p\d+$/i.test(token))
+}
 
 function answerLegacy(data:AppData,question:string,ar:boolean,role:Role='Admin'):DataAnswer{
  const q=normalize(question)
@@ -137,16 +170,18 @@ export function answerDataQuestion(canonical:AppData,question:string,ar:boolean,
  const explicitPatient=q.match(/\bp\s*\d+\b/i)?.[0].replace(/\s/g,'').toUpperCase()
  const explicitRequest=q.match(/\btr-[\w-]+/i)?.[0].toUpperCase()
  const exactRequest=data.requests.find(r=>r.id.toUpperCase()===explicitRequest)
- let patient=explicitPatient?data.patients.find(p=>p.id===explicitPatient):data.patients.find(p=>[p.name,p.nameAr??''].some(n=>n.length>4&&q.includes(normalize(n))))
+ let patient=explicitPatient?data.patients.find(p=>p.id===explicitPatient):undefined
  const make=(a:DataAnswer,extra:Partial<RichDataAnswer>={}):RichDataAnswer=>({...a,context:{patientId:patient?.id},suggestions:[],...extra,links:a.links.filter(l=>assistantLinkAllowed(role,l.page))})
  if((explicitPatient&&!patient)||(explicitRequest&&!exactRequest))return make({title:t(ar,'Record not found','لم أجد السجل'),body:t(ar,'This record is not available in your workspace. Check its identifier.','هذا السجل غير متاح في مساحة عملك. راجع رقم السجل.'),facts:[],links:[],matched:false},{context:{}})
- const fullNameMatches=!explicitPatient&&!explicitRequest?data.patients.filter(p=>[p.name,p.nameAr??''].some(n=>n.length>4&&q.includes(normalize(n)))):[]
- if(fullNameMatches.length>1)return make(result(t(ar,'Which patient do you mean?','أي مريض تقصد؟'),t(ar,'Several patients share this name. Select the correct record ID.','يوجد أكثر من مريض بنفس الاسم. اختر رقم الملف المقصود.'),[],[]),{patient:undefined,context:{},suggestions:fullNameMatches.slice(0,5).map(p=>`${name(p,ar)} ${p.id}`)})
- if(!patient&&!explicitRequest){
-  const tokens=q.split(' ').filter(x=>x.length>2)
-  const candidates=data.patients.filter(p=>[p.name,p.nameAr??''].some(n=>normalize(n).split(' ').filter(x=>x.length>2&&tokens.includes(x)).length>=2))
-  if(candidates.length===1)patient=candidates[0]
-  else if(candidates.length>1)return make(result(t(ar,'Which patient do you mean?','أي مريض تقصد؟'),t(ar,'More than one record matches this name. Choose an identifier below.','يوجد أكثر من سجل بهذا الاسم. اختر رقم المريض لتحديد الإجابة.'),[],[]),{context:{},suggestions:candidates.slice(0,5).map(p=>`${name(p,ar)} ${p.id}`)})
+ const matchedNames=!explicitPatient&&!explicitRequest?matchingPatients(data,q,patientCue(q)):[]
+ if(matchedNames.length>1)return make(result(t(ar,'Which patient do you mean?','أي مريض تقصد؟'),t(ar,'More than one patient matches that name. Choose a record ID to continue.','وجدت أكثر من مريض بهذا الاسم. اختر رقم الملف للمتابعة.'),[],[]),{patient:undefined,context:{},suggestions:matchedNames.slice(0,5).map(p=>`${name(p,ar)} ${p.id}`)})
+ if(!patient&&matchedNames.length===1)patient=matchedNames[0]
+ const patientSelectionIntent=includesAny(q,['patient record','patient profile','patient overview','find a patient','ملف المريض','بيانات المريض','تحليل مريض'])
+ if(!patient&&!exactRequest&&patientSelectionIntent){
+  return make(result(t(ar,'Choose a patient','حدد المريض'),t(ar,'Tell me the patient name or ID. If a name matches more than one record, I will ask you to choose.','اكتب اسم المريض أو رقم ملفه. إذا تطابق الاسم مع أكثر من ملف، سأطلب منك تحديد المريض.'),[],[]),{patient:undefined,context:{},suggestions:data.patients.slice(0,5).map(p=>`${name(p,ar)} ${p.id}`)})
+ }
+ if(!patient&&!exactRequest&&patientCue(q)&&identityWordsAfterCue(q).length){
+  return make({matched:false,title:t(ar,'Patient not found','لم أجد هذا المريض'),body:t(ar,'I could not match that name to an available patient record. Check the spelling or send the patient ID.','لم أتمكن من مطابقة الاسم مع ملف مريض متاح. راجع الاسم أو أرسل رقم الملف.'),facts:[],links:[]},{patient:undefined,context:{}})
  }
  const global=includesAny(q,['كل المرضى','جميع المرضى','كل الطلبات','جميع الطلبات','على مستوى','all patients','all requests','all ','كل ','جميع ','across','programme','النظام','البرنامج'])
  if(!patient&&!global)patient=data.patients.find(p=>p.id===(exactRequest?.patientId??context.patientId))

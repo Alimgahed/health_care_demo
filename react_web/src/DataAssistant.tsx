@@ -18,31 +18,26 @@ export function DataAssistant({data:canonicalData,role,arabic,onNavigate,onCreat
  const data=useMemo(()=>assistantScope(canonicalData,role),[canonicalData,role])
  const t=(en:string,ar:string)=>arabic?ar:en
  const [draft,setDraft]=useState(''),[messages,setMessages]=useState<Message[]>([]),[pending,setPending]=useState<string|null>(null),[notice,setNotice]=useState(''),[showOptions,setShowOptions]=useState(false),[compact,setCompact]=useState(false)
- const [showExample,setShowExample]=useState(true)
  const controllerRef=useRef<AbortController|null>(null),inputRef=useRef<HTMLTextAreaElement>(null),listRef=useRef<HTMLDivElement>(null),uploadRef=useRef<HTMLInputElement>(null)
- const previewPatient=data.patients.find(p=>data.requests.some(r=>r.patientId===p.id))
- const example:Message={id:0,question:t(`What is the treatment request status for ${previewPatient?.name??''} ${previewPatient?.id??''}?`,`ما هي حالة طلب العلاج للمريض ${previewPatient?.nameAr??previewPatient?.name??''} ${previewPatient?.id??''}؟`),at:''}
  const turns=useMemo(()=>{
   let context:AssistantContext={}
-  const source=messages.length?messages:showExample&&previewPatient?[example]:[]
-  return source.map(message=>{const answer=answerDataQuestion(canonicalData,message.question,arabic,role,context);context=answer.context;return {message,answer}})
- // The example is derived from current records, never a separate seeded conversation.
+  return messages.map(message=>{const answer=answerDataQuestion(canonicalData,message.question,arabic,role,context);context=answer.context;return {message,answer}})
  // eslint-disable-next-line react-hooks/exhaustive-deps
- },[messages,canonicalData,arabic,role,showExample,previewPatient?.id])
- const topics=[{icon:'patients',label:t('Patient overview','تحليل مريض'),question:t(`Patient ${previewPatient?.id??''}`,`ملف المريض ${previewPatient?.id??''}`)},{icon:'file',label:t('Treatment requests','طلبات العلاج'),question:t('All treatment requests under review','جميع الطلبات قيد المراجعة')},{icon:'calendar',label:t('Upcoming visits','المواعيد القادمة'),question:t('Upcoming appointments','المواعيد القادمة')},{icon:'care-plan',label:t('Care plans','خطط الرعاية'),question:t('All care plans in the programme','كل خطط الرعاية في البرنامج')},{icon:role==='Admin'||role==='Pharmacist'?'box':'lab',label:role==='Admin'||role==='Pharmacist'?t('Inventory','المخزون'):t('Lab results','التحاليل'),question:role==='Admin'||role==='Pharmacist'?t('Available stock','المخزون المتاح'):t('Abnormal lab results','نتائج التحاليل غير الطبيعية')},{icon:'bell',label:t('Alerts','التنبيهات'),question:t('Open alerts','التنبيهات المفتوحة')}]
+ },[messages,canonicalData,arabic,role])
+ const topics=[{icon:'patients',label:t('Find a patient','ابحث عن مريض'),question:t('Patient record','ملف المريض')},{icon:'file',label:t('Treatment requests','طلبات العلاج'),question:t('All treatment requests under review','جميع الطلبات قيد المراجعة')},{icon:'calendar',label:t('Upcoming visits','المواعيد القادمة'),question:t('Upcoming appointments','المواعيد القادمة')},{icon:'care-plan',label:t('Care plans','خطط الرعاية'),question:t('All care plans in the programme','كل خطط الرعاية في البرنامج')},{icon:role==='Admin'||role==='Pharmacist'?'box':'lab',label:role==='Admin'||role==='Pharmacist'?t('Inventory','المخزون'):t('Lab results','التحاليل'),question:role==='Admin'||role==='Pharmacist'?t('Available stock','المخزون المتاح'):t('Abnormal lab results','نتائج التحاليل غير الطبيعية')},{icon:'bell',label:t('Alerts','التنبيهات'),question:t('Open alerts','التنبيهات المفتوحة')}]
  const counts=[{icon:'patients',label:t('Patients','المرضى'),detail:t('Accessible patient records','سجلات المرضى المتاحة'),value:data.patients.length,question:t('All patients','جميع المرضى'),tone:'green'},{icon:'file',label:t('Treatment requests','طلبات العلاج'),detail:t('Review and care records','سجلات المراجعة والتنفيذ'),value:data.requests.length,question:t('All treatment requests','جميع الطلبات'),tone:'purple'},{icon:'lab',label:t('Lab results','نتائج التحاليل'),detail:t('Recorded laboratory results','نتائج مخبرية مسجلة'),value:data.labs.length,question:t('All lab results','كل التحاليل'),tone:'rose'},{icon:'calendar',label:t('Appointments','المواعيد'),detail:t('Scheduled and previous visits','الزيارات المجدولة والسابقة'),value:data.appointments.length,question:t('All appointments','كل المواعيد'),tone:'blue'},{icon:'care-plan',label:t('Care plans','خطط الرعاية'),detail:t('Linked patient care plans','خطط مرتبطة بملفات المرضى'),value:data.integratedCarePlans?.length??0,question:t('All care plans in the programme','كل خطط الرعاية في البرنامج'),tone:'amber'}]
  const reviewCount=data.requests.filter(r=>r.status==='Under review').length,abnormal=data.labs.filter(l=>l.status==='Abnormal').length,today=new Date().toISOString().slice(0,10),todayCount=data.appointments.filter(a=>a.date===today&&!['Cancelled','No show'].includes(a.status)).length
  useEffect(()=>()=>controllerRef.current?.abort(),[])
  useEffect(()=>{if(messages.length||pending)listRef.current?.scrollTo({top:listRef.current.scrollHeight,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})},[messages,pending])
  const ask=async(question:string)=>{
   const value=question.trim();if(!value||pending)return
-  setNotice('');setDraft('');setPending(value);setShowExample(false)
+  setNotice('');setDraft('');setPending(value)
   const controller=new AbortController();controllerRef.current=controller
-  try{await readMockWorkspace('assistant',controller.signal);if(!controller.signal.aborted)setMessages(current=>[...(current.length?current:showExample&&previewPatient?[example]:[]),{id:Date.now(),question:value,at:new Date().toISOString()}])}
+  try{await readMockWorkspace('assistant',controller.signal);if(!controller.signal.aborted)setMessages(current=>[...current,{id:Date.now(),question:value,at:new Date().toISOString()}])}
   catch(error){if(!(error instanceof DOMException&&error.name==='AbortError')){setDraft(value);setNotice(t('Could not read the records. Your question is saved; please try again.','تعذر قراءة السجلات. سؤالك محفوظ، حاول مرة أخرى.'))}}
   finally{if(!controller.signal.aborted)setPending(null)}inputRef.current?.focus()
  }
- const reset=()=>{controllerRef.current?.abort();setPending(null);setMessages([]);setShowExample(false);setDraft('');setNotice('');inputRef.current?.focus()}
+ const reset=()=>{controllerRef.current?.abort();setPending(null);setMessages([]);setDraft('');setNotice('');inputRef.current?.focus()}
  const submit=(e:FormEvent)=>{e.preventDefault();void ask(draft)}
  const keyDown=(e:KeyboardEvent<HTMLTextAreaElement>)=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();void ask(draft)}}
  const exportChat=()=>{const text=turns.map(({message,answer})=>`${message.question}\n${answer.title}\n${answer.body}\n${answer.facts.join('\n')}\n${answer.records?.map(r=>`${r.id} ${r.title}\n${r.values.map(v=>`${v.label}: ${v.value}`).join('\n')}`).join('\n')??''}`).join('\n\n');const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='care-assistant-conversation.txt';a.click();URL.revokeObjectURL(url)}
