@@ -12,6 +12,7 @@ import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/platform_state_view.dart';
 import 'medication_order/medication_order_wizard.dart';
+import 'wearable_connection_card.dart';
 
 class PatientAppScreen extends StatefulWidget {
   const PatientAppScreen({super.key});
@@ -123,6 +124,8 @@ class _PatientAppScreenState extends State<PatientAppScreen>
 
             // ── Today's Routine (Quick Actions) ──────────────────────────
             _buildTodayRoutine(context, plan),
+            const SizedBox(height: 24),
+            const WearableConnectionCard(),
             const SizedBox(height: 24),
           ],
         ),

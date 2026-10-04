@@ -1,13 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 
 import 'package:mounjaro_demo/core/auth/access_control.dart';
 import 'package:mounjaro_demo/core/constants/mock_data.dart';
 import 'package:mounjaro_demo/core/demo/demo_session_provider.dart';
 import 'package:mounjaro_demo/core/models/activity_log.dart';
 import 'package:mounjaro_demo/core/utils/dose_utils.dart';
-import 'package:mounjaro_demo/features/dashboard/web/web_admin_shell.dart';
 import 'package:mounjaro_demo/features/journey/journey_models.dart';
 import 'package:mounjaro_demo/features/journey/journey_provider.dart';
 
@@ -147,32 +144,6 @@ void main() {
     expect(access.can(AppPermission.approveTreatment), isTrue);
     expect(access.can(AppPermission.rejectTreatment), isTrue);
     expect(access.can(AppPermission.dispenseMedication), isFalse);
-  });
-
-  testWidgets('admin portal preview scopes clinical authority to doctor', (
-    tester,
-  ) async {
-    final data = DataProvider();
-    await tester.pumpWidget(
-      ChangeNotifierProvider.value(
-        value: data,
-        child: MaterialApp(
-          home: OperationalPortalPreview(
-            role: AppRole.doctor,
-            child: Builder(
-              builder: (context) {
-                final access = context.watch<AccessControlProvider>();
-                final journey = context.watch<JourneyProvider>();
-                return Text(
-                  '${access.role.name}:${journey.can(AppPermission.approveTreatment)}',
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-    expect(find.text('doctor:false'), findsOneWidget);
   });
 
   test('dispensing synchronizes inventory patient and audit state', () {

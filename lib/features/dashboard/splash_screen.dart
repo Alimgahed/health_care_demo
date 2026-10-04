@@ -19,9 +19,14 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    final reduceMotion = WidgetsBinding
+        .instance
+        .platformDispatcher
+        .accessibilityFeatures
+        .disableAnimations;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 900),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -38,22 +43,28 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _controller.forward().then((_) {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const LoginScreen(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-              transitionDuration: const Duration(milliseconds: 800),
-            ),
-          );
-        }
-      });
+    if (reduceMotion) _controller.value = 1;
+    (reduceMotion ? Future<void>.value() : _controller.forward()).then((_) {
+      Future.delayed(
+        reduceMotion ? Duration.zero : const Duration(milliseconds: 200),
+        () {
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const LoginScreen(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                transitionDuration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 350),
+              ),
+            );
+          }
+        },
+      );
     });
   }
 
@@ -105,7 +116,8 @@ class _SplashScreenState extends State<SplashScreen>
                           borderRadius: BorderRadius.circular(40),
                           child: Image.asset(
                             'assets/logo.png',
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
+                            semanticLabel: 'healthcare',
                             errorBuilder: (context, error, stackTrace) =>
                                 Center(
                                   child: Icon(
@@ -119,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        context.tr('splash_platform'),
+                        'healthcare',
                         style: Theme.of(context).textTheme.displaySmall
                             ?.copyWith(
                               color: AppColors.surface,
@@ -129,11 +141,19 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        context.tr('splash_moh'),
+                        context.tr('splash_platform'),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.accentLight,
+                          color: AppColors.surface,
                           fontWeight: FontWeight.w600,
-                          letterSpacing: 2.0,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        context.tr('splash_moh'),
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: AppColors.accentLight,
+                          letterSpacing: 1,
                         ),
                       ),
                     ],

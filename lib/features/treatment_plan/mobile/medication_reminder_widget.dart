@@ -14,8 +14,23 @@ class MedicationReminderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isDue =
-        DateTime.now().year > 2000; // Mock: assume it's due for demo purposes
+    final now = DateTime.now();
+    final events =
+        context
+            .watch<DataProvider>()
+            .medicationEventsFor(plan.patientId)
+            .where((event) => event.planId == plan.id)
+            .toList()
+          ..sort((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
+    final nextDose =
+        (events.isEmpty ? plan.createdAt : events.first.scheduledAt).add(
+          Duration(days: plan.medicationFrequencyDays),
+        );
+    final isDue = !nextDose.isAfter(now);
+    final localDose = nextDose.toLocal();
+    final nextDoseLabel =
+        '${localDose.day}/${localDose.month}/${localDose.year} · '
+        '${localDose.hour.toString().padLeft(2, '0')}:${localDose.minute.toString().padLeft(2, '0')}';
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -56,9 +71,11 @@ class MedicationReminderWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            context.tr('next_injection_today', {
-              'label': context.tr('next_injection_due'),
-            }),
+            isDue
+                ? context.tr('next_injection_due')
+                : (context.isArabic
+                      ? 'الجرعة القادمة: $nextDoseLabel'
+                      : 'Next dose: $nextDoseLabel'),
             style: TextStyle(
               color: isDue ? AppColors.error : AppColors.textSecondary,
               fontWeight: FontWeight.bold,

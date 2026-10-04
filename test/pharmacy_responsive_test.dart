@@ -7,96 +7,10 @@ import 'package:mounjaro_demo/core/constants/mock_data.dart';
 import 'package:mounjaro_demo/core/auth/access_control.dart';
 import 'package:mounjaro_demo/core/localization/app_localizations.dart';
 import 'package:mounjaro_demo/core/localization/locale_provider.dart';
-import 'package:mounjaro_demo/features/dispensing/web_pharmacy_dispensing_view.dart';
 import 'package:mounjaro_demo/features/dispensing/patient_dispensing_details.dart';
 import 'package:mounjaro_demo/features/dispensing/dispensing_screen.dart';
 
 void main() {
-  for (final width in [900.0, 390.0, 360.0, 320.0]) {
-    for (final language in ['ar', 'en']) {
-      testWidgets('pharmacy detail fits $language at ${width.toInt()} px', (
-        tester,
-      ) async {
-        await tester.binding.setSurfaceSize(Size(width, 800));
-        final data = DataProvider();
-        await tester.pumpWidget(
-          MultiProvider(
-            providers: [
-              ChangeNotifierProvider.value(value: data),
-              ChangeNotifierProvider(create: (_) => LocaleProvider()),
-            ],
-            child: MaterialApp(
-              locale: Locale(language),
-              supportedLocales: const [Locale('en'), Locale('ar')],
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              home: Scaffold(
-                body: WebPharmacyDispensingView(
-                  center: data.centers.first,
-                  initialPatientId: 'P999',
-                ),
-              ),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(
-          find.text(
-            language == 'ar' ? 'تفاصيل الوصفة' : 'Prescription details',
-          ),
-          findsOneWidget,
-        );
-        expect(
-          find.text(
-            language == 'ar' ? 'المخزون والدفعات' : 'Inventory & Batches',
-          ),
-          findsOneWidget,
-        );
-      });
-    }
-  }
-
-  testWidgets('pharmacy search no-results state offers recovery', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 800));
-    final data = DataProvider();
-    await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: data),
-          ChangeNotifierProvider(create: (_) => LocaleProvider()),
-        ],
-        child: MaterialApp(
-          locale: const Locale('en'),
-          supportedLocales: const [Locale('en'), Locale('ar')],
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          home: Scaffold(
-            body: WebPharmacyDispensingView(center: data.centers.first),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'no such patient');
-    await tester.pumpAndSettle();
-    expect(find.text('No matching requests'), findsOneWidget);
-    expect(find.text('Clear filters'), findsOneWidget);
-    await tester.tap(find.text('Clear filters'));
-    await tester.pumpAndSettle();
-    expect(find.text('No matching requests'), findsNothing);
-    expect(find.byType(TextField), findsOneWidget);
-  });
-
   for (final language in ['ar', 'en']) {
     testWidgets(
       'mobile dispensing review uses recorded eligibility and coverage in $language',

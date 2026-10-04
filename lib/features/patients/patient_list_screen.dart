@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/constants/mock_data.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
-import '../treatment_plan/web/patient_360_view.dart';
+import 'patient_profile_screen.dart';
 
 class PatientListScreen extends StatefulWidget {
   final String? highlightPatientId;
@@ -125,7 +125,7 @@ class _PatientListScreenState extends State<PatientListScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    Patient360View(patient: patient),
+                                    PatientProfileScreen(patient: patient),
                               ),
                             );
                           },

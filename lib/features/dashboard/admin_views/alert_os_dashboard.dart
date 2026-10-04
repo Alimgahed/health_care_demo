@@ -14,7 +14,7 @@ import 'alert_os_ai_assistant.dart';
 
 enum AlertOSSection { overview, liveFeed, aiChat }
 
-/// Main sidebar indices for AlertOS sections (WebAdminShell).
+/// Main navigation indices for AlertOS sections.
 const int kAlertOSNavOverview = 4;
 const int kAlertOSNavLiveFeed = 5;
 const int kAlertOSNavAiChat = 6;

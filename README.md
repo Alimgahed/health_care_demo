@@ -1,16 +1,15 @@
 # MoH Mounjaro Management Platform (Demo)
 
-Flutter web/mobile demo for UAE Ministry of Health stakeholder presentations.
+Flutter mobile demo for UAE Ministry of Health stakeholder presentations.
 
 ## Run
 
 ```bash
-cd mounjaro_demo
 flutter pub get
-flutter run -d chrome
+flutter run
 ```
 
-Recommended demo path: **Ministry Executive** role on web (≥1100px width) for the National Command Center.
+The app is designed for Android and iOS phones. Choose a portal from the role picker.
 
 ## Demo credentials (role picker)
 

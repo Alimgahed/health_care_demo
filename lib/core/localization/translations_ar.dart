@@ -11,7 +11,7 @@ const Map<String, String> translationsAr = {
   'documents': 'المستندات',
   'appointments': 'المواعيد',
   'audit_trail': 'سجل التدقيق',
-  'app_title': 'منصة الرعاية الصحية — وزارة الصحة',
+  'app_title': 'healthcare',
   'demo_environment': 'بيئة العرض التوضيحي',
   'national_registry': 'سجل المرضى',
   'demo_cohort': 'عينة العرض',
@@ -741,8 +741,7 @@ const Map<String, String> translationsAr = {
   'status_clinical_approved_dispense': 'معتمد من الطبيب — جاهز للصرف',
   'awaiting_clinical_approval': 'بانتظار اعتماد الطبيب',
   'pending_reviews_queue': 'طابور اعتمادات معلّقة',
-  'no_pending_reviews':
-      'لا توجد طلبات تنتظر المراجعة الطبية.',
+  'no_pending_reviews': 'لا توجد طلبات تنتظر المراجعة الطبية.',
   'review_type_care_plan': 'تحديث خطة الرعاية بعد صرف حديث',
   'review_type_early_dispense': 'صرف مبكر قبل موعد الجرعة التالية',
   'approve_clinical_review': 'اعتماد',

@@ -163,7 +163,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
               Icon(LucideIcons.pill, size: 14, color: AppColors.primary),
               SizedBox(width: 6),
               Text(
-                '5 mg',
+                plan.medicationDose,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -556,7 +556,7 @@ class _PlanMedicationScreenState extends State<PlanMedicationScreen>
             isDark,
             icon: LucideIcons.droplets,
             label: context.tr('current_dose'),
-            value: '5 mg',
+            value: plan.medicationDose,
             color: AppColors.accent,
           ),
           _buildInfoDivider(isDark),

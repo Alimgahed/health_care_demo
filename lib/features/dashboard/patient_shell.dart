@@ -6,14 +6,13 @@ import '../../core/localization/locale_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/design_tokens.dart';
 import '../../core/widgets/platform_state_view.dart';
-import '../../core/utils/responsive_layout.dart';
 import '../patient_app/patient_app_screen.dart';
 import '../patient_app/patient_notifications_sheet.dart';
 import '../treatment_plan/mobile/plan_overview_screen.dart';
-import '../treatment_plan/web/web_plan_medication_view.dart';
+import '../treatment_plan/mobile/plan_medication_screen.dart';
 import '../treatment_plan/mobile/plan_sessions_screen.dart';
 import '../treatment_plan/mobile/plan_exercises_screen.dart';
-import 'web/web_patient_shell.dart';
+import '../patient_app/appointments_screen.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../core/demo/demo_session_provider.dart';
 import '../auth/login_screen.dart';
@@ -23,10 +22,7 @@ class PatientShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ResponsiveLayout(
-      mobile: MobilePatientShell(),
-      web: WebPatientShell(),
-    );
+    return const MobilePatientShell();
   }
 }
 
@@ -50,6 +46,18 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    context.isArabic ? 'استكشف رعايتك' : 'Explore your care',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
               ListTile(
                 leading: const Icon(LucideIcons.calendarDays),
                 title: Text(context.tr('nav_sessions')),
@@ -64,6 +72,11 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                 leading: const Icon(LucideIcons.userCircle),
                 title: Text(context.tr('my_health_profile_title')),
                 onTap: () => Navigator.pop(sheetContext, 1),
+              ),
+              ListTile(
+                leading: const Icon(LucideIcons.calendarDays),
+                title: Text(context.isArabic ? 'المواعيد' : 'Appointments'),
+                onTap: () => Navigator.pop(sheetContext, 6),
               ),
             ],
           ),
@@ -105,9 +118,10 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
       const PatientAppScreen(),
       MobilePatientProfileTab(patient: patient),
       PlanOverviewScreen(patient: patient),
-      WebPlanMedicationView(patient: patient),
+      PlanMedicationScreen(patient: patient),
       PlanSessionsScreen(patient: patient),
       PlanExercisesScreen(patient: patient),
+      AppointmentsScreen(patient: patient),
     ];
 
     final List<String> titles = [
@@ -118,14 +132,6 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
       context.tr('nav_sessions'),
       context.tr('nav_exercises'),
     ];
-
-    // Badge Logic: Mock pending tasks
-    final plan = provider.getPlanForPatient(patient.id);
-    bool hasMedicationPending =
-        plan != null && provider.medicationEventsFor(patient.id).isEmpty;
-    bool hasExercisesPending =
-        plan != null &&
-        plan.homeExercises.any((exercise) => exercise.completedDates.isEmpty);
 
     return Scaffold(
       appBar: AppBar(
@@ -173,18 +179,17 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                     Container(
                       width: 48,
                       height: 48,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppColors.primary, AppColors.primaryLight],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.health_and_safety,
+                      decoration: const BoxDecoration(
                         color: Colors.white,
-                        size: 28,
+                        shape: BoxShape.circle,
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Image.asset(
+                          'assets/logo.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -193,7 +198,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            context.tr('ncc_brand'),
+                            'healthcare',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -221,44 +226,6 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                     vertical: 16,
                   ),
                   children: [
-                    _navSection(context.tr('nav_overview')),
-                    _buildDrawerItem(
-                      LucideIcons.home,
-                      context.tr('home_dashboard'),
-                      0,
-                    ),
-                    _buildDrawerItem(
-                      LucideIcons.userCircle,
-                      context.tr('my_health_profile_title'),
-                      1,
-                    ),
-                    const SizedBox(height: 16),
-                    _navSection(context.tr('my_plan')),
-                    _buildDrawerItem(
-                      LucideIcons.clipboardList,
-                      context.tr('nav_overview_plan'),
-                      2,
-                    ),
-                    _buildDrawerItem(
-                      LucideIcons.pill,
-                      context.tr('nav_medication'),
-                      3,
-                      badgeCount: hasMedicationPending ? 1 : 0,
-                    ),
-                    _buildDrawerItem(
-                      LucideIcons.clock,
-                      context.tr('nav_sessions'),
-                      4,
-                    ),
-                    _buildDrawerItem(
-                      LucideIcons.activity,
-                      context.tr('nav_exercises'),
-                      5,
-                      showDot: hasExercisesPending,
-                    ),
-
-                    const SizedBox(height: 32),
-                    Divider(color: AppColors.surface24),
                     ListTile(
                       leading: const Icon(
                         LucideIcons.globe,
@@ -272,7 +239,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                       ),
                       onTap: () {
                         localeProvider.toggleLanguage();
-                        Navigator.pop(context); // Close drawer
+                        Navigator.pop(context);
                       },
                     ),
                     ListTile(
@@ -285,6 +252,7 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
                         style: const TextStyle(color: Colors.white54),
                       ),
                       onTap: () {
+                        Navigator.pop(context);
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
@@ -370,13 +338,14 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
           0 => 0,
           2 => 1,
           3 => 2,
-          _ => 3,
+          6 => 3,
+          _ => 4,
         },
         onDestinationSelected: (index) {
-          if (index == 3) {
+          if (index == 4) {
             _showMore(context);
           } else {
-            setState(() => _currentIndex = [0, 2, 3][index]);
+            setState(() => _currentIndex = [0, 2, 3, 6][index]);
           }
         },
         destinations: [
@@ -393,87 +362,15 @@ class _MobilePatientShellState extends State<MobilePatientShell> {
             label: context.isArabic ? 'الدواء' : 'Medication',
           ),
           NavigationDestination(
+            icon: const Icon(LucideIcons.calendarDays),
+            label: context.isArabic ? 'المواعيد' : 'Appointments',
+          ),
+          NavigationDestination(
             icon: const Icon(LucideIcons.menu),
             label: context.isArabic ? 'المزيد' : 'More',
           ),
         ],
       ),
-    );
-  }
-
-  Widget _navSection(String label) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.4),
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrawerItem(
-    IconData icon,
-    String title,
-    int index, {
-    int badgeCount = 0,
-    bool showDot = false,
-  }) {
-    bool isSelected = _currentIndex == index;
-    return ListTile(
-      leading: Icon(icon, color: isSelected ? Colors.white : Colors.white60),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.white60,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ),
-          if (badgeCount > 0)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.error,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                badgeCount.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          else if (showDot)
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: AppColors.error,
-                shape: BoxShape.circle,
-              ),
-            ),
-        ],
-      ),
-      selected: isSelected,
-      selectedTileColor: AppColors.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      onTap: () {
-        setState(() {
-          _currentIndex = index;
-        });
-        Navigator.pop(context); // close drawer
-      },
     );
   }
 }

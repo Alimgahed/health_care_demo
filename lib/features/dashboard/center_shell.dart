@@ -3,9 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/utils/responsive_layout.dart';
 import '../dispensing/dispensing_screen.dart';
-import 'web/web_center_shell.dart';
 import '../../../core/constants/mock_data.dart';
 
 class CenterShell extends StatelessWidget {
@@ -15,10 +13,7 @@ class CenterShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveLayout(
-      mobile: MobileCenterShell(initialPatientId: initialPatientId),
-      web: WebCenterShell(initialPatientId: initialPatientId),
-    );
+    return MobileCenterShell(initialPatientId: initialPatientId);
   }
 }
 

@@ -37,6 +37,31 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 72,
+        backgroundColor: AppColors.surface,
+        indicatorColor: AppColors.paleSurface,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? AppColors.primaryDark
+                : AppColors.textSecondary,
+            size: 21,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            color: states.contains(WidgetState.selected)
+                ? AppColors.primaryDark
+                : AppColors.textSecondary,
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+          ),
+        ),
+      ),
       dividerTheme: DividerThemeData(color: AppColors.border, thickness: 1),
       listTileTheme: const ListTileThemeData(
         minVerticalPadding: AppSpacing.xs,
@@ -138,6 +163,31 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           side: const BorderSide(color: AppColors.darkBorder),
           borderRadius: BorderRadius.circular(AppRadius.card),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 72,
+        backgroundColor: AppColors.darkSurface,
+        indicatorColor: const Color(0xFF124A43),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? const Color(0xFF75E0C7)
+                : AppColors.darkTextSecondary,
+            size: 21,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            color: states.contains(WidgetState.selected)
+                ? const Color(0xFF75E0C7)
+                : AppColors.darkTextSecondary,
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+          ),
         ),
       ),
       dividerTheme: const DividerThemeData(

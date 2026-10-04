@@ -24,3 +24,5 @@ plugins {
 }
 
 include(":app")
+
+rootProject.name = "mounjaro_demo_android"

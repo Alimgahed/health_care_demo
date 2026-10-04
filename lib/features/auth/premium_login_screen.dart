@@ -251,7 +251,6 @@ class _LoginFormState extends State<_LoginForm> {
         vertical: widget.compact ? 8 : 16,
       ),
       child: SafeArea(
-        top: !widget.compact,
         child: SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
@@ -283,28 +282,30 @@ class _LoginFormState extends State<_LoginForm> {
                         child: Image.asset(
                           'assets/logo.png',
                           fit: BoxFit.contain,
+                          semanticLabel: 'healthcare',
                         ),
                       ),
                       SizedBox(height: widget.compact ? 5 : 12),
+                      Text(
+                        'healthcare',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF0A3341),
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.6,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                       Text(
                         _arabic
                             ? 'منصة إدارة برامج الرعاية الصحية'
                             : 'Healthcare Program Management Platform',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Color(0xFF0A3341),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Health System',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
                           color: Color(0xFF536E78),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 3),
@@ -315,12 +316,16 @@ class _LoginFormState extends State<_LoginForm> {
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Color(0xFF75858C),
-                          fontSize: 10.5,
+                          fontSize: 12,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: widget.compact ? 16 : 28),
+                  if (widget.compact) ...[
+                    _mobileAssistantCard(),
+                    const SizedBox(height: 16),
+                  ],
                   Text(
                     _arabic ? 'اختر مساحة العمل' : 'Choose a workspace',
                     textAlign: TextAlign.center,
@@ -366,14 +371,15 @@ class _LoginFormState extends State<_LoginForm> {
                         'إدارة المرضى وخطط العلاج',
                         'Patients & treatment plans',
                       ),
-                      _role(
-                        LoginRole.reviewer,
-                        LucideIcons.badgeCheck,
-                        'المراجع الطبي',
-                        'Medical Reviewer',
-                        'مراجعة واعتماد الطلبات',
-                        'Review & approve requests',
-                      ),
+                      if (!widget.compact)
+                        _role(
+                          LoginRole.reviewer,
+                          LucideIcons.badgeCheck,
+                          'المراجع الطبي',
+                          'Medical Reviewer',
+                          'مراجعة واعتماد الطلبات',
+                          'Review & approve requests',
+                        ),
                       _role(
                         LoginRole.center,
                         LucideIcons.pill,
@@ -394,12 +400,17 @@ class _LoginFormState extends State<_LoginForm> {
                   ),
                   SizedBox(height: widget.compact ? 18 : 24),
                   SizedBox(
-                    height: 53,
+                    height: 56,
                     child: ElevatedButton.icon(
                       onPressed: widget.selectedRole != null
                           ? widget.onLogin
                           : null,
-                      icon: const Icon(LucideIcons.arrowRight, size: 18),
+                      icon: Icon(
+                        Directionality.of(context) == TextDirection.rtl
+                            ? LucideIcons.arrowLeft
+                            : LucideIcons.arrowRight,
+                        size: 18,
+                      ),
                       label: Text(
                         _arabic ? 'فتح مساحة العمل' : 'Open workspace',
                         style: const TextStyle(
@@ -422,11 +433,11 @@ class _LoginFormState extends State<_LoginForm> {
                   const SizedBox(height: 12),
                   Text(
                     _arabic
-                        ? 'بيئة معاينة • التغييرات متاحة خلال الجلسة الحالية'
-                        : 'Preview environment • Changes last for this session',
+                        ? 'نسخة تجريبية • لا يوجد تسجيل دخول أو مزامنة حقيقية'
+                        : 'Demo preview • No real sign-in or live sync',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: Color(0xFF75858C),
                     ),
                   ),
@@ -435,6 +446,65 @@ class _LoginFormState extends State<_LoginForm> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _mobileAssistantCard() {
+    final title = _arabic ? 'مساعد الرعاية' : 'Care assistant';
+    final detail = _arabic
+        ? 'معاينة توضيحية مبنية على بيانات التجربة'
+        : 'Preview illustration · demo records only';
+
+    return Container(
+      constraints: const BoxConstraints(minHeight: 78),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 14, 8),
+      decoration: BoxDecoration(
+        color: AppColors.paleSurface,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          ExcludeSemantics(
+            child: Image.asset(
+              'assets/illustrations/healthcare_assistant.png',
+              width: 60,
+              height: 60,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Color(0xFF123D3F),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  detail,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF526B67),
+                    fontSize: 12,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(LucideIcons.sparkles, size: 18, color: AppColors.primaryDark),
+        ],
       ),
     );
   }
@@ -448,59 +518,80 @@ class _LoginFormState extends State<_LoginForm> {
     String subEn,
   ) {
     final selected = widget.selectedRole == role;
+    final label = _arabic ? ar : en;
+    final compactDescriptions = {
+      LoginRole.admin: _arabic ? 'إدارة النظام' : 'Admin operations',
+      LoginRole.doctor: _arabic ? 'رعاية المرضى' : 'Patient care',
+      LoginRole.center: _arabic ? 'الدواء والمخزون' : 'Medicine & stock',
+      LoginRole.patient: _arabic ? 'رحلتي الصحية' : 'My care journey',
+      LoginRole.reviewer: _arabic ? 'مراجعة الطلبات' : 'Request review',
+    };
+    final description = widget.compact
+        ? compactDescriptions[role]!
+        : (_arabic ? subAr : subEn);
     return SizedBox(
       width: widget.compact ? (MediaQuery.sizeOf(context).width - 52) / 2 : 92,
       child: Padding(
         padding: EdgeInsetsDirectional.only(end: widget.compact ? 0 : 6),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            widget.onRoleChanged(role);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            height: widget.compact ? 70 : 90,
-            padding: const EdgeInsets.all(7),
-            decoration: BoxDecoration(
-              color: selected
-                  ? AppColors.primary.withValues(alpha: .09)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: selected ? AppColors.primary : const Color(0xFFDCE5E8),
-                width: selected ? 1.5 : 1,
+        child: Semantics(
+          button: true,
+          selected: selected,
+          label: '$label. $description',
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => widget.onRoleChanged(role),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              height: widget.compact ? 92 : 90,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColors.primary.withValues(alpha: .09)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: selected ? AppColors.primary : const Color(0xFFDCE5E8),
+                  width: selected ? 1.5 : 1,
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  size: 20,
-                  color: selected ? AppColors.primary : const Color(0xFF718088),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  _arabic ? ar : en,
-                  maxLines: 1,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: selected
-                        ? AppColors.primary
-                        : const Color(0xFF42545C),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ExcludeSemantics(
+                    child: Icon(
+                      icon,
+                      size: 20,
+                      color: selected
+                          ? AppColors.primary
+                          : const Color(0xFF718088),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _arabic ? subAr : subEn,
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 9, color: Color(0xFF91A0A6)),
-                ),
-              ],
+                  const SizedBox(height: 5),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: selected
+                          ? AppColors.primary
+                          : const Color(0xFF42545C),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: widget.compact ? 12 : 9,
+                      color: const Color(0xFF657A76),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

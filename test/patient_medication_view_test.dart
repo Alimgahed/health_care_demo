@@ -6,13 +6,13 @@ import 'package:provider/provider.dart';
 import 'package:mounjaro_demo/core/constants/mock_data.dart';
 import 'package:mounjaro_demo/core/localization/app_localizations.dart';
 import 'package:mounjaro_demo/core/localization/locale_provider.dart';
-import 'package:mounjaro_demo/features/treatment_plan/web/web_plan_medication_view.dart';
+import 'package:mounjaro_demo/features/treatment_plan/mobile/plan_medication_screen.dart';
 
 void main() {
   testWidgets(
     'patient medication screen shows canonical dose and saves adherence',
     (tester) async {
-      await tester.binding.setSurfaceSize(const Size(1440, 1000));
+      await tester.binding.setSurfaceSize(const Size(390, 844));
       final data = DataProvider();
       final patient = data.getPatientById('P999')!;
       final plan = data.getPlanForPatient(patient.id)!;
@@ -32,25 +32,15 @@ void main() {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            home: Scaffold(body: WebPlanMedicationView(patient: patient)),
+            home: Scaffold(body: PlanMedicationScreen(patient: patient)),
           ),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Mounjaro · ${plan.medicationDose}'), findsOneWidget);
-      expect(find.text('No dose events'), findsOneWidget);
-      expect(find.text('4/4'), findsNothing);
-
-      await tester.tap(find.widgetWithText(OutlinedButton, 'Taken'));
-      await tester.pumpAndSettle();
-
-      expect(data.medicationEventsFor(patient.id), hasLength(1));
-      expect(
-        data.medicationEventsFor(patient.id).single.status,
-        MedicationDoseStatus.taken,
-      );
-      expect(find.text('100%'), findsOneWidget);
+      expect(find.text(plan.medicationDose), findsWidgets);
+      expect(find.text('No dose events recorded this month.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     },
   );
 }

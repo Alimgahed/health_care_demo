@@ -4,9 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/auth/access_control.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/utils/responsive_layout.dart';
 import '../patients/patient_list_screen.dart';
-import 'web/web_doctor_shell.dart';
 import '../../../core/constants/mock_data.dart';
 import '../../../core/models/activity_log.dart';
 import 'program_alerts.dart';
@@ -24,15 +22,9 @@ class DoctorShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveLayout(
-      mobile: MobileDoctorShell(
-        initialPatientId: initialPatientId,
-        initialTabIndex: initialTabIndex,
-      ),
-      web: WebDoctorShell(
-        initialPatientId: initialPatientId,
-        initialTabIndex: initialTabIndex,
-      ),
+    return MobileDoctorShell(
+      initialPatientId: initialPatientId,
+      initialTabIndex: initialTabIndex,
     );
   }
 }

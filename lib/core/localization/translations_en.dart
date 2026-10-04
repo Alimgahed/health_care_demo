@@ -12,7 +12,7 @@ const Map<String, String> translationsEn = {
   'appointments': 'Appointments',
   'audit_trail': 'Audit Trail',
   // App
-  'app_title': 'MoH Health Care Platform',
+  'app_title': 'healthcare',
   'demo_environment': 'Demonstration Environment',
   'national_registry': 'National registry',
   'demo_cohort': 'Demo cohort',
@@ -789,8 +789,7 @@ const Map<String, String> translationsEn = {
   'status_clinical_approved_dispense': 'Physician approved — ready to dispense',
   'awaiting_clinical_approval': 'Awaiting physician approval',
   'pending_reviews_queue': 'Pending authorizations queue',
-  'no_pending_reviews':
-      'No requests are awaiting medical review.',
+  'no_pending_reviews': 'No requests are awaiting medical review.',
   'review_type_care_plan': 'Care plan update after recent dispensing',
   'review_type_early_dispense': 'Early dispensing before refill interval',
   'approve_clinical_review': 'Approve',
