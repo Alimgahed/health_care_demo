@@ -1,0 +1,66 @@
+import { useId, useState } from 'react'
+import { CareIcon } from './CareIcon'
+import { PatientAvatar } from './PatientAvatar'
+import { useDialogFocus } from './useDialogFocus'
+import { reviewerDashboardData } from './reviewerDashboardData'
+import { localizeArabic } from './ArabicText'
+import * as catalogue from './ArabicCatalogue'
+import type { AppData, Patient, RequestStatus } from './domain'
+import type { AdminPage } from './adminAnalytics'
+import hero from './assets/reviewer-dashboard-hero.png'
+import './ReviewerDashboard.css'
+
+type Props = { data: AppData; arabic: boolean; now: Date; onNavigate: (page: AdminPage, id?: string) => void; onPatient: (id: string) => void }
+type LinkedRecord = { id: string; patientId: string; page: AdminPage; detail: string }
+export function ReviewerDashboard({ data, arabic, now, onNavigate, onPatient }: Props) {
+  const t = (en: string, ar: string) => arabic ? ar : en
+  const localizedPurposes: Record<string,string> = {'Diabetes follow-up':'متابعة السكري','Clinical follow-up':'متابعة سريرية','Review lab results':'مراجعة نتائج التحاليل','Care plan follow-up':'متابعة خطة الرعاية','Integrated care follow-up':'متابعة خطة الرعاية المتكاملة','Treatment review':'مراجعة العلاج'}
+  const text = (value: string) => arabic ? localizedPurposes[value] ?? localizeArabic(value, catalogue) : value
+  const [filter, setFilter] = useState<RequestStatus | 'All'>('All')
+  const [linked, setLinked] = useState<{ title: string; records: LinkedRecord[] } | null>(null)
+  const dialog = useDialogFocus(!!linked, () => setLinked(null))
+  const stats = reviewerDashboardData(data, now, filter)
+  const patient = (id: string) => stats.patients.find(p => p.id === id)
+  const name = (p?: Patient) => p ? (arabic ? p.nameAr ?? text(p.name) : p.name) : '—'
+  const requestRecords = (rows: typeof stats.requests): LinkedRecord[] => rows.map(r => ({ id: r.id, patientId: r.patientId, page: 'Treatment requests', detail: `${text(r.status)} · ${r.dose}` }))
+  const patientRecords = (rows: Patient[]): LinkedRecord[] => rows.map(p => ({ id: p.id, patientId: p.id, page: 'Patients', detail: text(p.diagnosis) }))
+  const open = (record: LinkedRecord) => { setLinked(null); if (record.page === 'Patients') onPatient(record.patientId); else onNavigate(record.page, record.id) }
+  const choose = (title: string, records: LinkedRecord[]) => setLinked({ title, records })
+  const shortDate = (date: string) => /^\d{4}-\d{2}-\d{2}/.test(date) ? new Intl.DateTimeFormat(arabic ? 'ar-AE' : 'en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${date.slice(0, 10)}T12:00:00Z`)) : '—'
+  const kpis = [
+    { label: t('Patients in scope', 'المرضى ضمن نطاق العمل'), value: stats.patients.length, tone: 'green', icon: 'user', records: patientRecords(stats.patients) },
+    { label: t('Active treatment', 'علاج نشط'), value: stats.active.length, tone: 'amber', icon: 'walk', records: patientRecords(stats.active) },
+    { label: t('Awaiting review', 'بانتظار المراجعة'), value: stats.waiting.length, tone: 'purple', icon: 'clipboard', records: requestRecords(stats.waiting) },
+    { label: t('Ready for pharmacy', 'جاهز للصيدلية'), value: stats.ready.length, tone: 'green', icon: 'building', records: requestRecords(stats.ready) },
+  ]
+  const journey = [
+    { label: t('Clinical evidence', 'الأدلة السريرية'), value: stats.evidence.length, icon: 'clipboard', tone: 'green', records: patientRecords(stats.patients.filter(p => stats.evidence.includes(p.id))) },
+    { label: t('Medical review', 'المراجعة الطبية'), value: stats.review.length, icon: 'stethoscope', tone: 'blue', records: requestRecords(stats.review) },
+    { label: t('Dispensed', 'تم الصرف'), value: stats.dispensed.length, icon: 'pill', tone: 'purple', records: patientRecords(stats.patients.filter(p => stats.dispensed.includes(p.id))) },
+    { label: t('Ongoing care', 'رعاية مستمرة'), value: stats.ongoing.length, icon: 'activity', tone: 'rose', records: patientRecords(stats.patients.filter(p => stats.ongoing.includes(p.id))) },
+  ]
+  const empty = <p className="rv-empty">{t('No records to display.', 'لا توجد سجلات لعرضها.')}</p>
+  return <div className="reviewer-dashboard" dir={arabic ? 'rtl' : 'ltr'}>
+    <header className="rv-hero"><img src={hero} alt=""/><div><h1><CareIcon name="clipboard"/>{t('Welcome to medical review', 'مرحباً بك في المراجعة الطبية')}</h1><p>{t('Review patient records, follow treatment plans and coordinate care and supply.', 'إدارة مراجعات المرضى ومتابعة خطط العلاج وأنشطة الرعاية والإمداد.')}</p></div></header>
+    <div className="rv-kpis">{kpis.map(k => <button key={k.icon} className={`rv-kpi rv-${k.tone}`} onClick={() => choose(k.label, k.records)}><span className="rv-kpi-copy"><b>{k.label}</b><strong>{k.value}</strong><small>{t('View linked records', 'عرض السجلات المرتبطة')} <span aria-hidden="true">{arabic ? '←' : '→'}</span></small></span><span className="rv-icon"><CareIcon name={k.icon}/></span></button>)}</div>
+    <div className="rv-middle">
+      <section className="rv-card rv-chart"><div className="rv-card-head"><h2><span className="rv-heading-icon"><CareIcon name="chart"/></span>{t('Review statistics · last 30 days', 'إحصائيات المراجعة خلال آخر 30 يوم')}</h2><select aria-label={t('Request status', 'حالة طلب العلاج')} value={filter} onChange={e => setFilter(e.target.value as RequestStatus | 'All')}><option value="All">{t('All statuses', 'جميع الحالات')}</option>{(['Under review', 'Approved', 'Ready to dispense', 'Needs information', 'Rejected', 'Dispensed', 'Completed'] as const).map(s => <option key={s} value={s}>{text(s)}</option>)}</select></div><ReviewChart rows={stats.trend} arabic={arabic}/><p className="rv-chart-caption">{t('Submitted requests · totals per 5 days', 'الطلبات المرسلة للمراجعة · إجمالي كل 5 أيام')}</p></section>
+      <section className="rv-card rv-journey"><div className="rv-card-head"><div><h2>{t('The connected patient journey', 'رحلة المريض المتكاملة')}</h2><p>{t('Follow patient care from assessment through follow-up.', 'تابع رحلة المريض من التقييم إلى المتابعة والرعاية.')}</p></div></div><div className="rv-stages">{journey.map(j => <button className={`rv-stage rv-${j.tone}`} key={j.label} onClick={() => choose(j.label, j.records)}><span className="rv-stage-icon"><CareIcon name={j.icon}/></span><b>{j.label}</b><strong>{j.value}</strong></button>)}</div></section>
+    </div>
+    <div className="rv-bottom">
+      <section className="rv-card"><div className="rv-card-head"><h2><span className="rv-heading-icon"><CareIcon name="history"/></span>{t('Latest reviews', 'أحدث المراجعات')}</h2><button className="rv-link" onClick={() => onNavigate('Treatment requests')}>{t('View all', 'عرض الكل')}</button></div><div className="rv-rows">{stats.latest.map(({ request: r, date }) => <button className="rv-row rv-review-row" key={r.id} onClick={() => onNavigate('Treatment requests', r.id)}><PatientAvatar patient={patient(r.patientId)} arabic={arabic} className="rv-avatar"/><span className="rv-person"><b>{name(patient(r.patientId))}</b><small>{text(patient(r.patientId)?.diagnosis ?? '')}</small></span><span className="rv-row-meta"><time>{shortDate(date)}</time><span className={`rv-status rv-status-${r.status.toLowerCase().replaceAll(' ', '-')}`}><i/>{text(r.status)}</span></span><span aria-hidden="true">{arabic ? '‹' : '›'}</span></button>)}{!stats.latest.length && empty}</div></section>
+      <section className="rv-card"><div className="rv-card-head"><h2><span className="rv-heading-icon"><CareIcon name="calendar"/></span>{t('Upcoming appointments', 'المواعيد القادمة')}</h2><button className="rv-link" onClick={() => onNavigate('Appointments')}>{t('View all', 'عرض الكل')}</button></div><div className="rv-rows">{stats.appointments.slice(0, 4).map(a => <button className="rv-row" key={a.id} onClick={() => onNavigate('Appointments', a.id)}><PatientAvatar patient={patient(a.patientId)} arabic={arabic} className="rv-avatar"/><span className="rv-person"><b>{name(patient(a.patientId))}</b><small>{a.patientId}</small><span className="rv-visit">{text(a.purpose)}</span></span><span className="rv-row-meta"><time>{shortDate(a.date)}</time><time dir="ltr">{a.time}</time></span></button>)}{!stats.appointments.length && <p className="rv-empty">{t('No upcoming appointments in your scope.', 'لا توجد مواعيد قادمة ضمن نطاق عملك.')}</p>}</div><button className="rv-footer-link" onClick={() => onNavigate('Appointments')}>{t('View appointment schedule', 'عرض جدول المواعيد')} <span aria-hidden="true">{arabic ? '‹' : '›'}</span></button></section>
+      <section className="rv-card"><div className="rv-card-head"><h2><span className="rv-heading-icon"><CareIcon name="bell"/></span>{t('Notifications & alerts', 'إشعارات وتنبيهات')}</h2><span className="rv-alert-count">{stats.alerts.length} {t('alerts', 'تنبيه')}</span></div><div className="rv-rows">{stats.alerts.slice(0, 4).map(a => <button className={`rv-row rv-alert-row ${a.severity === 'Critical' ? 'rv-critical' : ''}`} key={a.id} onClick={() => a.page === 'Patients' && a.patientId ? onPatient(a.patientId) : onNavigate(a.page, a.entityId)}><span className={`rv-alert-icon rv-${a.severity === 'Critical' ? 'rose' : a.category === 'Appointments' ? 'blue' : 'amber'}`}><CareIcon name={a.category === 'Appointments' ? 'calendar' : a.category === 'Treatment' ? 'pill' : 'alert'}/></span><span className="rv-person"><b>{text(a.title)}</b><small>{name(patient(a.patientId!))} · {a.patientId}</small></span><time>{shortDate(a.timestamp)}</time></button>)}{!stats.alerts.length && empty}</div><button className="rv-footer-link" onClick={() => onNavigate('Alerts')}>{t('View all notifications', 'عرض جميع الإشعارات')} <span aria-hidden="true">{arabic ? '‹' : '›'}</span></button></section>
+    </div>
+    {linked && <div className="modal-backdrop"><section ref={dialog} className="rv-dialog" role="dialog" aria-modal="true" aria-labelledby="rv-dialog-title"><div className="rv-card-head"><h2 id="rv-dialog-title">{linked.title} <span>({linked.records.length})</span></h2><button className="rv-close" aria-label={t('Close', 'إغلاق')} onClick={() => setLinked(null)}><CareIcon name="close"/></button></div>{linked.records.map(r => <button className="rv-row" key={r.id} onClick={() => open(r)}><PatientAvatar patient={patient(r.patientId)} arabic={arabic} className="rv-avatar"/><span className="rv-person"><b>{name(patient(r.patientId))}</b><small>{r.id} · {r.detail}</small></span><span aria-hidden="true">{arabic ? '←' : '→'}</span></button>)}{!linked.records.length && empty}</section></div>}
+  </div>
+}
+function ReviewChart({ rows, arabic }: { rows: ReturnType<typeof reviewerDashboardData>['trend']; arabic: boolean }) {
+  const id = useId()
+  const [active, setActive] = useState<number | null>(null)
+  const max = Math.max(3, Math.ceil(Math.max(...rows.map(r => r.count)) / 3) * 3)
+  const points = rows.map((r, i) => ({ x: 38 + i * 72, y: 134 - r.count / max * 106 }))
+  const line = points.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ')
+  const date = (value: string) => new Intl.DateTimeFormat(arabic ? 'ar-AE' : 'en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${value}T12:00:00Z`))
+  return <><svg className="rv-chart-svg" viewBox="0 0 432 165" role="group" aria-label={arabic ? 'عدد طلبات المراجعة خلال 30 يوماً' : 'Review requests over 30 days'}><defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="currentColor" stopOpacity=".3"/><stop offset="100%" stopColor="currentColor" stopOpacity=".025"/></linearGradient></defs>{[0, 1, 2, 3].map(i => <g key={i}><line x1="38" x2="398" y1={134 - i * 106 / 3} y2={134 - i * 106 / 3}/><text x="23" y={138 - i * 106 / 3} textAnchor="middle">{max * i / 3}</text></g>)}<path d={`${line} L398,134 L38,134 Z`} fill={`url(#${id})`}/><path d={line} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/>{points.map((p, i) => <g key={rows[i].from}><circle cx={p.x} cy={p.y} r="4" fill="currentColor"/><circle cx={p.x} cy={p.y} r="16" fill="transparent" tabIndex={0} role="button" aria-label={`${date(rows[i].from)} – ${date(rows[i].to)}: ${rows[i].count}`} onFocus={() => setActive(i)} onBlur={() => setActive(null)} onMouseEnter={() => setActive(i)} onMouseLeave={() => setActive(null)} onClick={() => setActive(active === i ? null : i)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActive(active === i ? null : i) } }}/><text x={p.x} y="157" textAnchor="middle">{date(rows[i].to)}</text></g>)}{active !== null && <g pointerEvents="none"><rect x={Math.max(38, Math.min(360, points[active].x - 18))} y={Math.max(0, points[active].y - 29)} width="36" height="22" rx="6" fill="var(--deep)"/><text x={Math.max(56, Math.min(378, points[active].x))} y={Math.max(15, points[active].y - 14)} textAnchor="middle" className="rv-tooltip">{rows[active].count}</text></g>}</svg><details className="rv-chart-data"><summary>{arabic ? 'عرض بيانات الرسم' : 'View chart data'}</summary><table><thead><tr><th>{arabic ? 'الفترة' : 'Period'}</th><th>{arabic ? 'الطلبات' : 'Requests'}</th></tr></thead><tbody>{rows.map(r => <tr key={r.from}><td>{date(r.from)} – {date(r.to)}</td><td>{r.count}</td></tr>)}</tbody></table></details></>
+}

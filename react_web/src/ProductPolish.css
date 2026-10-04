@@ -1,0 +1,24 @@
+/* Product-wide interaction rules; approved page layouts keep their own grids. */
+.app :where(button,input,select,textarea):focus-visible{outline:3px solid #008d7866;outline-offset:3px}
+.app :where(button,a,input,select,textarea){-webkit-tap-highlight-color:transparent}
+.app :where(button):disabled{cursor:not-allowed}
+.app :where(td,th){vertical-align:middle}
+.app :where(input,select,textarea){max-width:100%;font:inherit}
+.app :where(textarea){line-height:1.6}
+.app :where(.panel,.da-table-card,.pd-card,.pi-card){min-width:0}
+.app :where([role=dialog]){max-height:calc(100dvh - 40px);overscroll-behavior:contain;overflow-y:auto}
+.app :where(.empty-state){text-align:center;min-height:160px;justify-content:center;padding:28px;line-height:1.7}
+.app :where(.icon-button,.da-actions button){min-width:36px;min-height:36px}
+.app :where(.da-filters,.dr-filters,.pi-filters){align-items:end}
+.app :where(.da-feedback,.form-error,[role=alert]){overflow-wrap:anywhere}
+.app .da-status:before{content:'';width:6px;height:6px;background:currentColor;border-radius:50%;flex:none}
+.app .da-status{display:inline-flex;align-items:center;gap:6px}
+@media(max-width:1024px){.app :where(.da-actions button,.icon-button){min-width:40px;min-height:40px}.app :where([role=dialog]){max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px)}}
+@media(prefers-reduced-motion:reduce){.app *, .app *:before,.app *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+.app :where(.dr-workspace,.pd-workspace,.pi-workspace,.da-workspace){min-width:0;grid-template-columns:minmax(0,1fr)}
+.app :where(.dr-workspace,.pd-workspace,.pi-workspace,.da-workspace)>*{min-width:0}
+.app .dr-toolbar{flex-wrap:wrap}.app .dr-toolbar .dr-search{min-width:180px}
+@media(max-width:1300px){.app .dr-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1100px){.app .pd-workspace:has(.pd-detail-overview)>.pd-actions{flex-wrap:wrap;padding:12px}.app .pd-workspace:has(.pd-detail-overview)>.pd-actions button{min-width:0;flex:1 1 200px;max-width:100%}.app .da-heading{flex-wrap:wrap}}
+@media(max-width:1100px){.app .rp-kpi-value{flex-wrap:wrap;gap:6px}.app .rp-kpi-value strong{font-size:clamp(20px,2.3vw,28px);overflow-wrap:anywhere;max-width:100%}}
+@media(max-width:1100px){.app .rp-kpi-value strong{white-space:normal;word-break:normal}}

@@ -1,0 +1,308 @@
+/* Shared navigation drawer for every programme workspace. */
+.app .sidebar.drawer-shell {
+  --drawer-ink: #e7f2f2;
+  --drawer-muted: #aec6ce;
+  --drawer-line: #ffffff20;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 6;
+  display: flex;
+  flex: 0 0 302px;
+  flex-direction: column;
+  width: 302px;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  padding: 12px 14px 10px;
+  overflow: hidden;
+  color: var(--drawer-ink);
+  background:
+    radial-gradient(ellipse at 50% 100%, #00a77c20 0, transparent 52%),
+    linear-gradient(160deg, #032e3a 0%, #004650 56%, #003440 100%);
+}
+.app.role-admin .sidebar.drawer-shell {
+  background:
+    radial-gradient(ellipse at 50% 100%, #00a77c20 0, transparent 52%),
+    linear-gradient(160deg, #032e3a 0%, #004650 56%, #003440 100%);
+}
+.app .sidebar.drawer-shell::after {
+  position: absolute;
+  z-index: 0;
+  inset: auto 0 0;
+  height: 118px;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(0deg, #00a98222, transparent 92%);
+}
+.app .drawer-shell > * { position: relative; z-index: 1; }
+.app .drawer-brand {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  margin: 0;
+  padding: 0 5px 10px;
+  border: 0;
+}
+.app .drawer-brand .brand-mark {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  padding: 5px;
+  border-radius: 14px;
+  background: #fff;
+}
+.app .drawer-brand-copy { display: grid; min-width: 0; gap: 2px; }
+.app .drawer-brand-copy strong { font: 800 23px/1.05 Manrope, sans-serif; letter-spacing: -.8px; }
+.app .drawer-brand-copy strong span { color: #52d5a1; }
+.app .drawer-brand-copy small { color: #adc7d0; font-size: 11px; letter-spacing: .1px; white-space: nowrap; }
+.app .drawer-collapse {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  place-items: center;
+  margin-inline-start: auto;
+  border: 1px solid #ffffff24;
+  border-radius: 11px;
+  background: #ffffff0d;
+  color: #d9f2ee;
+  font-size: 27px;
+  line-height: 1;
+  cursor: pointer;
+}
+.app .drawer-collapse:hover { background: #ffffff1a; }
+.app .workspace-label {
+  flex: 0 0 auto;
+  padding: 0 10px 7px;
+  color: #b2cbd2;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .15px;
+  text-transform: none;
+}
+.app .role-switch.drawer-role-switch {
+  position: relative;
+  display: flex;
+  flex: 0 0 46px;
+  align-items: center;
+  gap: 9px;
+  height: 46px;
+  margin: 0 1px 10px;
+  padding: 0 11px;
+  border: 1px solid #c2f4ed24;
+  border-radius: 13px;
+  background: #ffffff08;
+  color: #f5fbfb;
+}
+.app .drawer-role-icon { display: flex; flex: 0 0 24px; color: #e1f3f5; }
+.app .drawer-role-icon svg { width: 22px; height: 22px; }
+.app .role-switch.drawer-role-switch .role-dot { flex: 0 0 8px; width: 8px; height: 8px; background: #6bf24c; box-shadow: 0 0 0 4px #75ef4925; }
+.app .drawer-role-copy { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.app .drawer-role-copy b { overflow: hidden; color: #f4fafa; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.app .drawer-role-copy small { overflow: hidden; color: #a9c3cc; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.app .role-switch.drawer-role-switch select { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.app .role-switch.drawer-role-switch .chevron { margin-inline-start: auto; color: #e5f5f4; pointer-events: none; }
+.app .drawer-navigation {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  max-height: none;
+  gap: 6px;
+  margin: 0 -3px;
+  padding: 1px 3px 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #75acaa58 transparent;
+  scrollbar-width: thin;
+}
+.app .drawer-group { display: flex; flex: 0 0 auto; flex-direction: column; gap: 2px; }
+.app .drawer-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 24px;
+  padding: 2px 8px 4px;
+  color: #b4d2d8;
+}
+.app .drawer-group-heading > span { display: flex; width: 17px; flex: 0 0 17px; color: #d7eff0; }
+.app .drawer-group-heading svg { width: 16px; height: 16px; }
+.app .drawer-group-heading b { flex: 0 0 auto; font-size: 9px; font-weight: 700; letter-spacing: 1.45px; white-space: nowrap; }
+.app .drawer-group-heading i { height: 1px; flex: 1; background: #00c78c65; }
+.app .drawer-navigation .nav-item {
+  position: relative;
+  display: flex;
+  flex: 0 0 38px;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  min-height: 38px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  box-shadow: none;
+  color: #cfdee2;
+  text-align: start;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.app .drawer-navigation .nav-item:hover:not(.active) { background: #ffffff0b; color: #fff; }
+.app .drawer-navigation .nav-item.active {
+  border-color: #43e1ae58;
+  background: linear-gradient(105deg, #0d8b716b, #0771644d);
+  box-shadow: inset 3px 0 #75f04c;
+  color: #fff;
+  font-weight: 700;
+}
+.app.rtl .drawer-navigation .nav-item.active { box-shadow: inset -3px 0 #75f04c; }
+.app .drawer-navigation .nav-icon { display: flex; width: 22px; flex: 0 0 22px; justify-content: center; color: #bdd4d9; }
+.app .drawer-navigation .nav-icon svg { width: 20px; height: 20px; }
+.app .drawer-navigation .nav-item.active .nav-icon { color: #efffff; }
+.app .drawer-link-label { overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap; }
+.app .drawer-link-chevron { color: #b5d0d7; font-size: 22px; font-weight: 300; line-height: 1; }
+.app .drawer-navigation .nav-count {
+  display: grid;
+  min-width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-inline-start: auto;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #72edcf;
+  color: #075c57;
+  font-size: 10px;
+  font-weight: 800;
+}
+.app .drawer-navigation .nav-count.alert-badge { background: #ed4352; color: white; }
+.app .drawer-patient-select { flex: 0 0 auto; margin: 5px 2px 10px; color: #b9d1d5; font-size: 10px; }
+.app .drawer-patient-select select { width: 100%; margin-top: 5px; border-color: #ffffff27; background: #ffffff10; color: #eef9f8; }
+.app .drawer-patient-select select option { color: #17383b; }
+.app .sidebar-spacer { flex: 0 0 7px; min-height: 4px; }
+/* Compact utility and identity rows reserve space for navigation. */
+.app .drawer-promo {
+  display: flex;
+  flex: 0 0 44px;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin: 0 1px 6px;
+  padding: 0 10px;
+  border: 1px solid #35d0a04a;
+  border-radius: 10px;
+  background: #087d6d40;
+  color: #f4fbfa;
+  text-align: start;
+  cursor: pointer;
+}
+.app .drawer-promo:hover { background: #0d8c7560; }
+.app .drawer-assistant-icon { display: flex; color: #72edcf; }
+.app .drawer-assistant-robot { width: 34px; height: 34px; display: block; object-fit: cover; border-radius: 8px; }
+.app .drawer-promo b { flex: 1; font-size: 12px; font-weight: 600; }
+.app .drawer-promo-arrow { font-size: 22px; line-height: 1; color: #b5d0d7; }
+.app .drawer-profile {
+  flex: 0 0 40px;
+  gap: 9px;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 0;
+  border-top: 1px solid #ffffff20;
+  border-radius: 0;
+  background: transparent;
+}
+.app .drawer-profile .avatar { width: 28px; height: 28px; flex: 0 0 28px; background: #d0fff0; color: #047660; font-size: 10px; }
+.app .drawer-profile .profile-info { display: flex; flex: 1; min-width: 0; }
+.app .drawer-profile .profile-info b { overflow: hidden; color: #e7f2f2; font-size: 11px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.app .top-signout { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 36px; padding: 0; border: 1px solid #dbe7e2; border-radius: 9px; color: #426b64; cursor: pointer; }
+.app .top-signout:hover { background: #edf5f1; color: #075e50; }
+.app .top-signout:focus-visible,
+.app .drawer-promo:focus-visible { outline: 2px solid #39b994; outline-offset: 3px; }
+.app.drawer-collapsed .sidebar.drawer-shell { flex-basis: 78px; width: 78px; padding-inline: 9px; }
+.app.drawer-collapsed .drawer-brand { justify-content: center; padding-inline: 0; }
+.app.drawer-collapsed .drawer-brand-copy,
+.app.drawer-collapsed .workspace-label,
+.app.drawer-collapsed .drawer-role-copy,
+.app.drawer-collapsed .drawer-group-heading b,
+.app.drawer-collapsed .drawer-group-heading i,
+.app.drawer-collapsed .drawer-link-label,
+.app.drawer-collapsed .drawer-link-chevron,
+.app.drawer-collapsed .drawer-promo b,
+.app.drawer-collapsed .drawer-promo-arrow,
+.app.drawer-collapsed .drawer-profile .profile-info { display: none; }
+.app.drawer-collapsed .drawer-collapse { width: 31px; height: 31px; flex-basis: 31px; margin: 0; font-size: 20px; }
+.app.drawer-collapsed .role-switch.drawer-role-switch { justify-content: center; flex-basis: 46px; height: 46px; gap: 5px; margin-inline: 0; padding: 0; }
+.app.drawer-collapsed .drawer-role-icon { display: none; }
+.app.drawer-collapsed .role-switch.drawer-role-switch .role-dot { position: absolute; inset-block-start: 6px; inset-inline-end: 6px; }
+.app.drawer-collapsed .role-switch.drawer-role-switch select { font-size: 8px; }
+.app.drawer-collapsed .drawer-group-heading { justify-content: center; padding-inline: 0; }
+.app.drawer-collapsed .drawer-group-heading > span { justify-content: center; }
+.app.drawer-collapsed .drawer-navigation .nav-item { justify-content: center; gap: 0; padding-inline: 0; }
+.app.drawer-collapsed .drawer-navigation .nav-icon { width: 24px; flex-basis: 24px; }
+.app.drawer-collapsed .drawer-navigation .nav-count { position: absolute; inset-block-start: 1px; inset-inline-end: 1px; min-width: 17px; height: 17px; padding: 0 3px; font-size: 8px; }
+.app.drawer-collapsed .drawer-profile { justify-content: center; padding-inline: 0; }
+.app.drawer-collapsed .drawer-profile .avatar { width: 28px; height: 28px; flex-basis: 28px; }
+.app.drawer-collapsed .drawer-promo { justify-content: center; padding-inline: 0; }
+@media (min-width: 761px) and (max-width: 1120px) {
+  .app .sidebar.drawer-shell { flex-basis: 280px; width: 280px; }
+  .app.drawer-collapsed .sidebar.drawer-shell { flex-basis: 72px; width: 72px; }
+}
+@media (max-width: 760px) {
+  .app .sidebar.drawer-shell {
+    position: fixed;
+    inset-block: 0;
+    z-index: 20;
+    width: min(326px, 88vw);
+    flex-basis: min(326px, 88vw);
+    min-height: 0;
+    box-shadow: 12px 0 36px #001a2638;
+    transition: transform .22s ease;
+  }
+  .app:not(.rtl) .sidebar.drawer-shell { left: 0; right: auto; transform: translateX(-105%); }
+  .app:not(.rtl) .sidebar.drawer-shell.open { transform: translateX(0); }
+  .app.rtl .sidebar.drawer-shell { right: 0; left: auto; transform: translateX(105%); box-shadow: -12px 0 36px #001a2638; }
+  .app.rtl .sidebar.drawer-shell.open { transform: translateX(0); }
+  .app .sidebar.drawer-shell .drawer-collapse { display: grid; }
+  .app .drawer-brand-copy { display: grid; }
+  .app .sidebar.drawer-shell .drawer-brand { justify-content: flex-start; }
+  .app .sidebar.drawer-shell .drawer-promo { display: flex; }
+  .app .sidebar.drawer-shell .drawer-link-label { display: block; }
+  .app.drawer-collapsed .sidebar.drawer-shell { flex-basis: min(326px, 88vw); width: min(326px, 88vw); padding-inline: 14px; }
+  .app.drawer-collapsed .drawer-brand-copy,
+  .app.drawer-collapsed .workspace-label,
+  .app.drawer-collapsed .drawer-role-copy,
+  .app.drawer-collapsed .drawer-group-heading b,
+  .app.drawer-collapsed .drawer-group-heading i,
+  .app.drawer-collapsed .drawer-link-label,
+  .app.drawer-collapsed .drawer-link-chevron,
+  .app.drawer-collapsed .drawer-promo b,
+  .app.drawer-collapsed .drawer-promo-arrow,
+  .app.drawer-collapsed .drawer-profile .profile-info { display: initial; }
+  .app.drawer-collapsed .drawer-role-copy,
+  .app.drawer-collapsed .drawer-brand-copy,
+  .app.drawer-collapsed .drawer-profile .profile-info { display: flex; }
+  .app.drawer-collapsed .drawer-brand-copy { display: grid; }
+  .app.drawer-collapsed .drawer-promo { display: flex; }
+  .app.drawer-collapsed .drawer-link-label { display: block; }
+  .app .scrim { z-index: 19; }
+}
+
+@media (max-height: 700px) and (min-width: 761px) {
+  .app .workspace-label { display: none; }
+  .app .drawer-role-copy small { display: none; }
+  .app .role-switch.drawer-role-switch { flex-basis: 38px; height: 38px; margin-bottom: 6px; }
+  .app .drawer-navigation { gap: 4px; padding-bottom: 4px; }
+  .app .drawer-group { gap: 0; }
+  .app .drawer-group-heading { min-height: 22px; }
+  .app .drawer-navigation .nav-item { flex-basis: 36px; min-height: 36px; }
+}
+@media (max-width: 760px) {
+  .app .drawer-navigation .nav-item { flex-basis: 44px; min-height: 44px; }
+  .app .top-signout { width: 40px; height: 40px; flex-basis: 40px; }
+}

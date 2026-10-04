@@ -1,0 +1,23 @@
+.patient-care-workspace { display: grid; gap: 18px; min-width: 0; }
+.care-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.care-workspace-heading h1 { display: flex; align-items: center; gap: 10px; margin: 0 0 7px; font-size: 24px; color: #163f43; }
+.care-workspace-heading h1 svg { width: 26px; height: 26px; color: #087c68; }
+.care-workspace-heading p { margin: 0; color: #718582; font-size: 13px; }
+.care-workspace-context { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
+.care-workspace-context label { display: grid; gap: 6px; flex: 1; max-width: 480px; font-size: 12px; color: #5e7775; }
+.care-workspace-context select { width: 100%; min-width: 0; padding: 10px; border: 1px solid #dce7e3; border-radius: 8px; background: white; color: #294e4c; font: inherit; }
+.care-workspace-context > span:not(.patient-avatar) { color: #718582; font-size: 12px; }
+.care-workspace-tabs { display: flex; gap: 6px; padding: 5px; border: 1px solid #dce7e3; border-radius: 11px; background: #edf4f1; }
+.care-workspace-tabs button { display: flex; align-items: center; justify-content: center; gap: 9px; flex: 1; min-height: 44px; padding: 10px 12px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #617c76; font: inherit; font-size: 13px; cursor: pointer; }
+.care-workspace-tabs button[aria-selected=true] { background: white; border-color: #cce2d8; color: #08745f; font-weight: 700; box-shadow: 0 2px 5px #143d3210; }
+.care-workspace-tabs button:focus-visible { outline: 2px solid #07856f; outline-offset: 2px; }
+.patient-care-workspace > [role=tabpanel][hidden] { display: none; }
+.patient-care-workspace .dcp-crumb { display: none; }
+.patient-care-workspace .dcp-heading h2 { margin: 0; font-size: 20px; color: #163f43; }
+.care-workspace-empty { padding: 26px; color: #617c76; }
+.patient-care-workspace .integrated-plan { margin-top: 16px; }
+.page-content.patient-care-page > .page-heading { display: none; }
+@media(max-width:760px) { .care-workspace-heading { align-items: flex-start; flex-direction: column; }.care-workspace-context { flex-wrap: wrap; padding: 14px; }.care-workspace-context label { min-width: 0; }.care-workspace-context > span:not(.patient-avatar) { flex-basis: 100%; }.care-workspace-tabs { gap: 2px; }.care-workspace-tabs button { flex-direction: column; gap: 5px; padding: 8px 4px; font-size: 11px; }.care-workspace-heading h1 { font-size: 21px; } }
+.patient-care-workspace > [role=tabpanel],
+.patient-care-workspace .dcp,
+.patient-care-workspace .dcp > * { min-width: 0; }

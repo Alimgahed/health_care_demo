@@ -1,0 +1,22 @@
+.patient-avatar{position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:42px;height:42px;overflow:hidden;border-radius:50%;background:#e8f1ee;color:#28584f;font-style:normal;font-weight:600;vertical-align:middle}
+.patient-avatar-photo{position:absolute;inset:0;background-image:url('/images/demo-emirati-portraits.png');background-size:400% 400%;background-repeat:no-repeat;border-radius:inherit}
+.patient-avatar.p360-avatar{width:72px;height:72px}
+.patient-avatar.large-avatar{width:64px;height:64px}
+.care-icon{display:inline-block;flex-shrink:0;vertical-align:middle}
+.dr-stat .care-icon,.da-stat .care-icon,.dcp-stat .care-icon{width:24px;height:24px}
+.p360-tabs button .care-icon{width:17px;height:17px;margin-inline-end:6px}
+.doctor-request-context .patient-avatar{float:inline-start;margin-inline-end:14px;width:58px;height:58px}
+.clinical-patient-row .patient-avatar,.assistant-patient-select .patient-avatar{width:52px;height:52px}
+.p360-document-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.p360-document-actions button,.p360-document-actions a{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #ccded8;background:#fff;border-radius:7px;color:#146353;font:inherit;font-size:12px;text-decoration:none;cursor:pointer}
+.p360-document-actions button:focus-visible,.p360-document-actions a:focus-visible{outline:3px solid #248b75;outline-offset:3px}
+.p360-document-entry{border-bottom:1px solid #e5edeb}
+.p360-document-entry .p360-document{border-bottom:0}
+.patient-document-preview{padding:16px;background:#edf3f1;text-align:center}
+.patient-document-preview img{display:block;width:min(100%,620px);height:auto;margin:auto;box-shadow:0 3px 14px #193a4b14}
+.patient-document-preview iframe{display:block;border:0;width:100%;height:640px;background:#fff}
+.patient-document-preview pre{white-space:pre-wrap;overflow-wrap:anywhere;text-align:start;padding:18px;background:#fff}
+.document-demo-note{font-size:12px;line-height:1.7;color:#60766d;margin:12px 20px}
+.clinical-explainer .care-icon{margin-inline-end:8px}
+.dcp-patient-identity{display:flex;gap:10px;align-items:center}
+@media(max-width:700px){.p360-document{flex-wrap:wrap}.p360-document-actions{width:100%;padding-inline-start:48px}.patient-document-preview{padding:8px}.patient-document-preview iframe{height:460px}}
